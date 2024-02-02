@@ -14,6 +14,7 @@ import (
 type UserCtx struct {
 	IsOpen     bool //是否开放认证用户
 	AppCode    string
+	Token      string
 	TenantCode string //租户Code
 	ProjectID  int64  `json:",string"`
 	IsAdmin    bool   //是否是超级管理员
