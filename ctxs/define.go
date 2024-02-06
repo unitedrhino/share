@@ -24,5 +24,5 @@ const (
 var HttpAllowHeader string
 
 func init() {
-	HttpAllowHeader = "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With," + strings.Join(ContextKeys, ",")
+	HttpAllowHeader = "Content-Type, Content-Length,Accept-Language, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With," + strings.Join(ContextKeys, ",")
 }

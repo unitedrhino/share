@@ -26,11 +26,13 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 	} else {
 		//错误返回
 		er := errors.Fmt(err)
+		accept := r.Header.Get("Accept-Language")
+		msg = er.GetI18nMsg(accept)
+
 		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
-			r.URL.Path, utils.Fmt(er))
-		httpx.WriteJson(w, http.StatusBadRequest, Error(er.Code, er.Msg))
+			r.URL.Path, msg)
+		httpx.WriteJson(w, http.StatusBadRequest, Error(er.Code, msg))
 		code = int(er.Code)
-		msg = er.Msg
 	}
 
 	//将接口的应答结果写入r.Response，为操作日志记录接口提供应答信息
@@ -53,6 +55,6 @@ func HttpWithoutWrap(w http.ResponseWriter, r *http.Request, resp any, err error
 		er := errors.Fmt(err)
 		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
 			r.URL.Path, utils.Fmt(er))
-		httpx.WriteJson(w, http.StatusBadRequest, Error(er.Code, er.Msg))
+		httpx.WriteJson(w, http.StatusBadRequest, Error(er.Code, er.GetMsg()))
 	}
 }

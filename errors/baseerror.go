@@ -16,10 +16,10 @@ import (
 )
 
 type CodeError struct {
-	Code    int64    `json:"code"`
-	Msg     string   `json:"msg"`
-	Details []string `json:"details,omitempty"`
-	Stack   []string `json:"stack,omitempty"`
+	Code    int64      `json:"code"`
+	Msg     []I18nImpl `json:"msg"`
+	Details []string   `json:"details,omitempty"`
+	Stack   []string   `json:"stack,omitempty"`
 }
 
 type RpcError interface {
@@ -58,22 +58,22 @@ func ToRpc(err error) error {
 }
 
 func (c CodeError) WithMsg(msg string) *CodeError {
-	c.Msg = msg
+	c.Msg = []I18nImpl{String(msg)}
 	return &c
 }
 
 func (c CodeError) WithMsgf(format string, a ...any) *CodeError {
-	c.Msg = fmt.Sprintf(format, a...)
+	c.Msg = []I18nImpl{Msgf{Format: format, A: a}}
 	return &c
 }
 
 func (c CodeError) AddMsg(msg string) *CodeError {
-	c.Msg = c.Msg + ":" + msg
+	c.Msg = append(c.Msg, String(msg))
 	return &c
 }
 
 func (c CodeError) AddMsgf(format string, a ...any) *CodeError {
-	c.Msg = c.Msg + ":" + fmt.Sprintf(format, a...)
+	c.Msg = append(c.Msg, Msgf{Format: format, A: a})
 	return &c
 }
 
@@ -98,7 +98,7 @@ func (c CodeError) AddDetailf(format string, a ...any) *CodeError {
 
 func (c *CodeError) GetDetailMsg() string {
 	if len(c.Details) == 0 {
-		return c.Msg
+		return c.GetMsg()
 	}
 	return fmt.Sprintf("msg=%s,detail=%v", c.Msg, c.Details)
 }
@@ -112,13 +112,13 @@ func (c *CodeError) GetCode() int64 {
 
 func (c *CodeError) GetMsg() string {
 	if c == nil {
-		return OK.Msg
+		return OK.GetMsg()
 	}
-	return c.Msg
+	return stringMsgs(c.Msg)
 }
 
 func NewCodeError(code int64, msg string) *CodeError {
-	return &CodeError{Code: code, Msg: msg}
+	return &CodeError{Code: code, Msg: []I18nImpl{String(msg)}}
 }
 
 func NewDefaultError(msg string) error {

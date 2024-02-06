@@ -37,6 +37,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.27
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/nats-io/nats.go v1.27.0
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/redis/go-redis/v9 v9.0.4
 	github.com/silenceper/wechat/v2 v2.1.5
 	github.com/sirupsen/logrus v1.9.0
@@ -51,6 +52,7 @@ require (
 	go.uber.org/atomic v1.10.0
 	golang.org/x/exp v0.0.0-20220713135740-79cabaa25d75
 	golang.org/x/net v0.11.0
+	golang.org/x/text v0.14.0
 	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/mysql v1.5.1
@@ -172,7 +174,6 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/term v0.10.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230123190316-2c411cf9d197 // indirect

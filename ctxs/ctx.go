@@ -32,23 +32,30 @@ type InnerCtx struct {
 	AllTenant  bool //所有租户的权限
 }
 
-func NotLoginedInit(r *http.Request) *http.Request {
-	strIP, _ := utils.GetIP(r)
-	appCode := r.Header.Get(UserAppCodeKey)
-	if appCode == "" {
-		appCode = def.AppCore
+func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		uc := GetUserCtx(r.Context())
+		if uc == nil {
+			strIP, _ := utils.GetIP(r)
+			appCode := r.Header.Get(UserAppCodeKey)
+			if appCode == "" {
+				appCode = def.AppCore
+			}
+			tenantCode := r.Header.Get(UserTenantCodeKey)
+			if tenantCode == "" {
+				tenantCode = def.TenantCodeDefault
+			}
+			uc = &UserCtx{
+				AppCode:    appCode,
+				TenantCode: tenantCode,
+				IP:         strIP,
+				Os:         r.Header.Get("User-Agent"),
+			}
+			c := context.WithValue(r.Context(), UserInfoKey, uc)
+			r = r.WithContext(c)
+		}
+		next(w, r)
 	}
-	tenantCode := r.Header.Get(UserTenantCodeKey)
-	if tenantCode == "" {
-		tenantCode = def.TenantCodeDefault
-	}
-	c := context.WithValue(r.Context(), UserInfoKey, &UserCtx{
-		AppCode:    appCode,
-		TenantCode: tenantCode,
-		IP:         strIP,
-		Os:         r.Header.Get("User-Agent"),
-	})
-	return r.WithContext(c)
 }
 
 func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
