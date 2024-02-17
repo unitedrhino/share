@@ -115,7 +115,7 @@ func (ng *engine) buildChainWithNativeMiddlewares(fr featuredRoutes, route rest.
 		chn = chn.Append(ng.getLogHandler())
 	}
 	if ng.conf.Middlewares.Prometheus {
-		chn = chn.Append(handler.PrometheusHandler(route.Path))
+		chn = chn.Append(handler.PrometheusHandler(route.Path, route.Method))
 	}
 	if ng.conf.Middlewares.MaxConns {
 		chn = chn.Append(handler.MaxConnsHandler(ng.conf.MaxConns))
