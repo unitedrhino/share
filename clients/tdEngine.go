@@ -91,7 +91,7 @@ func (t *Td) asyncInsertRuntime() {
 
 }
 
-func (t *Td) AsyncInsert(query string, args []any) {
+func (t *Td) AsyncInsert(query string, args ...any) {
 	insertChan <- def.ExecArgs{
 		Query: query,
 		Args:  args,
