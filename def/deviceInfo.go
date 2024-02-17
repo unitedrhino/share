@@ -30,3 +30,8 @@ const (
 	DeviceStatusOnline   DeviceStatus = 1 //在线
 	DeviceStatusOffline  DeviceStatus = 2 //离线
 )
+
+const (
+	ConnectedStatus    = "connected"
+	DisConnectedStatus = "disconnected"
+)
