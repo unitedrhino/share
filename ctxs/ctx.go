@@ -6,23 +6,23 @@ import (
 	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/utils"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"net/http"
 )
 
 type UserCtx struct {
-	IsOpen     bool //是否开放认证用户
-	AppCode    string
-	Token      string
-	TenantCode string //租户Code
-	ProjectID  int64  `json:",string"`
-	IsAdmin    bool   //是否是超级管理员
-	UserID     int64  `json:",string"` //用户id（开放认证用户值为0）
-	RoleID     int64  //用户使用的角色（开放认证用户值为0）
-	IsAllData  bool   //是否所有数据权限（开放认证用户值为true）
-	IP         string //用户的ip地址
-	Os         string //操作系统
+	IsOpen         bool //是否开放认证用户
+	AppCode        string
+	Token          string
+	TenantCode     string //租户Code
+	AcceptLanguage string
+	ProjectID      int64  `json:",string"`
+	IsAdmin        bool   //是否是超级管理员
+	UserID         int64  `json:",string"` //用户id（开放认证用户值为0）
+	RoleID         int64  //用户使用的角色（开放认证用户值为0）
+	IsAllData      bool   //是否所有数据权限（开放认证用户值为true）
+	IP             string //用户的ip地址
+	Os             string //操作系统
 	InnerCtx
 }
 
@@ -46,13 +46,17 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				tenantCode = def.TenantCodeDefault
 			}
 			uc = &UserCtx{
-				AppCode:    appCode,
-				TenantCode: tenantCode,
-				IP:         strIP,
-				Os:         r.Header.Get("User-Agent"),
+				AppCode:        appCode,
+				TenantCode:     tenantCode,
+				IP:             strIP,
+				Os:             r.Header.Get("User-Agent"),
+				AcceptLanguage: r.Header.Get("Accept-Language"),
 			}
 			c := context.WithValue(r.Context(), UserInfoKey, uc)
 			r = r.WithContext(c)
+		} else {
+			uc.Os = r.Header.Get("User-Agent")
+			uc.AcceptLanguage = r.Header.Get("Accept-Language")
 		}
 		next(w, r)
 	}
@@ -89,26 +93,6 @@ func GetUserCtx(ctx context.Context) *UserCtx {
 		return nil
 	}
 	return val
-}
-
-func GrpcInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-	ctx = func() context.Context {
-		md, ok := metadata.FromIncomingContext(ctx)
-		if !ok {
-			return ctx
-		}
-		info := md[UserInfoKey]
-		if len(info) == 0 {
-			return ctx
-		}
-		var val UserCtx
-		if err := json.Unmarshal([]byte(info[0]), &val); err != nil {
-			return ctx
-		}
-		return SetUserCtx(ctx, &val)
-	}()
-	resp, err := handler(ctx, req)
-	return resp, err
 }
 
 func IsRoot(ctx context.Context) error {

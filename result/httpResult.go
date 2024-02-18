@@ -3,6 +3,7 @@ package result
 import (
 	"bytes"
 	"encoding/json"
+	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/utils"
 	"io/ioutil"
@@ -26,8 +27,8 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 	} else {
 		//错误返回
 		er := errors.Fmt(err)
-		accept := r.Header.Get("Accept-Language")
-		msg = er.GetI18nMsg(accept)
+
+		msg = er.GetI18nMsg(ctxs.GetUserCtx(r.Context()).AcceptLanguage)
 
 		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
 			r.URL.Path, msg)

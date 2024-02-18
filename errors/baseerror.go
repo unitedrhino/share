@@ -1,13 +1,11 @@
 package errors
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/dop251/goja"
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"os"
@@ -17,7 +15,8 @@ import (
 
 type CodeError struct {
 	Code    int64      `json:"code"`
-	Msg     []I18nImpl `json:"msg"`
+	Msg     []I18nImpl `json:"-"`
+	MsgStr  string     `json:"msg"`
 	Details []string   `json:"details,omitempty"`
 	Stack   []string   `json:"stack,omitempty"`
 }
@@ -31,7 +30,7 @@ type RpcError interface {
 //	return s.Err()
 //}
 
-func (c CodeError) ToRpc() error {
+func (c CodeError) ToRpc(accept string) error {
 	code := codes.Unknown
 	switch c.Code {
 	case Failure.Code: //失败需要回滚
@@ -39,11 +38,12 @@ func (c CodeError) ToRpc() error {
 	case OnGoing.Code: //任务还在执行中
 		code = codes.FailedPrecondition
 	}
+	c.MsgStr = c.GetI18nMsg(accept)
 	s := status.New(code, c.Error())
 	return s.Err()
 }
 
-func ToRpc(err error) error {
+func ToRpc(err error, accept string) error {
 	if err == nil {
 		return err
 	}
@@ -51,9 +51,9 @@ func ToRpc(err error) error {
 	case RpcError:
 		return err
 	case *CodeError:
-		return err.(*CodeError).ToRpc()
+		return err.(*CodeError).ToRpc(accept)
 	default:
-		return Fmt(err).ToRpc()
+		return Fmt(err).ToRpc(accept)
 	}
 }
 
@@ -147,6 +147,7 @@ func Fmt(errs error) *CodeError {
 		}
 		var ret CodeError
 		err := json.Unmarshal([]byte(s.Message()), &ret)
+		ret.Msg = []I18nImpl{String(ret.MsgStr)}
 		if err != nil {
 			return System.AddDetail(err)
 		}
@@ -162,17 +163,6 @@ func Fmt(errs error) *CodeError {
 		}
 		return Default.AddDetail(errs)
 	}
-}
-
-func ErrorInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-	resp, err := handler(ctx, req)
-	if err != nil {
-		logx.WithContext(ctx).Errorf("err=%s", Fmt(err).Error())
-	} else {
-		logx.WithContext(ctx).Infof("resp=%+v", resp)
-	}
-	err = ToRpc(err)
-	return resp, err
 }
 
 func Cmp(err1 error, err2 error) bool {
