@@ -6,4 +6,6 @@ const (
 	DmProductInfoDelete   = "server.things.dm.product.info.delete"
 	DmProductCustomUpdate = "server.things.dm.product.custom.update" //产品脚本有更新
 	DmProductSchemaUpdate = "server.things.dm.product.schema.update" //物模型有更新
+
+	UdRuleTiming = "server.things.ud.rule.timing"
 )

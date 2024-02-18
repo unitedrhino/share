@@ -127,6 +127,7 @@ func NewDefaultError(msg string) error {
 
 func (c CodeError) Error() string {
 	c.Stack = nil
+	c.MsgStr = c.GetI18nMsg("")
 	ret, _ := json.Marshal(c)
 	return string(ret)
 }

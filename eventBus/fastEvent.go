@@ -14,15 +14,17 @@ import (
 服务消息,不需要模糊匹配的,发送给所有订阅者的可以用这个来简化实现
 */
 
-type ServerMsg struct {
-	natsCli  *clients.NatsClient
-	handlers map[string][]ServerFunc
+type FastEvent struct {
+	natsCli       *clients.NatsClient
+	handlers      map[string][]FastFunc
+	queueHandlers map[string][]FastFunc
+	serverName    string
 }
 
-type ServerFunc func(ctx context.Context, body []byte) error
+type FastFunc func(ctx context.Context, body []byte) error
 
-func NewServerMsg(c conf.EventConf, serverName string) (s *ServerMsg, err error) {
-	serverMsg := ServerMsg{handlers: map[string][]ServerFunc{}}
+func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error) {
+	serverMsg := FastEvent{handlers: map[string][]FastFunc{}, queueHandlers: map[string][]FastFunc{}, serverName: serverName}
 	switch c.Mode {
 	case conf.EventModeNats, conf.EventModeNatsJs:
 		serverMsg.natsCli, err = clients.NewNatsClient2(c.Mode, serverName, c.Nats)
@@ -31,7 +33,7 @@ func NewServerMsg(c conf.EventConf, serverName string) (s *ServerMsg, err error)
 	}
 	return &serverMsg, err
 }
-func (bus *ServerMsg) Start() error {
+func (bus *FastEvent) Start() error {
 	for topic, handles := range bus.handlers {
 		err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
 			ctx = utils.CopyContext(ctx)
@@ -49,23 +51,51 @@ func (bus *ServerMsg) Start() error {
 			return err
 		}
 	}
+	for topic, handles := range bus.queueHandlers {
+		err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+			ctx = utils.CopyContext(ctx)
+			for _, f := range handles {
+				run := f
+				utils.Go(ctx, func() {
+					err := run(ctx, msg)
+					if err != nil {
+						logx.WithContext(ctx).Error(err)
+					}
+				})
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 // Subscribe 订阅
-func (bus *ServerMsg) Subscribe(topic string, f ServerFunc) {
+func (bus *FastEvent) Subscribe(topic string, f FastFunc) {
 	handler, ok := bus.handlers[topic]
 	if !ok {
-		handler = []ServerFunc{}
+		handler = []FastFunc{}
 	}
 	handler = append(handler, f)
 	bus.handlers[topic] = handler
 	return
 }
 
+func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) {
+	handler, ok := bus.queueHandlers[topic]
+	if !ok {
+		handler = []FastFunc{}
+	}
+	handler = append(handler, f)
+	bus.queueHandlers[topic] = handler
+	return
+}
+
 // Publish 发布
 // 这里异步执行，并且不会等待返回结果
-func (bus *ServerMsg) Publish(ctx context.Context, topic string, arg any) error {
+func (bus *FastEvent) Publish(ctx context.Context, topic string, arg any) error {
 	err := bus.natsCli.Publish(topic, []byte(utils.Fmt(arg)))
 	return err
 }
