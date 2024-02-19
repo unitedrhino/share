@@ -135,3 +135,8 @@ func GetDiffDays(t1 time.Time, t2 time.Time) int {
 
 	return int(t1.Sub(t2).Hours() / 24)
 }
+
+// 获取当天时间 从0点加起来的秒数 如 1点就是 1*60*60
+func TimeToDaySec(in time.Time) int64 {
+	return int64(in.Hour()*60*60 + in.Minute()*60 + in.Second())
+}

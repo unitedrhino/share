@@ -13,6 +13,25 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
+func HttpErr(w http.ResponseWriter, r *http.Request, httpCode int, err error) {
+	var code int
+	var msg string
+	//错误返回
+	er := errors.Fmt(err)
+
+	msg = er.GetI18nMsg(ctxs.GetUserCtx(r.Context()).AcceptLanguage)
+
+	logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
+		r.URL.Path, msg)
+	httpx.WriteJson(w, httpCode, Error(er.Code, msg))
+	code = int(er.Code)
+	//将接口的应答结果写入r.Response，为操作日志记录接口提供应答信息
+	var temp http.Response
+	temp.StatusCode = code
+	temp.Status = msg
+	r.Response = &temp
+}
+
 // Http http返回
 func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 	var code int
@@ -43,7 +62,6 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 	temp.Status = msg
 	temp.Body = ioutil.NopCloser(bytes.NewReader(bs))
 	r.Response = &temp
-
 }
 
 // HttpWithoutWrap http返回，无包装

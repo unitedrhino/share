@@ -76,7 +76,7 @@ func (p *PageInfo) GetOrders() (arr []string) {
 }
 func (p *PageInfo) ToGorm(db *gorm.DB) *gorm.DB {
 	if p == nil {
-		return db
+		return db.Order("created_time desc")
 	}
 	db = db.Offset(int(p.GetOffset())).Limit(int(p.GetLimit()))
 	if len(p.Orders) != 0 {

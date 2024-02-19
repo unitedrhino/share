@@ -1,7 +1,6 @@
 package stores
 
 import (
-	"database/sql"
 	"gitee.com/i-Things/share/ctxs"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -12,11 +11,10 @@ import (
 )
 
 type Time struct {
-	CreatedTime time.Time    `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
-	UpdatedTime time.Time    `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
-	DeletedTime sql.NullTime `gorm:"column:deleted_time"`
-	CreatedBy   CreatedBy    `gorm:"column:created_by"`
-	UpdatedBy   UpdatedBy    `gorm:"column:updated_by"`
+	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
+	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
+	CreatedBy   CreatedBy `gorm:"column:created_by"`
+	UpdatedBy   UpdatedBy `gorm:"column:updated_by"`
 }
 
 type NoDelTime struct {
