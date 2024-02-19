@@ -41,6 +41,10 @@ func GetTenant(ctx context.Context, code string) (*tenant.Info, error) {
 	return &ret, nil
 }
 
+func GetTenantCodes(ctx context.Context) ([]string, error) {
+	return store.HkeysCtx(ctx, genTenantKey())
+}
+
 func DoToTenantMap(tenants ...*tenant.Info) map[string]string {
 	var ret = map[string]string{}
 	for _, v := range tenants {

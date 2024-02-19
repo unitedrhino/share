@@ -3,6 +3,7 @@ package stores
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type CmpType string
@@ -60,6 +61,33 @@ func CmpBinEq(bit int64, isHigh int64) *Cmp {
 	return &Cmp{toSqlFunc: func(column string) string {
 		return fmt.Sprintf("(%s >> %d) & 1 = ?", column, bit)
 	}, Value: isHigh}
+}
+func CmpAnd(cs ...*Cmp) *Cmp {
+	var values []any
+	for _, v := range cs {
+		values = append(values, v.ToValues()...)
+	}
+	return &Cmp{Value: values, toSqlFunc: func(column string) string {
+		var sqls []string
+		for _, v := range cs {
+			sqls = append(sqls, v.ToSql(column))
+		}
+		return strings.Join(sqls, " and ")
+	}}
+}
+
+func CmpOr(cs ...*Cmp) *Cmp {
+	var values []any
+	for _, v := range cs {
+		values = append(values, v.ToValues()...)
+	}
+	return &Cmp{Value: values, toSqlFunc: func(column string) string {
+		var sqls []string
+		for _, v := range cs {
+			sqls = append(sqls, v.ToSql(column))
+		}
+		return strings.Join(sqls, " or ")
+	}}
 }
 
 // 大于=? 小于等于? 在xx之间

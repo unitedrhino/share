@@ -62,6 +62,23 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func BindTenantCode(ctx context.Context, tenantCode string) context.Context {
+	uc := GetUserCtx(ctx)
+	if uc == nil {
+		if tenantCode == "" {
+			tenantCode = def.TenantCodeDefault
+		}
+		uc = &UserCtx{
+			TenantCode: tenantCode,
+		}
+		ctx = context.WithValue(ctx, UserInfoKey, uc)
+
+	} else {
+		uc.TenantCode = tenantCode
+	}
+	return ctx
+}
+
 func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
 	info, _ := json.Marshal(userCtx)
 	ctx = metadata.NewOutgoingContext(context.Background(), metadata.Pairs(

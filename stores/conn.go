@@ -7,6 +7,7 @@ import (
 	"gitee.com/i-Things/share/conf"
 	"github.com/dtm-labs/client/dtmgrpc"
 	"github.com/glebarez/sqlite"
+	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -52,12 +53,29 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 	return
 }
 
+const (
+	dbCtxDebugKey = "db.debug.type"
+)
+
+func SetIsDebug(ctx context.Context, isDebug bool) context.Context {
+	return context.WithValue(ctx, dbCtxDebugKey, isDebug)
+}
+
+func WithNoDebug[t any](ctx context.Context, f func(in any) t) t {
+	ctx = SetIsDebug(ctx, false)
+	return f(ctx)
+}
+
 // 获取租户连接  传入context或db连接 如果传入的是db连接则直接返回db
 func GetTenantConn(in any) *gorm.DB {
 	if db, ok := in.(*gorm.DB); ok {
 		return db
 	}
-	return commonConn.WithContext(in.(context.Context)).Debug()
+	ctx := in.(context.Context)
+	if val := ctx.Value(dbCtxDebugKey); val != nil && cast.ToBool(val) == false { //不打印日志
+		return commonConn.WithContext(ctx)
+	}
+	return commonConn.WithContext(ctx).Debug()
 }
 
 // 获取公共连接 传入context或db连接 如果传入的是db连接则直接返回db
@@ -65,10 +83,11 @@ func GetCommonConn(in any) *gorm.DB {
 	if db, ok := in.(*gorm.DB); ok {
 		return db
 	}
-	if in == nil {
-		return commonConn.Debug()
+	ctx := in.(context.Context)
+	if val := ctx.Value(dbCtxDebugKey); val != nil && cast.ToBool(val) == false { //不打印日志
+		return commonConn.WithContext(ctx)
 	}
-	return commonConn.WithContext(in.(context.Context)).Debug()
+	return commonConn.WithContext(ctx).Debug()
 }
 
 // 屏障分布式事务
