@@ -46,6 +46,17 @@ func CmpGte(value any) *Cmp {
 func CmpLt(value any) *Cmp {
 	return &Cmp{toSqlFunc: defaultToSql(CmpTypeLt), Value: value}
 }
+
+// 是否是null
+func CmpIsNull(isNull bool) *Cmp {
+	return &Cmp{toSqlFunc: func(column string) string {
+		var isNullStr = "null"
+		if isNull == false {
+			isNullStr = "not null"
+		}
+		return fmt.Sprintf("%s is %s", column, isNullStr)
+	}}
+}
 func CmpLte(value any) *Cmp {
 	return &Cmp{toSqlFunc: defaultToSql(CmpTypeLte), Value: value}
 }
@@ -107,6 +118,8 @@ func (g *Cmp) ToValues() []any {
 	switch g.Value.(type) {
 	case []any:
 		return g.Value.([]any)
+	case nil:
+		return nil
 	default:
 		return []any{g.Value}
 	}

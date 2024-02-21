@@ -2,22 +2,30 @@ package ctxs
 
 import (
 	"context"
+	"gitee.com/i-Things/share/utils"
 	"go.opentelemetry.io/otel/trace"
 	"time"
 )
 
-var ContextKeys = []string{UserInfoKey, UserTokenKey, UserSetTokenKey, UserRoleKey, MetadataKey, UserAppCodeKey, UserTenantCodeKey}
+var ContextKeys = []string{UserTokenKey, UserSetTokenKey, UserRoleKey, MetadataKey, UserAppCodeKey, UserTenantCodeKey}
 
-func CopyContext(ctx context.Context) context.Context {
-	newCtx := context.Background()
+func CopyCtx(ctx context.Context) context.Context {
+	newCtx := NewUserCtx(ctx)
 	newCtx = trace.ContextWithSpanContext(newCtx, trace.SpanContextFromContext(ctx))
 	for _, k := range ContextKeys {
 		if v := ctx.Value(k); v != nil {
 			newCtx = context.WithValue(newCtx, k, v)
 		}
 	}
-	newCtx = SetUserCtx(newCtx, GetUserCtx(ctx))
 	return newCtx
+}
+
+func GoNewCtx(ctx context.Context, f func(ctx2 context.Context)) {
+	ctx = CopyCtx(ctx)
+	go func() {
+		defer utils.Recover(ctx)
+		f(ctx)
+	}()
 }
 
 func GetDeadLine(ctx context.Context, defaultDeadLine time.Time) time.Time {

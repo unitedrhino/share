@@ -30,7 +30,7 @@ type SoftTime struct {
 	CreatedBy   CreatedBy   `gorm:"column:created_by"`
 	UpdatedTime time.Time   `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
 	UpdatedBy   UpdatedBy   `gorm:"column:updated_by"`
-	DeletedTime DeletedTime `gorm:"column:deleted_time;index"`
+	DeletedTime DeletedTime `gorm:"column:deleted_time;index;default:0"`
 	DeletedBy   DeletedBy   `gorm:"column:deleted_by"`
 }
 

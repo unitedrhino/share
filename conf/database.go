@@ -9,7 +9,8 @@ const (
 type Database struct {
 	DBType      string `json:",default=mysql,options=mysql|pgsql"` //
 	IsInitTable bool   `json:",default=true"`
-	DSN         string `json:""` //dsn
+	//IsInitTable bool   `json:",default=false"`
+	DSN string `json:""` //dsn
 }
 
 // 时序数据库（Time Series Database）

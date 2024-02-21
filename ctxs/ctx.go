@@ -112,6 +112,16 @@ func GetUserCtx(ctx context.Context) *UserCtx {
 	return val
 }
 
+func NewUserCtx(ctx context.Context) context.Context {
+	val, ok := ctx.Value(UserInfoKey).(*UserCtx)
+	if !ok { //这里线上不能获取不到
+		return ctx
+	}
+	var newUc UserCtx
+	newUc = *val
+	return context.WithValue(ctx, UserInfoKey, &newUc)
+}
+
 func IsRoot(ctx context.Context) error {
 	uc := GetUserCtx(ctx)
 	if uc == nil || uc.TenantCode != def.TenantCodeDefault {

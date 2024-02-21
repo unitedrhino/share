@@ -4,6 +4,7 @@ import (
 	"context"
 	"gitee.com/i-Things/share/clients"
 	"gitee.com/i-Things/share/conf"
+	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/utils"
 	"github.com/nats-io/nats.go"
@@ -36,7 +37,7 @@ func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error)
 func (bus *FastEvent) Start() error {
 	for topic, handles := range bus.handlers {
 		err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
-			ctx = utils.CopyContext(ctx)
+			ctx = ctxs.CopyCtx(ctx)
 			for _, f := range handles {
 				utils.Go(ctx, func() {
 					err := f(ctx, msg)
@@ -53,7 +54,7 @@ func (bus *FastEvent) Start() error {
 	}
 	for topic, handles := range bus.queueHandlers {
 		err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
-			ctx = utils.CopyContext(ctx)
+			ctx = ctxs.CopyCtx(ctx)
 			for _, f := range handles {
 				run := f
 				utils.Go(ctx, func() {

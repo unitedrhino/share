@@ -27,10 +27,3 @@ func Go(ctx context.Context, f func()) {
 		f()
 	}()
 }
-func GoNewCtx(ctx context.Context, f func(ctx2 context.Context)) {
-	ctx = CopyContext(ctx)
-	go func() {
-		defer Recover(ctx)
-		f(ctx)
-	}()
-}

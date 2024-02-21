@@ -3,6 +3,7 @@ package eventBus
 import (
 	"context"
 	"fmt"
+	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/utils"
 	"github.com/zeromicro/go-zero/core/logx"
 	"reflect"
@@ -56,7 +57,7 @@ func (bus *AsyncEventBus) Publish(ctx context.Context, topic string, args ...int
 		logx.WithContext(ctx).Debugf("Publish not found handlers in topic:", topic)
 		return
 	}
-	ctx = utils.CopyContext(ctx)
+	ctx = ctxs.CopyCtx(ctx)
 	params := make([]reflect.Value, len(args)+1)
 	params[0] = reflect.ValueOf(ctx)
 	for i, arg := range args {

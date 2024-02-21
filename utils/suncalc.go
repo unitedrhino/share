@@ -61,6 +61,38 @@ func sunCoords(d float64) (float64, float64) {
 	return declination(l, 0), rightAscension(l, 0)
 }
 
+/*以下是ai修正的代码
+const rad = math.Pi / 180
+const daySec = 60 * 60 * 24
+const j1970 = 2440588.0
+const j2000 = 2451545.0
+const e = rad * 23.4397
+const j0 = 0.0009
+
+// 修改 julianCycle 函数，增加几个常数参数
+func julianCycle(d, lw float64, n int) float64 {
+	return math.Floor(d - j0 + (lw / (2 * math.Pi)) + 0.5 + float64(n))
+}
+
+// 修改 approxTransit 函数，增加几个常数参数
+func approxTransit(ht, lw, n int) float64 {
+	return j0 + (ht + lw)/(2*math.Pi) + float64(n)
+}
+
+// 修改 solarTransitJ 函数，修改计算方式
+func solarTransitJ(ds, ma, l float64) float64 {
+	return j2000 + ds + 0.0053*math.Sin(ma) - 0.0069*math.Sin(2*l)
+}
+
+// 修改 getSetJ 函数，增加几个常数参数
+func getSetJ(h, lw, phi, dec, n, m, l float64) float64 {
+	w := hourAngle(h, phi, dec)
+	a := approxTransit(w, lw, int(n))
+	return solarTransitJ(a, m, l)
+}
+
+*/
+
 // returns sun's azimuth and altitude given time and latitude/longitude
 
 func SunPosition(t time.Time, lat, lng float64) (float64, float64) {
