@@ -26,6 +26,11 @@ type UserCtx struct {
 	InnerCtx
 }
 
+func (u *UserCtx) ClearInner() *UserCtx {
+	u.InnerCtx = InnerCtx{}
+	return u
+}
+
 type InnerCtx struct {
 	AllProject bool
 	AllArea    bool //内部使用,不限制区域
@@ -79,9 +84,20 @@ func BindTenantCode(ctx context.Context, tenantCode string) context.Context {
 	return ctx
 }
 
+func UpdateUserCtx(ctx context.Context) context.Context {
+	uc := GetUserCtx(ctx)
+	if uc == nil {
+		return ctx
+	}
+	return SetUserCtx(ctx, uc)
+}
+
 func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
+	if userCtx == nil {
+		return ctx
+	}
 	info, _ := json.Marshal(userCtx)
-	ctx = metadata.NewOutgoingContext(context.Background(), metadata.Pairs(
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs(
 		UserInfoKey, string(info),
 	))
 	return context.WithValue(ctx, UserInfoKey, userCtx)
@@ -110,6 +126,22 @@ func GetUserCtx(ctx context.Context) *UserCtx {
 		return nil
 	}
 	return val
+}
+
+func GetUserCtxNoNil(ctx context.Context) *UserCtx {
+	val, ok := ctx.Value(UserInfoKey).(*UserCtx)
+	if !ok { //这里线上不能获取不到
+		return &UserCtx{}
+	}
+	return val
+}
+func WithRoot(ctx context.Context) context.Context {
+	uc := GetUserCtxNoNil(ctx)
+	uc.TenantCode = def.TenantCodeDefault //只有default租户有root权限去读其他租户的数据
+	uc.AllTenant = true
+	uc.AllProject = true
+	uc.AllArea = true
+	return SetUserCtx(ctx, uc)
 }
 
 func NewUserCtx(ctx context.Context) context.Context {

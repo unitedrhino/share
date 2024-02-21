@@ -17,6 +17,11 @@ type Time struct {
 	UpdatedBy   UpdatedBy `gorm:"column:updated_by"`
 }
 
+type OnlyTime struct {
+	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
+	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
+}
+
 type NoDelTime struct {
 	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
 	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`

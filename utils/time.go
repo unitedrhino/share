@@ -140,3 +140,15 @@ func GetDiffDays(t1 time.Time, t2 time.Time) int {
 func TimeToDaySec(in time.Time) int64 {
 	return int64(in.Hour()*60*60 + in.Minute()*60 + in.Second())
 }
+
+func ParseDaySec(in int64) (hour int64, minute int64, second int64) {
+	hour = in / (60 * 60)
+	minute = (in - hour*60*60) / 60
+	second = in - hour*60*60 - minute*60
+	return
+}
+func DaySecToTime(t time.Time, in int64) time.Time {
+	year, month, day := t.Date()
+	hour, minute, second := ParseDaySec(in)
+	return time.Date(year, month, day, int(hour), int(minute), int(second), 0, time.Local)
+}

@@ -47,7 +47,7 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 		//错误返回
 		er := errors.Fmt(err)
 
-		msg = er.GetI18nMsg(ctxs.GetUserCtx(r.Context()).AcceptLanguage)
+		msg = er.GetI18nMsg(ctxs.GetUserCtxNoNil(r.Context()).AcceptLanguage)
 
 		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
 			r.URL.Path, msg)

@@ -6,9 +6,11 @@ import (
 	"gitee.com/i-Things/share/conf"
 	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/errors"
+	"gitee.com/i-Things/share/events"
 	"gitee.com/i-Things/share/utils"
 	"github.com/nats-io/nats.go"
 	"github.com/zeromicro/go-zero/core/logx"
+	"time"
 )
 
 /*
@@ -22,7 +24,7 @@ type FastEvent struct {
 	serverName    string
 }
 
-type FastFunc func(ctx context.Context, body []byte) error
+type FastFunc func(ctx context.Context, t time.Time, body []byte) error
 
 func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error) {
 	serverMsg := FastEvent{handlers: map[string][]FastFunc{}, queueHandlers: map[string][]FastFunc{}, serverName: serverName}
@@ -40,7 +42,7 @@ func (bus *FastEvent) Start() error {
 			ctx = ctxs.CopyCtx(ctx)
 			for _, f := range handles {
 				utils.Go(ctx, func() {
-					err := f(ctx, msg)
+					err := f(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
 					if err != nil {
 						logx.WithContext(ctx).Error(err)
 					}
@@ -58,7 +60,7 @@ func (bus *FastEvent) Start() error {
 			for _, f := range handles {
 				run := f
 				utils.Go(ctx, func() {
-					err := run(ctx, msg)
+					err := run(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
 					if err != nil {
 						logx.WithContext(ctx).Error(err)
 					}

@@ -57,9 +57,17 @@ func CmpIsNull(isNull bool) *Cmp {
 		return fmt.Sprintf("%s is %s", column, isNullStr)
 	}}
 }
+
+func CmpEqColumn(c CmpType, columnLeft string) *Cmp {
+	return &Cmp{toSqlFunc: func(column string) string {
+		return fmt.Sprintf("%s %s %s", columnLeft, c, column)
+	}}
+}
+
 func CmpLte(value any) *Cmp {
 	return &Cmp{toSqlFunc: defaultToSql(CmpTypeLte), Value: value}
 }
+
 func CmpIn(values ...any) *Cmp {
 	if len(values) == 0 {
 		return nil
@@ -73,6 +81,7 @@ func CmpBinEq(bit int64, isHigh int64) *Cmp {
 		return fmt.Sprintf("(%s >> %d) & 1 = ?", column, bit)
 	}, Value: isHigh}
 }
+
 func CmpAnd(cs ...*Cmp) *Cmp {
 	var values []any
 	for _, v := range cs {

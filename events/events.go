@@ -3,6 +3,7 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"gitee.com/i-Things/share/ctxs"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.opentelemetry.io/otel/trace"
 	"time"
@@ -16,9 +17,10 @@ type (
 	// MsgHead 消息队列的头
 	//todo 后续考虑用proto重构这个头
 	MsgHead struct {
-		Trace     []byte `json:"trace"`     //追踪tid
-		Timestamp int64  `json:"timestamp"` //发送时毫秒级时间戳
-		Data      string `json:"data"`      //传送的内容
+		Trace     []byte        `json:"trace"`     //追踪tid
+		Timestamp int64         `json:"timestamp"` //发送时毫秒级时间戳
+		Data      string        `json:"data"`      //传送的内容
+		UserCtx   *ctxs.UserCtx `json:"userCtx"`
 	}
 
 	EventHandle interface {
@@ -37,6 +39,7 @@ func NewEventMsg(ctx context.Context, data []byte) []byte {
 		Trace:     traceinfo,
 		Timestamp: time.Now().UnixMilli(),
 		Data:      string(data),
+		UserCtx:   ctxs.GetUserCtx(ctx).ClearInner(),
 	}
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
@@ -77,8 +80,8 @@ func (m *MsgHead) GetCtx() context.Context {
 		SpanID:     s,
 		TraceFlags: 0x1,
 	})
-
-	return trace.ContextWithRemoteSpanContext(context.Background(), parent)
+	ctx := trace.ContextWithRemoteSpanContext(context.Background(), parent)
+	return ctxs.SetUserCtx(ctx, m.UserCtx)
 }
 
 func (m *MsgHead) GetTs() time.Time {
