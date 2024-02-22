@@ -27,6 +27,9 @@ type UserCtx struct {
 }
 
 func (u *UserCtx) ClearInner() *UserCtx {
+	if u == nil {
+		return u
+	}
 	u.InnerCtx = InnerCtx{}
 	return u
 }

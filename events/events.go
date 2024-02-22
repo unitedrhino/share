@@ -17,10 +17,10 @@ type (
 	// MsgHead 消息队列的头
 	//todo 后续考虑用proto重构这个头
 	MsgHead struct {
-		Trace     []byte        `json:"trace"`     //追踪tid
-		Timestamp int64         `json:"timestamp"` //发送时毫秒级时间戳
-		Data      string        `json:"data"`      //传送的内容
-		UserCtx   *ctxs.UserCtx `json:"userCtx"`
+		Trace     string        `json:"trace"`          //追踪tid
+		Timestamp int64         `json:"timestamp"`      //发送时毫秒级时间戳
+		Data      string        `json:"data,omitempty"` //传送的内容
+		UserCtx   *ctxs.UserCtx `json:"userCtx,omitempty"`
 	}
 
 	EventHandle interface {
@@ -36,7 +36,7 @@ func NewEventMsg(ctx context.Context, data []byte) []byte {
 	traceinfo, _ := span.SpanContext().MarshalJSON()
 
 	msg := MsgHead{
-		Trace:     traceinfo,
+		Trace:     string(traceinfo),
 		Timestamp: time.Now().UnixMilli(),
 		Data:      string(data),
 		UserCtx:   ctxs.GetUserCtx(ctx).ClearInner(),
@@ -59,7 +59,7 @@ func GetEventMsg(data []byte) EventHandle {
 
 func (m *MsgHead) GetCtx() context.Context {
 	var msg MySpanContextConfig
-	err := json.Unmarshal(m.Trace, &msg)
+	err := json.Unmarshal([]byte(m.Trace), &msg)
 	if err != nil {
 		logx.Errorf("[GetCtx]|json Unmarshal trace.SpanContextConfig err:%v", err)
 		return nil

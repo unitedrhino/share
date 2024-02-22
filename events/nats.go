@@ -28,7 +28,10 @@ func NatsSubWithType[msgType any](handle func(ctx context.Context, msgIn msgType
 
 func NatsSubscription(handle HandleFunc) func(msg *nats.Msg) {
 	return func(msg *nats.Msg) {
-		msg.Ack()
+		err := msg.Ack()
+		if err != nil {
+			logx.Error(err)
+		}
 		utils.Go(context.Background(), func() {
 			var ctx context.Context
 			utils.Recover(ctx)
