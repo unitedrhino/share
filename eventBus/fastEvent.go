@@ -38,9 +38,10 @@ func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error)
 }
 func (bus *FastEvent) Start() error {
 	for topic, handles := range bus.handlers {
+		hs := handles
 		err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
 			ctx = ctxs.CopyCtx(ctx)
-			for _, f := range handles {
+			for _, f := range hs {
 				utils.Go(ctx, func() {
 					err := f(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
 					if err != nil {
@@ -55,9 +56,10 @@ func (bus *FastEvent) Start() error {
 		}
 	}
 	for topic, handles := range bus.queueHandlers {
+		hs := handles
 		err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
 			ctx = ctxs.CopyCtx(ctx)
-			for _, f := range handles {
+			for _, f := range hs {
 				run := f
 				utils.Go(ctx, func() {
 					err := run(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
@@ -99,6 +101,6 @@ func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) {
 // Publish 发布
 // 这里异步执行，并且不会等待返回结果
 func (bus *FastEvent) Publish(ctx context.Context, topic string, arg any) error {
-	err := bus.natsCli.Publish(topic, []byte(utils.Fmt(arg)))
+	err := bus.natsCli.Publish(ctx, topic, []byte(utils.Fmt(arg)))
 	return err
 }

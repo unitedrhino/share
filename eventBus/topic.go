@@ -9,5 +9,7 @@ const (
 
 	// DmProtocolInfoUpdate 中间的是协议code
 	DmProtocolInfoUpdate = "server.things.dm.protocol.%s.update" //自定义协议配置有更新
-	UdRuleTiming         = "server.things.ud.rule.timing"
+	UdRuleTimer          = "server.things.ud.rule.timer"
+
+	PAliTimer = "server.things.pali.data.timer"
 )

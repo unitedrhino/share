@@ -1,9 +1,11 @@
 package clients
 
 import (
+	"context"
 	"gitee.com/i-Things/share/conf"
 	"gitee.com/i-Things/share/events"
 	"gitee.com/i-Things/share/utils"
+	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/zeromicro/go-zero/core/logx"
 	"sync"
@@ -63,12 +65,23 @@ func (n *NatsClient) Subscribe(subj string, cb events.HandleFunc) error {
 	_, err := n.nc.Subscribe(subj, events.NatsSubscription(cb))
 	return err
 }
-func (n *NatsClient) Publish(subj string, data []byte) error {
+
+func (n *NatsClient) SubscribeSync(subj string) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
-		_, err := n.js.Publish(subj, data)
+		subscription, err := n.js.SubscribeSync(subj, nats.Durable("sync_"+events.GenNatsJsDurable(n.consumerName, subj+"--"+uuid.NewString())))
+		return subscription, err
+	}
+	subscription, err := n.nc.SubscribeSync(subj)
+	return subscription, err
+}
+
+func (n *NatsClient) Publish(ctx context.Context, subj string, data []byte) error {
+	pubMsg := events.NewEventMsg(ctx, data)
+	if n.mode == conf.EventModeNatsJs {
+		_, err := n.js.Publish(subj, pubMsg)
 		return err
 	}
-	err := n.nc.Publish(subj, data)
+	err := n.nc.Publish(subj, pubMsg)
 	return err
 }
 

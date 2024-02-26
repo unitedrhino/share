@@ -38,6 +38,7 @@ require (
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/nats-io/nats.go v1.27.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
+	github.com/parnurzeal/gorequest v0.3.0
 	github.com/redis/go-redis/v9 v9.0.4
 	github.com/silenceper/wechat/v2 v2.1.5
 	github.com/sirupsen/logrus v1.9.0
@@ -73,6 +74,7 @@ require (
 	github.com/dtm-labs/dtmdriver v0.0.6 // indirect
 	github.com/dtm-labs/logger v0.0.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/elazarl/goproxy v0.0.0-20231117061959-7cc037d33fb5 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
@@ -126,6 +128,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
+	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible // indirect
 	github.com/nats-io/nats-server/v2 v2.9.19 // indirect

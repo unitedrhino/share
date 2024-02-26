@@ -5,3 +5,9 @@ const (
 	ProtocolTcp  = "tcp"
 	ProtocolUdp  = "udp"
 )
+
+const (
+	ProtocolCodeIThings = "iThings"
+	ProtocolCodeAliyun  = "aliyun"
+	ProtocolCodeWumei   = "wumei"
+)

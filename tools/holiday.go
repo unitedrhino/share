@@ -53,7 +53,7 @@ func GetHoliday(ctx context.Context, t time.Time) (ret *HolidayInfo, err error) 
 	func() {
 		//官网: http://timor.tech/api/holiday
 		_, body, errs := gReq.Get(fmt.Sprintf("http://timor.tech/api/holiday/year/%04d-%02d", year, month)).
-			AppendHeader("User-Agent", "iThings").EndStruct(&data) //不加User-Agent会被拦截
+			Set("User-Agent", "iThings").EndStruct(&data) //不加User-Agent会被拦截
 		fmt.Println(string(body))
 		if errs != nil {
 			logx.WithContext(ctx).Error(errs)

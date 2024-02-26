@@ -2,11 +2,12 @@ package topics
 
 // 设备交互相关topic
 const (
-	DeviceUpMsg   = "device.up.%s.%s.%s"
-	DeviceUpAll   = "device.up.>"
-	DeviceDownMsg = "device.down.%s.%s.%s"
+	DeviceUpMsg = "device.up.%s.%s.%s"
+	DeviceUpAll = "device.up.>"
+	//第一个参数是协议code,第二个参数是handle,第三和第四个参数是产品id和设备名
+	DeviceDownMsg = "device.down.%s.%s.%s.%s"
 	// DeviceDownAll dd模块订阅以下topic,收到内部的发布消息后向设备推送
-	DeviceDownAll = "device.down.>"
+	DeviceDownAll = "device.down.%s.>"
 
 	// DeviceUpThing 物模型 最后两个是产品id和设备名称
 	DeviceUpThing      = "device.up.thing.%s.%s"
