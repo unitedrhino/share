@@ -134,7 +134,7 @@ func GetUserCtx(ctx context.Context) *UserCtx {
 func GetUserCtxNoNil(ctx context.Context) *UserCtx {
 	val, ok := ctx.Value(UserInfoKey).(*UserCtx)
 	if !ok { //这里线上不能获取不到
-		return &UserCtx{}
+		return &UserCtx{ProjectID: def.NotClassified, TenantCode: def.TenantCodeDefault}
 	}
 	return val
 }

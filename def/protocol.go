@@ -1,9 +1,10 @@
 package def
 
 const (
-	ProtocolMqtt = "mqtt"
-	ProtocolTcp  = "tcp"
-	ProtocolUdp  = "udp"
+	ProtocolCloud = "cloud" //云云对接
+	ProtocolMqtt  = "mqtt"
+	ProtocolTcp   = "tcp"
+	ProtocolUdp   = "udp"
 )
 
 const (

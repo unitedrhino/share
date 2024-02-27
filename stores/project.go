@@ -79,32 +79,31 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 		stmt.Error = err
 		return
 	}
-	uc := ctxs.GetUserCtx(stmt.Context)
+	uc := ctxs.GetUserCtxNoNil(stmt.Context)
 	switch sd.Opt {
 	case Create:
-		if uc != nil {
-			destV := reflect.ValueOf(stmt.Dest)
-			if destV.Kind() == reflect.Array || destV.Kind() == reflect.Slice {
-				for i := 0; i < destV.Len(); i++ {
-					dest := destV.Index(i)
-					field := dest.Elem().FieldByName(sd.Field.Name)
-					if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
-						continue
-					}
-					var v ProjectID
-					v = ProjectID(uc.ProjectID)
-					field.Set(reflect.ValueOf(v))
+		destV := reflect.ValueOf(stmt.Dest)
+		if destV.Kind() == reflect.Array || destV.Kind() == reflect.Slice {
+			for i := 0; i < destV.Len(); i++ {
+				dest := destV.Index(i)
+				field := dest.Elem().FieldByName(sd.Field.Name)
+				if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+					continue
 				}
-				return
+				var v ProjectID
+				v = ProjectID(uc.ProjectID)
+				field.Set(reflect.ValueOf(v))
 			}
-			field := destV.Elem().FieldByName(sd.Field.Name)
-			if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
-				return
-			}
-			var v ProjectID
-			v = ProjectID(uc.ProjectID)
-			field.Set(reflect.ValueOf(v))
+			return
 		}
+		field := destV.Elem().FieldByName(sd.Field.Name)
+		if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+			return
+		}
+		var v ProjectID
+		v = ProjectID(uc.ProjectID)
+		field.Set(reflect.ValueOf(v))
+
 	case Update, Delete, Select:
 		if uc == nil || (len(ids) == 0 && uc.AllProject) { //root 权限不用管
 			return
