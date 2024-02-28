@@ -75,7 +75,7 @@ const (
 // 服务自己的消息
 const (
 	TimedJobClean       = "server.core.timedjob.clean" //定时任务服务缓存及日志定时清理
-	TimedJobVidsrv      = "server.core.timedjob.vidsrv"
+	SysOssClean         = "server.core.sys.oss.clean"
 	DmActionCheckDelay  = "server.things.dm.action.check.delay"
 	VidInfoCheckStatus  = "server.video.vid.info.check.status"
 	VidInfoInitDatabase = "server.video.vid.info.init.database"

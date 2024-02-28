@@ -2,7 +2,8 @@ package devices
 
 import (
 	"gitee.com/i-Things/share/errors"
-	"github.com/dgrijalva/jwt-go"
+	//"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
@@ -10,16 +11,17 @@ import (
 type OssJwtToken struct {
 	Bucket string //oss的token
 	Dir    string //对象路径
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
-func GetJwtToken(secretKey string, iat, seconds int64, bucket string, dir string) (string, error) {
+func GetJwtToken(secretKey string, t time.Time, seconds int64, bucket string, dir string) (string, error) {
+	IssuedAt := jwt.NewNumericDate(t)
 	claims := OssJwtToken{
 		Bucket: bucket,
 		Dir:    dir,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: iat + seconds,
-			IssuedAt:  iat,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(t.Add(time.Duration(seconds) * time.Second)),
+			IssuedAt:  IssuedAt,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -38,17 +40,15 @@ func ParseToken(tokenString string, secretKey string) (*OssJwtToken, error) {
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		if ve, ok := err.(*jwt.ValidationError); ok {
-			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-				return nil, errors.TokenMalformed
-			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				// Token is expired
-				return nil, errors.TokenExpired
-			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-				return nil, errors.TokenNotValidYet
-			} else {
-				return nil, errors.TokenInvalid
-			}
+		switch {
+		case errors.Is(err, jwt.ErrTokenExpired):
+			return nil, errors.TokenExpired
+		case errors.Is(err, jwt.ErrTokenMalformed):
+			return nil, errors.TokenMalformed
+		case errors.Is(err, jwt.ErrTokenNotValidYet):
+			return nil, errors.TokenNotValidYet
+		default:
+			return nil, errors.TokenInvalid
 		}
 	}
 	if token != nil {
@@ -65,9 +65,6 @@ func ParseToken(tokenString string, secretKey string) (*OssJwtToken, error) {
 
 // 更新token
 func RefreshToken(tokenString string, secretKey string) (string, error) {
-	jwt.TimeFunc = func() time.Time {
-		return time.Unix(0, 0)
-	}
 	token, err := jwt.ParseWithClaims(tokenString, &OssJwtToken{}, func(token *jwt.Token) (any, error) {
 		return []byte(secretKey), nil
 	})
@@ -75,8 +72,7 @@ func RefreshToken(tokenString string, secretKey string) (string, error) {
 		return "", err
 	}
 	if claims, ok := token.Claims.(*OssJwtToken); ok && token.Valid {
-		jwt.TimeFunc = time.Now
-		claims.StandardClaims.ExpiresAt = time.Now().Add(1 * time.Hour).Unix()
+		claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(1 * time.Hour))
 		return CreateToken(secretKey, *claims)
 	}
 	return "", errors.TokenInvalid

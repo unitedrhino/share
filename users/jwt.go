@@ -2,7 +2,7 @@ package users
 
 import (
 	"gitee.com/i-Things/share/errors"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // 创建一个token
@@ -17,17 +17,15 @@ func ParseToken(claim jwt.Claims, tokenString string, secretKey string) error {
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		if ve, ok := err.(*jwt.ValidationError); ok {
-			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-				return errors.TokenMalformed
-			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				// Token is expired
-				return errors.TokenExpired
-			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-				return errors.TokenNotValidYet
-			} else {
-				return errors.TokenInvalid
-			}
+		switch {
+		case errors.Is(err, jwt.ErrTokenExpired):
+			return errors.TokenExpired
+		case errors.Is(err, jwt.ErrTokenMalformed):
+			return errors.TokenMalformed
+		case errors.Is(err, jwt.ErrTokenNotValidYet):
+			return errors.TokenNotValidYet
+		default:
+			return errors.TokenInvalid
 		}
 	}
 	if token != nil {

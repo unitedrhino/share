@@ -126,10 +126,23 @@ func (m *Minio) GetObjectInfo(ctx context.Context, filePath string) (*common.Sto
 	}
 	objectInfo, err := object.Stat()
 	return &common.StorageObjectInfo{
-		Size: objectInfo.Size,
-		Md5:  objectInfo.ETag,
+		FilePath: objectInfo.Key,
+		Size:     objectInfo.Size,
+		Md5:      objectInfo.ETag,
 	}, err
 }
+
+func (m *Minio) ListObjects(ctx context.Context, prefix string) (ret []*common.StorageObjectInfo, err error) {
+	for obj := range m.client.ListObjects(ctx, m.currentBucketName, minio.ListObjectsOptions{Prefix: prefix}) {
+		ret = append(ret, &common.StorageObjectInfo{
+			FilePath: obj.Key,
+			Size:     obj.Size,
+			Md5:      obj.ETag,
+		})
+	}
+	return
+}
+
 func (m *Minio) initPrivatePolicy() error {
 	if exists, err := m.client.BucketExists(context.Background(), m.setting.PrivateBucketName); err != nil {
 		return err
@@ -215,8 +228,7 @@ func (m *Minio) initTemporaryPolicy() error {
 		if err != nil {
 			return err
 		}
-	}
-	publicProcyString := `{
+		publicProcyString := `{
 		"Version":"2012-10-17",
 		"Statement":[
 		  {
@@ -245,8 +257,10 @@ func (m *Minio) initTemporaryPolicy() error {
 		  }
 		]
 	  }`
-	err := m.client.SetBucketPolicy(context.Background(), m.setting.TemporaryBucketName, publicProcyString)
-	return err
+		err := m.client.SetBucketPolicy(context.Background(), m.setting.TemporaryBucketName, publicProcyString)
+		return err
+	}
+	return nil
 }
 
 func (m *Minio) CopyFromTempBucket(tempPath, dstPath string) (string, error) {

@@ -65,6 +65,12 @@ func (a *AliYunOss) GetObjectInfo(ctx context.Context, fileDir string) (*common.
 		Md5:  "",
 	}, err
 }
+
+func (a *AliYunOss) ListObjects(ctx context.Context, prefix string) (ret []*common.StorageObjectInfo, err error) {
+	//todo
+	return
+}
+
 func (a *AliYunOss) Upload(ctx context.Context, filePath string, content io.Reader, opKv common.OptionKv) (string, error) {
 	err := a.bucket.PutObject(filePath, content, opKv.ToAliYunOptions()...)
 	//fmt.Println(uploadInfo)

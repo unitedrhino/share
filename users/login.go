@@ -2,7 +2,7 @@ package users
 
 import (
 	"gitee.com/i-Things/share/errors"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
@@ -14,10 +14,11 @@ type LoginClaims struct {
 	TenantCode string `json:",string"`
 	IsAdmin    int64
 	IsAllData  int64
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
-func GetLoginJwtToken(secretKey string, iat, seconds, userID int64, account string, tenantCode string, roleIDs []int64, isAllData int64, isAdmin int64) (string, error) {
+func GetLoginJwtToken(secretKey string, t time.Time, seconds, userID int64, account string, tenantCode string, roleIDs []int64, isAllData int64, isAdmin int64) (string, error) {
+	IssuedAt := jwt.NewNumericDate(t)
 	claims := LoginClaims{
 		UserID:     userID,
 		RoleIDs:    roleIDs,
@@ -25,9 +26,9 @@ func GetLoginJwtToken(secretKey string, iat, seconds, userID int64, account stri
 		IsAdmin:    isAdmin,
 		Account:    account,
 		IsAllData:  isAllData,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: iat + seconds,
-			IssuedAt:  iat,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(t.Add(time.Duration(seconds) * time.Second)),
+			IssuedAt:  IssuedAt,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -43,8 +44,7 @@ func RefreshLoginToken(tokenString string, secretKey string, AccessExpire int64)
 		return "", err
 	}
 	if claims, ok := token.Claims.(*LoginClaims); ok && token.Valid {
-		jwt.TimeFunc = time.Now
-		claims.StandardClaims.ExpiresAt = AccessExpire
+		claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(1 * time.Hour))
 		return CreateToken(secretKey, *claims)
 	}
 	return "", errors.TokenInvalid
