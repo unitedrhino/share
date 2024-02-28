@@ -240,3 +240,16 @@ func TimeXToTime(t *time.Time) time.Time {
 	}
 	return *t
 }
+
+func MapBoolToInt(in map[string]any) {
+	for k, v := range in {
+		if b, ok := v.(bool); ok {
+			if b {
+				in[k] = 1
+			} else {
+				in[k] = 0
+			}
+		}
+	}
+	return
+}
