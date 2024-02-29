@@ -82,11 +82,15 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 	uc := ctxs.GetUserCtxNoNil(stmt.Context)
 	switch sd.Opt {
 	case Create:
+		f := stmt.Schema.FieldsByName[sd.Field.Name]
+		if f == nil {
+			return
+		}
 		destV := reflect.ValueOf(stmt.Dest)
 		if destV.Kind() == reflect.Array || destV.Kind() == reflect.Slice {
 			for i := 0; i < destV.Len(); i++ {
 				dest := destV.Index(i)
-				field := dest.Elem().FieldByName(sd.Field.Name)
+				field := GetField(dest, f.BindNames...)
 				if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
 					continue
 				}
@@ -96,7 +100,7 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 			}
 			return
 		}
-		field := destV.Elem().FieldByName(sd.Field.Name)
+		field := GetField(destV, f.BindNames...)
 		if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
 			return
 		}
