@@ -36,6 +36,9 @@ const (
 
 func NewTDengine(DataSource conf.TSDB) (TD *Td, err error) {
 	once.Do(func() {
+		if DataSource.Driver == "" {
+			DataSource.Driver = "taosWS"
+		}
 		td.DB, err = sql.Open(DataSource.Driver, DataSource.DSN)
 		if err != nil {
 			return

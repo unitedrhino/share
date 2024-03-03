@@ -48,22 +48,22 @@ func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf) (*
 	return &client, nil
 }
 
-func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) error {
+func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
-		_, err := n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.Durable("queue_"+events.GenNatsJsDurable(n.consumerName, subj)))
-		return err
+		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.Durable("queue_"+events.GenNatsJsDurable(n.consumerName, subj)))
 	}
-	_, err := n.nc.QueueSubscribe(subj, queue, events.NatsSubscription(cb))
-	return err
+	return n.nc.QueueSubscribe(subj, queue, events.NatsSubscription(cb))
 }
 
-func (n *NatsClient) Subscribe(subj string, cb events.HandleFunc) error {
+func (n *NatsClient) Subscribe(subj string, cb events.HandleFunc) (*nats.Subscription, error) {
+	return n.SubscribeWithConsumer(subj, n.consumerName, cb)
+}
+
+func (n *NatsClient) SubscribeWithConsumer(subj string, consumer string, cb events.HandleFunc) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
-		_, err := n.js.Subscribe(subj, events.NatsSubscription(cb), nats.Durable("normal_"+events.GenNatsJsDurable(n.consumerName, subj)))
-		return err
+		return n.js.Subscribe(subj, events.NatsSubscription(cb), nats.Durable("normal_"+events.GenNatsJsDurable(consumer, subj)))
 	}
-	_, err := n.nc.Subscribe(subj, events.NatsSubscription(cb))
-	return err
+	return n.nc.Subscribe(subj, events.NatsSubscription(cb))
 }
 
 func (n *NatsClient) SubscribeSync(subj string) (*nats.Subscription, error) {

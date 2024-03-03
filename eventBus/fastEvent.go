@@ -36,10 +36,11 @@ func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error)
 	}
 	return &serverMsg, err
 }
+
 func (bus *FastEvent) Start() error {
 	for topic, handles := range bus.handlers {
 		hs := handles
-		err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+		_, err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
 			ctx = ctxs.CopyCtx(ctx)
 			for _, f := range hs {
 				utils.Go(ctx, func() {
@@ -57,7 +58,7 @@ func (bus *FastEvent) Start() error {
 	}
 	for topic, handles := range bus.queueHandlers {
 		hs := handles
-		err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+		_, err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
 			ctx = ctxs.CopyCtx(ctx)
 			for _, f := range hs {
 				run := f

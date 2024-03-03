@@ -16,7 +16,7 @@ func ErrFmt(err error) error {
 	if err == gorm.ErrRecordNotFound {
 		return errors.NotFind.WithStack()
 	}
-	if strings.Contains(err.Error(), "Duplicate entry") {
+	if strings.Contains(err.Error(), "Duplicate entry") || strings.Contains(err.Error(), "duplicate key") {
 		return errors.Duplicate.AddDetail(err)
 	}
 	return errors.Database.AddDetail(err)

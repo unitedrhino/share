@@ -7,6 +7,7 @@ const (
 const (
 	SqlEnvDsn    = "dsn"
 	SqlEnvDBType = "dbType"
+	SqlEnvDriver = "driver"
 )
 
 type Sql struct {

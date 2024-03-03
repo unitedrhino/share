@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"gitee.com/i-Things/share/clients"
 	"gitee.com/i-Things/share/conf"
 	"github.com/dtm-labs/client/dtmgrpc"
 	"github.com/glebarez/sqlite"
@@ -51,6 +52,23 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 	db.SetConnMaxIdleTime(time.Hour)
 	db.SetConnMaxLifetime(time.Hour)
 	return
+}
+
+func GetConnDB(database conf.Database) (db *sql.DB, err error) {
+	switch database.DBType {
+	case conf.Tdengine:
+		td, err := clients.NewTDengine(database)
+		if err != nil {
+			return nil, err
+		}
+		return td.DB, nil
+	default:
+		conn, err := GetConn(database)
+		if err != nil {
+			return nil, err
+		}
+		return conn.DB()
+	}
 }
 
 const (

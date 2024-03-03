@@ -1,6 +1,7 @@
 package stores
 
 import (
+	"context"
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
@@ -42,6 +43,15 @@ func scanIntoMap(mapValue map[string]any, values []any, columns []string) {
 			mapValue[column] = nil
 		}
 	}
+}
+
+func QueryContext(ctx context.Context, db *sql.DB, sqlStr string, data any) error {
+	rows, err := db.QueryContext(ctx, sqlStr)
+	if err != nil {
+		return (errors.Database.AddDetail(err))
+	}
+	err = Scan(rows, data)
+	return err
 }
 
 func Scan(rows *sql.Rows, Dest any) error {
