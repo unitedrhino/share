@@ -109,7 +109,10 @@ func (sd TenantCodeClause) ModifyStatement(stmt *gorm.Statement) { //查询的�
 			if destV.Kind() == reflect.Array || destV.Kind() == reflect.Slice {
 				for i := 0; i < destV.Len(); i++ {
 					dest := destV.Index(i)
-					field := dest.Elem().FieldByName(sd.Field.Name)
+					if dest.Kind() == reflect.Pointer || dest.Kind() == reflect.Interface {
+						dest = dest.Elem()
+					}
+					field := dest.FieldByName(sd.Field.Name)
 					if tenantCode != "" && !field.IsZero() { //只有root权限的租户可以设置为其他租户
 						continue
 					}
