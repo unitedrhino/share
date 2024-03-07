@@ -9,13 +9,14 @@ import (
 type CmpType string
 
 const (
-	CmpTypeEq  CmpType = "="  //相等
-	CmpTypeNot CmpType = "!=" //不相等
-	CmpTypeGt  CmpType = ">"  //大于
-	CmpTypeGte CmpType = ">=" //大于等于
-	CmpTypeLt  CmpType = "<"  //小于
-	CmpTypeLte CmpType = "<=" //小于等于
-	CmpTypeIn  CmpType = "in" //在xx值之中,可以有n个参数
+	CmpTypeEq   CmpType = "="    //相等
+	CmpTypeNot  CmpType = "!="   //不相等
+	CmpTypeGt   CmpType = ">"    //大于
+	CmpTypeGte  CmpType = ">="   //大于等于
+	CmpTypeLt   CmpType = "<"    //小于
+	CmpTypeLte  CmpType = "<="   //小于等于
+	CmpTypeIn   CmpType = "in"   //在xx值之中,可以有n个参数
+	CmpTypeLike CmpType = "like" //模糊查询
 )
 
 type toSqlFunc func(column string) string
@@ -61,6 +62,12 @@ func CmpIsNull(isNull bool) *Cmp {
 func CmpEqColumn(c CmpType, columnLeft string) *Cmp {
 	return &Cmp{toSqlFunc: func(column string) string {
 		return fmt.Sprintf("%s %s %s", columnLeft, c, column)
+	}}
+}
+
+func CmpLike(value string) *Cmp {
+	return &Cmp{toSqlFunc: func(column string) string {
+		return fmt.Sprintf("%s like %s", column, "%"+value+"%")
 	}}
 }
 
