@@ -2,6 +2,7 @@ package deviceAuth
 
 import (
 	"gitee.com/i-Things/share/devices"
+	"gitee.com/i-Things/share/domain/deviceMsg/msgExt"
 	"gitee.com/i-Things/share/errors"
 )
 
@@ -37,6 +38,14 @@ func AccessAuth(in AuthInfo) error {
 	}
 	if topicInfo.ProductID != lg.ProductID || topicInfo.DeviceName != lg.DeviceName {
 		return errors.Permissions
+	}
+	if lg.IsNeedRegister { //需要注册的topic只能订阅和发布注册topic
+		if topicInfo.TopicHead != devices.TopicHeadExt {
+			return errors.Permissions
+		}
+		if topicInfo.Types[0] != msgExt.TypeRegister {
+			return errors.Permissions
+		}
 	}
 	return nil
 }

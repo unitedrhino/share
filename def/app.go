@@ -12,4 +12,5 @@ const (
 	ModuleTenantManage = "tenantManage" //租户系统管理
 	ModuleThings       = "things"       //物联网模块
 	ModuleView         = "view"         //大屏模块
+	ModuleVideo        = "video"        //音视频
 )

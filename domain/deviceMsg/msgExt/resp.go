@@ -11,6 +11,10 @@ type (
 		DeviceSendTime int64 `json:"deviceSendTime"` //ntp设备发送毫秒时间戳
 		ServerRecvTime int64 `json:"serverRecvTime"` //ntp云端接收毫秒时间戳
 	}
+	RespRegister struct {
+		*deviceMsg.CommonMsg
+		Data RespData `json:"data"`
+	}
 )
 
 func (d *Resp) GetTimeStamp(defaultTime time.Time) time.Time {

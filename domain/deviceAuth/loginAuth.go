@@ -33,11 +33,12 @@ type (
 		HmacHandle func(data string, secret []byte) string
 	}
 	LoginDevice struct {
-		ProductID  string //产品id
-		DeviceName string //设备名称
-		SdkAppID   int64  //appid 直接填 12010126
-		ConnID     string //随机6字节字符串 帮助查bug
-		Expiry     int64  //过期时间 unix时间戳
+		ProductID      string //产品id
+		DeviceName     string //设备名称
+		SdkAppID       int64  //appid 直接填 12010126
+		ConnID         string //随机6字节字符串 帮助查bug
+		Expiry         int64  //过期时间 unix时间戳
+		IsNeedRegister bool
 	}
 )
 
@@ -58,23 +59,34 @@ func GetLoginDevice(userName string) (*LoginDevice, error) {
 
 func GetClientIDInfo(ClientID string) (*LoginDevice, error) {
 	clientIDs := strings.Split(ClientID, "&")
-	if len(clientIDs) == 2 {
+	switch len(clientIDs) {
+	case 2:
 		lg := &LoginDevice{
 			ProductID:  clientIDs[0],
 			DeviceName: clientIDs[1],
 		}
 		return lg, nil
+	case 3:
+		if clientIDs[0] != "register" {
+			return nil, errors.Parameter.AddDetail("clientID not right")
+		}
+		lg := &LoginDevice{
+			ProductID:      clientIDs[1],
+			DeviceName:     clientIDs[2],
+			IsNeedRegister: true,
+		}
+		return lg, nil
+	default:
+		// 兼容老的clientID
+		if len(ClientID) < ProductIdLen {
+			return nil, errors.Parameter.AddDetail("clientID length not enough")
+		}
+		lg := &LoginDevice{
+			ProductID:  ClientID[0:ProductIdLen],
+			DeviceName: ClientID[ProductIdLen:],
+		}
+		return lg, nil
 	}
-	// 兼容老的clientID
-	if len(ClientID) < ProductIdLen {
-		return nil, errors.Parameter.AddDetail("clientID length not enough")
-	}
-	lg := &LoginDevice{
-		ProductID:  ClientID[0:ProductIdLen],
-		DeviceName: ClientID[ProductIdLen:],
-	}
-	return lg, nil
-
 }
 
 // 先将 10进制 转为 62进制

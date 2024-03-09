@@ -1,5 +1,6 @@
 package msgExt
 
 const (
-	TypeNtp = "ntp"
+	TypeNtp      = "ntp"
+	TypeRegister = "register"
 )

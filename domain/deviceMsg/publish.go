@@ -30,8 +30,8 @@ type (
 	}
 
 	CommonMsg struct { //消息内容通用字段
-		Method    string     `json:"method"`              //操作方法
-		MsgToken  string     `json:"msgToken"`            //方便排查随机数
+		Method    string     `json:"method,omitempty"`    //操作方法
+		MsgToken  string     `json:"msgToken,omitempty"`  //方便排查随机数
 		Timestamp int64      `json:"timestamp,omitempty"` //毫秒时间戳
 		Code      int64      `json:"code,omitempty"`      //状态码
 		Msg       string     `json:"msg,omitempty"`       //返回信息
