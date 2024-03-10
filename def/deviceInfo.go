@@ -32,6 +32,6 @@ const (
 )
 
 const (
-	ConnectedStatus    = "connected"
-	DisConnectedStatus = "disconnected"
+	ConnectedStatus    = 1
+	DisConnectedStatus = 2
 )

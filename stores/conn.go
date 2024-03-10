@@ -33,6 +33,7 @@ func InitConn(database conf.Database) {
 	})
 	return
 }
+
 func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 	dbType = database.DBType
 	switch database.DBType {

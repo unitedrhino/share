@@ -11,9 +11,9 @@ import (
 type (
 	Req struct {
 		deviceMsg.CommonMsg
-		Params []sdklog `json:"params,optional"` //参数列表
+		Params []SdkLog `json:"params,optional"` //参数列表
 	}
-	sdklog struct {
+	SdkLog struct {
 		Content   string `json:"content"`
 		Timestamp int64  `json:"timestamp,optional"`
 		LogLevel  int64  `json:"logLevel,optional"`
