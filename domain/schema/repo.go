@@ -16,7 +16,7 @@ type (
 		ReadRepo
 		TslImport(ctx context.Context, productID string, template *Model) error
 		//Update(ctx context.Context, productID string, template *Model) error
-		TslRead(ctx context.Context, productID string) (*Model, error)
+		//TslRead(ctx context.Context, productID string) (*Model, error)
 		Delete(ctx context.Context, productID string) error
 	}
 	ReadRepo interface {

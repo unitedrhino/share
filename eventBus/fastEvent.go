@@ -10,6 +10,7 @@ import (
 	"gitee.com/i-Things/share/utils"
 	"github.com/nats-io/nats.go"
 	"github.com/zeromicro/go-zero/core/logx"
+	"sync"
 	"time"
 )
 
@@ -26,15 +27,22 @@ type FastEvent struct {
 
 type FastFunc func(ctx context.Context, t time.Time, body []byte) error
 
+var (
+	fastEvent *FastEvent
+	fastOnce  sync.Once
+)
+
 func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error) {
-	serverMsg := FastEvent{handlers: map[string][]FastFunc{}, queueHandlers: map[string][]FastFunc{}, serverName: serverName}
-	switch c.Mode {
-	case conf.EventModeNats, conf.EventModeNatsJs:
-		serverMsg.natsCli, err = clients.NewNatsClient2(c.Mode, serverName, c.Nats)
-	default:
-		err = errors.Parameter.AddMsgf("mode:%v not support", c.Mode)
-	}
-	return &serverMsg, err
+	fastOnce.Do(func() {
+		fastEvent = &FastEvent{handlers: map[string][]FastFunc{}, queueHandlers: map[string][]FastFunc{}, serverName: serverName}
+		switch c.Mode {
+		case conf.EventModeNats, conf.EventModeNatsJs:
+			fastEvent.natsCli, err = clients.NewNatsClient2(c.Mode, serverName, c.Nats)
+		default:
+			err = errors.Parameter.AddMsgf("mode:%v not support", c.Mode)
+		}
+	})
+	return fastEvent, err
 }
 
 func (bus *FastEvent) Start() error {
