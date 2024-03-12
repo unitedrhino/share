@@ -23,6 +23,9 @@ type FastEvent struct {
 	handlers      map[string][]FastFunc
 	queueHandlers map[string][]FastFunc
 	serverName    string
+	queueMutex    sync.RWMutex
+	handlerMutex  sync.RWMutex
+	isStart       bool
 }
 
 type FastFunc func(ctx context.Context, t time.Time, body []byte) error
@@ -45,40 +48,56 @@ func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error)
 	return fastEvent, err
 }
 
+func (bus *FastEvent) subscribe(topic string) error {
+	_, err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+		ctx = ctxs.CopyCtx(ctx)
+		bus.handlerMutex.RLock()
+		defer bus.handlerMutex.RUnlock()
+		for _, f := range bus.handlers[topic] {
+			utils.Go(ctx, func() {
+				err := f(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
+				if err != nil {
+					logx.WithContext(ctx).Error(err)
+				}
+			})
+		}
+		return nil
+	})
+	return err
+}
+
+func (bus *FastEvent) queueSubscribe(topic string) error {
+	_, err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+		ctx = ctxs.CopyCtx(ctx)
+		bus.queueMutex.RLock()
+		defer bus.queueMutex.RUnlock()
+		for _, f := range bus.queueHandlers[topic] {
+			run := f
+			utils.Go(ctx, func() {
+				err := run(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
+				if err != nil {
+					logx.WithContext(ctx).Error(err)
+				}
+			})
+		}
+		return nil
+	})
+	return err
+}
+
 func (bus *FastEvent) Start() error {
-	for topic, handles := range bus.handlers {
-		hs := handles
-		_, err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
-			ctx = ctxs.CopyCtx(ctx)
-			for _, f := range hs {
-				utils.Go(ctx, func() {
-					err := f(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
-					if err != nil {
-						logx.WithContext(ctx).Error(err)
-					}
-				})
-			}
-			return nil
-		})
+	if bus.isStart == true {
+		return nil
+	}
+	bus.isStart = true
+	for topic := range bus.handlers {
+		err := bus.subscribe(topic)
 		if err != nil {
 			return err
 		}
 	}
-	for topic, handles := range bus.queueHandlers {
-		hs := handles
-		_, err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
-			ctx = ctxs.CopyCtx(ctx)
-			for _, f := range hs {
-				run := f
-				utils.Go(ctx, func() {
-					err := run(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
-					if err != nil {
-						logx.WithContext(ctx).Error(err)
-					}
-				})
-			}
-			return nil
-		})
+	for topic := range bus.queueHandlers {
+		err := bus.queueSubscribe(topic)
 		if err != nil {
 			return err
 		}
@@ -87,24 +106,36 @@ func (bus *FastEvent) Start() error {
 }
 
 // Subscribe 订阅
-func (bus *FastEvent) Subscribe(topic string, f FastFunc) {
+func (bus *FastEvent) Subscribe(topic string, f FastFunc) error {
+	bus.handlerMutex.Lock()
+	defer bus.handlerMutex.Unlock()
 	handler, ok := bus.handlers[topic]
 	if !ok {
 		handler = []FastFunc{}
 	}
 	handler = append(handler, f)
 	bus.handlers[topic] = handler
-	return
+	if !ok && bus.isStart { //如果已经启动,且没有监听这个topic,则需要加入
+		err := bus.subscribe(topic)
+		return err
+	}
+	return nil
 }
 
-func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) {
+func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) error {
+	bus.queueMutex.Lock()
+	defer bus.queueMutex.Unlock()
 	handler, ok := bus.queueHandlers[topic]
 	if !ok {
 		handler = []FastFunc{}
 	}
 	handler = append(handler, f)
 	bus.queueHandlers[topic] = handler
-	return
+	if !ok && bus.isStart { //如果已经启动,且没有监听这个topic,则需要加入
+		err := bus.queueSubscribe(topic)
+		return err
+	}
+	return nil
 }
 
 // Publish 发布

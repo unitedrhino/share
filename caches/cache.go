@@ -37,11 +37,11 @@ var (
 	cacheMutex sync.Mutex
 )
 
-func NewCache[dataT any](cfg CacheConfig[dataT]) *Cache[dataT] {
+func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 	cacheMutex.Lock() //单例模式
 	defer cacheMutex.Unlock()
 	if v, ok := cacheMap[cfg.KeyType]; ok {
-		return v.(*Cache[dataT])
+		return v.(*Cache[dataT]), nil
 	}
 	cache, _ := ristretto.NewCache(&ristretto.Config{
 		NumCounters: 1e7,     // number of keys to track frequency of (10M).
@@ -55,13 +55,16 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) *Cache[dataT] {
 		getData:    cfg.GetData,
 		expireTime: cfg.ExpireTime,
 	}
-	ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
+	err := ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
 		cacheKey := string(body)
 		ret.cache.Del(cacheKey)
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 	cacheMap[cfg.KeyType] = &ret
-	return &ret
+	return &ret, nil
 }
 
 func (c Cache[dataT]) genTopic() string {
@@ -119,17 +122,25 @@ func (c Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
 			if err != nil {
 				return nil, err
 			}
+			c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime)
 			return &ret, nil
 		}
+	}
+	if c.getData == nil { //如果没有设置第三级缓存则直接设置该参数为空并返回
+		c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime)
+		return nil, nil
 	}
 	//redis上没有就读数据库
 	data, err := c.getData(ctx, key)
 	if err != nil && !errors.Cmp(err, errors.NotFind) { //如果是其他错误直接返回
 		return nil, err
 	}
+	//读到了之后设置缓存
+	c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime)
+	if data == nil {
+		return data, nil
+	}
 	ctxs.GoNewCtx(ctx, func(ctx2 context.Context) { //异步设置缓存
-		//读到了之后设置缓存
-		c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime)
 		str, err := json.Marshal(data)
 		if err != nil {
 			logx.WithContext(ctx).Error(err)
