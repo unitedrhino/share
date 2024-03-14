@@ -9,6 +9,7 @@ import (
 	"gitee.com/i-Things/share/eventBus"
 	"github.com/dgraph-io/ristretto"
 	"github.com/zeromicro/go-zero/core/logx"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -54,6 +55,9 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 		fastEvent:  cfg.FastEvent,
 		getData:    cfg.GetData,
 		expireTime: cfg.ExpireTime,
+	}
+	if ret.expireTime == 0 {
+		ret.expireTime = time.Minute*10 + time.Second*time.Duration(rand.Int63n(60))
 	}
 	err := ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
 		cacheKey := string(body)
@@ -122,12 +126,12 @@ func (c Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
 			if err != nil {
 				return nil, err
 			}
-			c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime)
+			c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime*2/3)
 			return &ret, nil
 		}
 	}
 	if c.getData == nil { //如果没有设置第三级缓存则直接设置该参数为空并返回
-		c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime)
+		c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime*2/3)
 		return nil, nil
 	}
 	//redis上没有就读数据库
@@ -136,7 +140,7 @@ func (c Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
 		return nil, err
 	}
 	//读到了之后设置缓存
-	c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime)
+	c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime*2/3)
 	if data == nil {
 		return data, nil
 	}

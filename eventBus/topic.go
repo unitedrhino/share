@@ -16,6 +16,8 @@ const (
 )
 
 const (
+	ServerCacheKeySysTenant = "sys:tenant"
+
 	ServerCacheKeyDmProduct = "dm:product"
 	ServerCacheKeyDmDevice  = "dm:device"
 	ServerCacheKeyDmSchema  = "dm:schema"
