@@ -14,3 +14,9 @@ const (
 
 	ServerCacheSync = "server.cache.sync.%s"
 )
+
+const (
+	ServerCacheKeyDmProduct = "dm:product"
+	ServerCacheKeyDmDevice  = "dm:device"
+	ServerCacheKeyDmSchema  = "dm:schema"
+)
