@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/cast"
 )
 
 func Unmarshal(data []byte, v any) error {
@@ -35,6 +36,10 @@ func Fmt(v any) string {
 	case interface{ String() string }:
 		return v.(interface{ String() string }).String()
 	default:
+		val, err := cast.ToStringE(v)
+		if err != nil {
+			return val
+		}
 		js, err := json.Marshal(v)
 		if err != nil {
 			return fmt.Sprintf("%#v", js)

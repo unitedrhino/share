@@ -29,6 +29,8 @@ type (
 		SoftInfo string            `json:"softInfo,omitempty"` //模组软件版本
 		Position *def.Point        `json:"position,omitempty"` //设备基础信息-坐标信息
 		Tags     map[string]string `json:"tags,omitempty"`     //设备标签信息
+		Rssi     *int64            `json:"rssi,omitempty"`
+		Iccid    *string           `json:"iccid"`
 	}
 )
 

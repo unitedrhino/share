@@ -23,12 +23,14 @@ type Cache[dataT any] struct {
 	cache      *ristretto.Cache
 	fastEvent  *eventBus.FastEvent
 	getData    func(ctx context.Context, key string) (*dataT, error)
+	fmt        func(ctx context.Context, key string, data *dataT)
 	expireTime time.Duration
 }
 
 type CacheConfig[dataT any] struct {
 	KeyType    string
 	FastEvent  *eventBus.FastEvent
+	Fmt        func(ctx context.Context, key string, data *dataT)
 	GetData    func(ctx context.Context, key string) (*dataT, error)
 	ExpireTime time.Duration
 }
@@ -55,6 +57,7 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 		fastEvent:  cfg.FastEvent,
 		getData:    cfg.GetData,
 		expireTime: cfg.ExpireTime,
+		fmt:        cfg.Fmt,
 	}
 	if ret.expireTime == 0 {
 		ret.expireTime = time.Minute*10 + time.Second*time.Duration(rand.Int63n(60))
@@ -125,6 +128,9 @@ func (c Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
 			err = json.Unmarshal([]byte(val), &ret)
 			if err != nil {
 				return nil, err
+			}
+			if c.fmt != nil {
+				c.fmt(ctx, key, &ret)
 			}
 			c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime*2/3)
 			return &ret, nil

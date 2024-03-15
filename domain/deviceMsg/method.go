@@ -56,7 +56,6 @@ const (
 		上行请求 Topic： $thing/up/property/{ProductID}/{DeviceNames}
 		下行响应 Topic： $thing/down/property/{ProductID}/{DeviceNames}
 	*/
-	// todo 尚未支持
 	ReportInfo      Method = "reportInfo"      //表示设备基础信息上报
 	ReportInfoReply Method = "reportInfoReply" //表示云端接收设备上报后的响应报文
 
