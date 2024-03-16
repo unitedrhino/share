@@ -148,7 +148,7 @@ func (c Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
 	//读到了之后设置缓存
 	c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime*2/3)
 	if data == nil {
-		return data, nil
+		return data, err
 	}
 	ctxs.GoNewCtx(ctx, func(ctx2 context.Context) { //异步设置缓存
 		str, err := json.Marshal(data)

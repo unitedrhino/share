@@ -37,7 +37,7 @@ func Fmt(v any) string {
 		return v.(interface{ String() string }).String()
 	default:
 		val, err := cast.ToStringE(v)
-		if err != nil {
+		if err == nil {
 			return val
 		}
 		js, err := json.Marshal(v)
