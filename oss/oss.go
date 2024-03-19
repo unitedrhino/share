@@ -7,10 +7,6 @@ import (
 	"gitee.com/i-Things/share/oss/common"
 )
 
-const (
-	SceneOta = "ota"
-)
-
 type Handle interface {
 	SignedPutUrl(ctx context.Context, filePath string, expiredSec int64, opKv common.OptionKv) (string, error)
 	SignedGetUrl(ctx context.Context, filePath string, expiredSec int64, opKv common.OptionKv) (string, error)

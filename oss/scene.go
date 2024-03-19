@@ -36,6 +36,11 @@ const (
 	SceneUserInfo      = "userInfo"   //产品图片
 )
 
+const (
+	SceneFirmware = "firmware"
+	BusinessOta   = "ota"
+)
+
 func GetSceneInfo(filePath string) (*SceneInfo, error) {
 	paths := strings.Split(filePath, "/")
 	if len(paths) < 3 {

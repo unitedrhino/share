@@ -23,13 +23,11 @@ type (
 	params struct {
 		ID      int64  `json:"id"`
 		Version string `json:"version"`
-		Module  string `json:"module"`
 	}
 	processParams struct {
-		ID     int64  `json:"id"`
-		Step   int64  `json:"step"`
-		Desc   string `json:"desc"`
-		Module string `json:"module"`
+		ID   int64  `json:"id"`
+		Step int64  `json:"step"`
+		Desc string `json:"desc"`
 	}
 
 	//ota下行消息
@@ -42,7 +40,6 @@ type (
 		IsDiff           int64     `json:"is_diff"`
 		SignMethod       string    `json:"sign_method"`
 		Files            []File    `json:"files"`
-		Module           string    `json:"module"`
 		DownloadProtocol string    `json:"download_protocol"`
 		ExtData          []ExtData `json:"ext_data"`
 	}
@@ -60,18 +57,13 @@ type (
 )
 
 func (d *Req) VerifyReqParam() error {
-	if d.Params.Module == "" {
-		return errors.Parameter.AddDetail("need add module")
-	}
+
 	return nil
 }
 func (d *Req) GetVersion() string {
 	return d.Params.Version
 }
 func (d *Process) VerifyReqParam() error {
-	if d.Params.Module == "" {
-		return errors.Parameter.AddDetail("need add module")
-	}
 	if d.Params.Step == 0 {
 		return errors.Parameter.AddDetail("need add Step")
 	}
@@ -80,11 +72,11 @@ func (d *Process) VerifyReqParam() error {
 
 // 定义升级包状态常量
 const (
-	OtaFirmwareStatusNotRequired        = -1
-	OtaFirmwareStatusNotVerified        = 0
-	OtaFirmwareStatusVerified           = 1
-	OtaFirmwareStatusVerifying          = 2
-	OtaFirmwareStatusVerificationFailed = 3
+	OtaFirmwareStatusNotRequired        = 1
+	OtaFirmwareStatusNotVerified        = 2
+	OtaFirmwareStatusVerified           = 3
+	OtaFirmwareStatusVerifying          = 4
+	OtaFirmwareStatusVerificationFailed = 5
 )
 
 // 定义升级包状态映射
@@ -106,7 +98,7 @@ func GetOtaFirmwareStatusString(status int) string {
 
 // 定义升级批次常量
 const (
-	ValidateUpgrade = iota
+	ValidateUpgrade = iota + 1
 	BatchUpgrade
 )
 
@@ -117,7 +109,7 @@ var JobTypeMap = map[int]string{
 
 // 定义升级任务常量
 const (
-	UpgradeStatusConfirm = iota
+	UpgradeStatusConfirm = iota + 1
 	UpgradeStatusQueued
 	UpgradeStatusNotified
 	UpgradeStatusInProgress
@@ -137,8 +129,15 @@ var TaskStatusMap = map[int]string{
 }
 
 // 定义升级批次常量
+
+/*
+静态升级：对于选定的升级范围，仅升级当前满足升级条件的设备。
+动态升级：对于选定的升级范围，升级当前满足升级条件的设备，并且持续监测该范围内的设备。只要符合升级条件，物联网平台就会自动推送升级信息。包括但不限于以下设备：
+满足升级条件的后续新激活设备。
+当前上报的OTA模块版本号不满足升级条件，后续满足升级条件的设备。
+*/
 const (
-	StaticUpgrade = iota
+	StaticUpgrade = iota + 1
 	DynamicUpgrade
 )
 
@@ -148,7 +147,7 @@ var UpgradeTypeMap = map[int]string{
 }
 
 const (
-	AllUpgrade = iota
+	AllUpgrade = iota + 1
 	SpecificUpgrade
 	GrayUpgrade
 	GroupUpgrade
@@ -174,7 +173,7 @@ var PackageTypeMap = map[int]string{
 }
 
 const (
-	JobStatusPlanned = iota
+	JobStatusPlanned = iota + 1
 	JobStatusInProgress
 	JobStatusCompleted
 	JobStatusCanceled
