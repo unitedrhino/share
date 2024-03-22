@@ -18,14 +18,12 @@ type (
 	}
 	Process struct {
 		deviceMsg.CommonMsg
-		Params processParams `json:"params,optional"`
+		Params ProcessParams `json:"params,optional"`
 	}
 	params struct {
-		ID      int64  `json:"id"`
 		Version string `json:"version"`
 	}
-	processParams struct {
-		ID   int64  `json:"id"`
+	ProcessParams struct {
 		Step int64  `json:"step"`
 		Desc string `json:"desc"`
 	}
@@ -36,23 +34,19 @@ type (
 		Params UpgradeParams
 	}
 	UpgradeParams struct {
-		Version          string    `json:"version"`
-		IsDiff           int64     `json:"is_diff"`
-		SignMethod       string    `json:"sign_method"`
-		Files            []File    `json:"files"`
-		DownloadProtocol string    `json:"download_protocol"`
-		ExtData          []ExtData `json:"ext_data"`
-	}
-	ExtData struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
+		Version    string  `json:"version"`
+		IsDiff     int64   `json:"isDiff"`
+		SignMethod string  `json:"signMethod"`
+		Files      []*File `json:"files,omitempty"`
+		Extra      string  `json:"extra"`
+		*File
 	}
 	File struct {
-		Size      int64  `json:"size"`
-		Name      string `json:"name"`
-		FilePath  string `json:"file_path"`
-		FileMd5   string `json:"file_md5"`
-		Signature string `json:"signature"`
+		Size      int64  `json:"size,omitempty"`
+		Name      string `json:"name,omitempty"`
+		FileUrl   string `json:"fileUrl,omitempty"`
+		FileMd5   string `json:"fileMd5,omitempty"`
+		Signature string `json:"signature,omitempty"`
 	}
 )
 
@@ -72,11 +66,11 @@ func (d *Process) VerifyReqParam() error {
 
 // 定义升级包状态常量
 const (
-	OtaFirmwareStatusNotRequired        = 1
-	OtaFirmwareStatusNotVerified        = 2
-	OtaFirmwareStatusVerified           = 3
-	OtaFirmwareStatusVerifying          = 4
-	OtaFirmwareStatusVerificationFailed = 5
+	OtaFirmwareStatusNotRequired        = 1 //不需要验证
+	OtaFirmwareStatusNotVerified        = 2 //未验证
+	OtaFirmwareStatusVerified           = 3 //已验证
+	OtaFirmwareStatusVerifying          = 4 //验证中
+	OtaFirmwareStatusVerificationFailed = 5 //验证失败
 )
 
 // 定义升级包状态映射
@@ -98,8 +92,8 @@ func GetOtaFirmwareStatusString(status int) string {
 
 // 定义升级批次常量
 const (
-	ValidateUpgrade = iota + 1
-	BatchUpgrade
+	ValidateUpgrade = iota + 1 //验证升级包
+	BatchUpgrade               //批量升级
 )
 
 var JobTypeMap = map[int]string{
@@ -147,11 +141,11 @@ var UpgradeTypeMap = map[int]string{
 }
 
 const (
-	AllUpgrade = iota + 1
-	SpecificUpgrade
-	GrayUpgrade
-	GroupUpgrade
-	AreaUpgrade
+	AllUpgrade      = iota + 1 //全量升级
+	SpecificUpgrade            //定向升级
+	GrayUpgrade                //灰度升级
+	GroupUpgrade               //分组升级
+	AreaUpgrade                //区域升级
 )
 
 var UpgradeModeMap = map[int]string{
@@ -173,15 +167,32 @@ var PackageTypeMap = map[int]string{
 }
 
 const (
-	JobStatusPlanned = iota + 1
-	JobStatusInProgress
-	JobStatusCompleted
-	JobStatusCanceled
+	DeviceStatusConfirm    = iota + 1 //待确认
+	DeviceStatusQueued                //待推送
+	DeviceStatusNotified              //已推送
+	DeviceStatusInProgress            //升级中
+	/*
+		设备升级完成后，建议立即重启设备，设备上线后，立即上报新的版本号。
+		设备上线请求和上报版本请求间隔不能超过2秒。
+		重要
+			如果设备上报的版本与OTA服务要求的版本一致就认为升级成功，反之认为失败，
+			这是物联网平台判断设备升级成功的唯一条件。即使升级进度上报为100%，
+			如果不上报新的版本号，可能因为超过设备升级超时时间导致升级失败。
+	*/
+	DeviceStatusSuccess  //升级成功
+	DeviceStatusFailure  //升级失败
+	DeviceStatusCanceled //已取消
 )
 
-var JobStatusMap = map[int]string{
-	JobStatusPlanned:    "计划中",
-	JobStatusInProgress: "执行中",
-	JobStatusCompleted:  "已完成",
-	JobStatusCanceled:   "已取消",
-}
+/*
+PLANNED：计划中。批次已创建，但是定时时间未到。仅定时静态升级的批次可能返回该值。
+IN_PROGRESS：执行中。
+COMPLETED：已完成。
+CANCELED：已取消。
+*/
+const (
+	JobStatusPlanned    = iota + 1 //计划中。批次已创建，但是定时时间未到。仅定时静态升级的批次可能返回该值。
+	JobStatusInProgress            //执行中
+	JobStatusCompleted             //已完成
+	JobStatusCanceled              //已取消
+)

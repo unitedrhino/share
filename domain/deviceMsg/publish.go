@@ -81,7 +81,7 @@ func (c *CommonMsg) GetTimeStamp() time.Time {
 }
 func (c *CommonMsg) AddStatus(err error) *CommonMsg {
 	e := errors.Fmt(err)
-	c.Code = e.Code
+	c.Code = e.GetCode()
 	c.Msg = e.GetDetailMsg()
 	return c
 }

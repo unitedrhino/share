@@ -73,8 +73,8 @@ func (m *Minio) SignedPutUrl(ctx context.Context, fileDir string, expiredSec int
 }
 
 // 获取get下载url
-func (m *Minio) SignedGetUrl(ctx context.Context, fileDir string, expiredSec int64, opKv common.OptionKv) (string, error) {
-	url, err := m.client.PresignedGetObject(ctx, m.currentBucketName, fileDir, time.Duration(expiredSec*int64(time.Second)), opKv.ToMinioReqParams())
+func (m *Minio) SignedGetUrl(ctx context.Context, filePath string, expiredSec int64, opKv common.OptionKv) (string, error) {
+	url, err := m.client.PresignedGetObject(ctx, m.currentBucketName, filePath, time.Duration(expiredSec*int64(time.Second)), opKv.ToMinioReqParams())
 	if err != nil {
 		return "", err
 	}

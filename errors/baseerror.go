@@ -97,6 +97,9 @@ func (c CodeError) AddDetailf(format string, a ...any) *CodeError {
 }
 
 func (c *CodeError) GetDetailMsg() string {
+	if c == nil {
+		return OK.GetDetailMsg()
+	}
 	if len(c.Details) == 0 {
 		return c.GetMsg()
 	}
