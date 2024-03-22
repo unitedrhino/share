@@ -3,9 +3,12 @@ package stores
 import (
 	"context"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"gitee.com/i-Things/share/conf"
 	"gitee.com/i-Things/share/def"
+	"github.com/twpayne/go-geom/encoding/ewkb"
+	"github.com/twpayne/go-geom/encoding/ewkbhex"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"math"
@@ -14,6 +17,15 @@ import (
 type Point struct {
 	Longitude float64 `json:"longitude,range=[0:180]"` //经度
 	Latitude  float64 `json:"latitude,range=[0:90]"`   //纬度
+}
+
+// pgsql参考: https://www.jianshu.com/p/88ff6f693ffe?ivk_sa=1024320u
+func (Point) GormDataType() string {
+	switch dbType {
+	case conf.Pgsql:
+		return "GEOMETRY(point, 4326)"
+	}
+	return "point"
 }
 
 func (p Point) ToPo() def.Point {
@@ -28,11 +40,44 @@ func ToPoint(p def.Point) Point {
 		Latitude:  p.Latitude,
 	}
 }
+func (p *Point) Range(columnName string, Range int64) string {
+	switch dbType {
+	case conf.Pgsql:
+		return fmt.Sprintf("ST_DWithin(%s,ST_GeomFromText('POINT(%v %v)', 4326),%v)",
+			columnName, p.Longitude, p.Latitude, Range)
+	default:
+		return fmt.Sprintf(
+			"round(st_distance_sphere(ST_GeomFromText(POINT(%v %v)), ST_GeomFromText(AsText(%s))),2)>%d",
+			p.Longitude, p.Latitude, columnName, Range)
+	}
+}
+
+// hexToWKT converts a hex-encoded geometry to WKT format.
+func hexToWKT(hexStr []byte) (string, error) {
+	// Decode hex string to bytes.
+	bytes, err := hex.DecodeString(string(hexStr))
+	if err != nil {
+		return "", err
+	}
+
+	// Try to parse the bytes as WKB (Well-Known Binary).
+	g, err := ewkb.Unmarshal(bytes)
+	if err != nil {
+		return "", err
+	}
+	fmt.Println(g)
+	// Convert the geometry to WKT (Well-Known Text).
+	return "", nil
+}
 
 func (p *Point) parsePoint(binaryData []byte) error {
 	if dbType == conf.Pgsql {
-		_, err := fmt.Sscanf(string(binaryData), "(%f,%f)", &p.Longitude, &p.Latitude)
-		return err
+		g, err := ewkbhex.Decode(string(binaryData))
+		if err != nil {
+			return err
+		}
+		p.Longitude, p.Latitude = g.FlatCoords()[0], g.FlatCoords()[1]
+		return nil
 	}
 	//下面是mysql的方式
 	if len(binaryData) != 25 {
@@ -77,7 +122,8 @@ func (p Point) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
 	case conf.Pgsql:
 		return clause.Expr{
 			//SQL:  "ST_PointFromText(?)",
-			SQL: fmt.Sprintf("point'(%f,%f)'", p.Longitude, p.Latitude), //如果你不知道 SRID 的值，可以使用 -1 来表示未知的空间参考系统。
+			//
+			SQL: fmt.Sprintf("ST_GeomFromText('POINT(%f %f)', 4326)", p.Longitude, p.Latitude), //如果你不知道 SRID 的值，可以使用 -1 来表示未知的空间参考系统。
 		}
 	default:
 		return clause.Expr{
