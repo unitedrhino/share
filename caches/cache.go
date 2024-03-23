@@ -9,6 +9,7 @@ import (
 	"gitee.com/i-Things/share/eventBus"
 	"github.com/dgraph-io/ristretto"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/syncx"
 	"math/rand"
 	"sync"
 	"time"
@@ -25,6 +26,7 @@ type Cache[dataT any] struct {
 	getData    func(ctx context.Context, key string) (*dataT, error)
 	fmt        func(ctx context.Context, key string, data *dataT)
 	expireTime time.Duration
+	sf         syncx.SingleFlight
 }
 
 type CacheConfig[dataT any] struct {
@@ -52,6 +54,7 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 		BufferItems: 64,      // number of keys per Get buffer.
 	})
 	ret := Cache[dataT]{
+		sf:         syncx.NewSingleFlight(),
 		keyType:    cfg.KeyType,
 		cache:      cache,
 		fastEvent:  cfg.FastEvent,
@@ -74,16 +77,16 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 	return &ret, nil
 }
 
-func (c Cache[dataT]) genTopic() string {
+func (c *Cache[dataT]) genTopic() string {
 	return fmt.Sprintf(eventBus.ServerCacheSync, c.keyType)
 }
 
-func (c Cache[dataT]) genCacheKey(key string) string {
+func (c *Cache[dataT]) genCacheKey(key string) string {
 	return fmt.Sprintf("cache:%s:%s", c.keyType, key)
 }
 
 // 删除数据的时候设置为空即可
-func (c Cache[dataT]) SetData(ctx context.Context, key string, data *dataT) error {
+func (c *Cache[dataT]) SetData(ctx context.Context, key string, data *dataT) error {
 	cacheKey := c.genCacheKey(key)
 	if data != nil { //如果是
 		dataStr, err := json.Marshal(data)
@@ -109,7 +112,7 @@ func (c Cache[dataT]) SetData(ctx context.Context, key string, data *dataT) erro
 	return nil
 }
 
-func (c Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
+func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
 	cacheKey := c.genCacheKey(key)
 	temp, ok := c.cache.Get(cacheKey)
 	if ok {
@@ -118,49 +121,56 @@ func (c Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
 		}
 		return temp.(*dataT), nil
 	}
-	{ //内存中没有就从redis上获取
-		val, err := store.GetCtx(ctx, cacheKey)
-		if err != nil {
-			return nil, err
-		}
-		if len(val) > 0 {
-			var ret dataT
-			err = json.Unmarshal([]byte(val), &ret)
+	//并发获取的情况下避免击穿
+	ret, err := c.sf.Do(key, func() (any, error) {
+		{ //内存中没有就从redis上获取
+			val, err := store.GetCtx(ctx, cacheKey)
 			if err != nil {
 				return nil, err
 			}
-			if c.fmt != nil {
-				c.fmt(ctx, key, &ret)
+			if len(val) > 0 {
+				var ret dataT
+				err = json.Unmarshal([]byte(val), &ret)
+				if err != nil {
+					return nil, err
+				}
+				if c.fmt != nil {
+					c.fmt(ctx, key, &ret)
+				}
+				c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime*2/3)
+				return &ret, nil
 			}
-			c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime*2/3)
-			return &ret, nil
 		}
-	}
-	if c.getData == nil { //如果没有设置第三级缓存则直接设置该参数为空并返回
-		c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime*2/3)
-		return nil, nil
-	}
-	//redis上没有就读数据库
-	data, err := c.getData(ctx, key)
-	if err != nil && !errors.Cmp(err, errors.NotFind) { //如果是其他错误直接返回
+		if c.getData == nil { //如果没有设置第三级缓存则直接设置该参数为空并返回
+			c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime*2/3)
+			return nil, nil
+		}
+		//redis上没有就读数据库
+		data, err := c.getData(ctx, key)
+		if err != nil && !errors.Cmp(err, errors.NotFind) { //如果是其他错误直接返回
+			return nil, err
+		}
+		//读到了之后设置缓存
+		c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime*2/3)
+		if data == nil {
+			return data, err
+		}
+		ctxs.GoNewCtx(ctx, func(ctx2 context.Context) { //异步设置缓存
+			str, err := json.Marshal(data)
+			if err != nil {
+				logx.WithContext(ctx).Error(err)
+				return
+			}
+			_, err = store.SetnxExCtx(ctx, cacheKey, string(str), int(c.expireTime/time.Second))
+			if err != nil {
+				logx.WithContext(ctx).Error(err)
+				return
+			}
+		})
+		return data, nil
+	})
+	if err != nil {
 		return nil, err
 	}
-	//读到了之后设置缓存
-	c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime*2/3)
-	if data == nil {
-		return data, err
-	}
-	ctxs.GoNewCtx(ctx, func(ctx2 context.Context) { //异步设置缓存
-		str, err := json.Marshal(data)
-		if err != nil {
-			logx.WithContext(ctx).Error(err)
-			return
-		}
-		_, err = store.SetnxExCtx(ctx, cacheKey, string(str), int(c.expireTime/time.Second))
-		if err != nil {
-			logx.WithContext(ctx).Error(err)
-			return
-		}
-	})
-	return data, nil
+	return ret.(*dataT), nil
 }
