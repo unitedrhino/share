@@ -33,7 +33,12 @@ const (
 
 const (
 	BusinessUserManage = "userManage" //产品管理
-	SceneUserInfo      = "userInfo"   //产品图片
+	SceneHeadIng       = "headImg"    //产品图片
+)
+const (
+	BusinessTenantManage = "tenantManage"  //产品管理
+	SceneBackgroundImg   = "backgroundImg" //
+	SceneLogoImg         = "logoImg"
 )
 
 const (

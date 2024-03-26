@@ -120,8 +120,14 @@ func CopyE(toValue interface{}, fromValue interface{}) (err error) {
 		Converters: converters,
 	})
 }
-func Copy[toT any](fromValue any) toT {
+func Copy[toT any](fromValue any) *toT {
 	var toValue toT
-	CopyE(&toValue, fromValue)
-	return toValue
+	if fromValue == nil {
+		return nil
+	}
+	err := CopyE(&toValue, fromValue)
+	if err != nil {
+		return nil
+	}
+	return &toValue
 }
