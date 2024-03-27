@@ -23,6 +23,20 @@ func SliceIndex[T any](slice []T, index int, defaul T) T {
 	}
 }
 
+func ToAnySlice[t any](in []t) (ret []any) {
+	for _, v := range in {
+		ret = append(ret, v)
+	}
+	return
+}
+
+func AnyToSlice[t any](in []any) (ret []t) {
+	for _, v := range in {
+		ret = append(ret, v.(t))
+	}
+	return
+}
+
 func NewFillSlice[T any](num int, val T) []T {
 	sli := make([]T, num)
 	for i := range sli {

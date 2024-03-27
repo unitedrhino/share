@@ -19,6 +19,29 @@ func UnmarshalNoErr[inT any](data string) inT {
 	return ret
 }
 
+func UnmarshalSlices[inT any](datas []string) (ret []*inT, err error) {
+	for _, data := range datas {
+		var one inT
+		err := json.Unmarshal([]byte(data), &one)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, &one)
+	}
+	return
+}
+
+func MarshalSlices[inT any](datas []*inT) (ret []string, err error) {
+	for _, data := range datas {
+		v, err := json.Marshal(data)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, string(v))
+	}
+	return
+}
+
 func MarshalNoErr(v any) string {
 	ret, _ := json.Marshal(v)
 	return string(ret)

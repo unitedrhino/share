@@ -8,6 +8,11 @@ import (
 	"github.com/zeromicro/go-zero/core/trace"
 )
 
+const (
+	ActionConnected    = "connected"
+	ActionDisconnected = "disconnected"
+)
+
 type (
 	// DevConn ddsvr 发布设备 连接和断连 的结构体
 	DevConn struct {

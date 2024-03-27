@@ -1,9 +1,11 @@
 package clients
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"gitee.com/i-Things/share/errors"
+	"github.com/parnurzeal/gorequest"
 	"math/rand"
 	"net/url"
 	"os"
@@ -27,6 +29,7 @@ var (
 
 type MqttClient struct {
 	clients []mqtt.Client
+	cfg     *conf.MqttConf
 }
 
 func NewMqttClient(conf *conf.MqttConf) (mcs *MqttClient, err error) {
@@ -51,8 +54,9 @@ func NewMqttClient(conf *conf.MqttConf) (mcs *MqttClient, err error) {
 				os.Exit(-1)
 			}
 			clients = append(clients, mc)
-			var cli = MqttClient{clients: clients}
+			var cli = MqttClient{clients: clients, cfg: conf}
 			mqttClient = &cli
+
 		}
 	})
 	return mqttClient, err
@@ -60,6 +64,30 @@ func NewMqttClient(conf *conf.MqttConf) (mcs *MqttClient, err error) {
 
 func SetMqttSetOnConnectHandler(f func(cli mqtt.Client)) {
 	mqttSetOnConnectHandler = f
+}
+
+type EmqResp struct {
+	Code    string `json:"code"` //如果不在线返回: CLIENTID_NOT_FOUND
+	Message string `json:"message"`
+}
+
+// https://www.emqx.io/docs/zh/v5.5/admin/api-docs.html#tag/Clients/paths/~1clients~1%7Bclientid%7D/get
+func (m MqttClient) CheckIsOnline(ctx context.Context, clientID string) (bool, error) {
+	if m.cfg.OpenApi == nil {
+		return false, errors.System.AddMsg("未开启登录检查")
+	}
+	oa := m.cfg.OpenApi
+	greq := gorequest.New().Retry(1, time.Second*2)
+	greq.SetBasicAuth(oa.ApiKey, oa.SecretKey)
+	var ret EmqResp
+	_, _, errs := greq.Get(fmt.Sprintf("%s/api/v5/clients/%s", oa.Host, url.QueryEscape(clientID))).EndStruct(&ret)
+	if errs != nil {
+		return false, errors.System.AddDetail(errs)
+	}
+	if ret.Code == "" {
+		return true, nil
+	}
+	return false, nil
 }
 
 func (m MqttClient) Subscribe(cli mqtt.Client, topic string, qos byte, callback mqtt.MessageHandler) error {
