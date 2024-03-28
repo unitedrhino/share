@@ -28,10 +28,11 @@ type UserCtx struct {
 
 func (u *UserCtx) ClearInner() *UserCtx {
 	if u == nil {
-		return u
+		return nil
 	}
-	u.InnerCtx = InnerCtx{}
-	return u
+	newCtx := *u
+	newCtx.InnerCtx = InnerCtx{}
+	return &newCtx
 }
 
 type InnerCtx struct {

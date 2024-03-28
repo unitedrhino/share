@@ -51,7 +51,7 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 
 		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
 			r.URL.Path, msg)
-		httpx.WriteJson(w, http.StatusBadRequest, Error(er.Code, msg))
+		httpx.WriteJson(w, http.StatusOK, Error(er.Code, msg))
 		code = int(er.Code)
 	}
 
@@ -74,6 +74,6 @@ func HttpWithoutWrap(w http.ResponseWriter, r *http.Request, resp any, err error
 		er := errors.Fmt(err)
 		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
 			r.URL.Path, utils.Fmt(er))
-		httpx.WriteJson(w, http.StatusBadRequest, Error(er.Code, er.GetMsg()))
+		httpx.WriteJson(w, http.StatusOK, Error(er.Code, er.GetMsg()))
 	}
 }

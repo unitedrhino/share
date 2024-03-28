@@ -206,7 +206,7 @@ func (c *connection) StartRead() {
 }
 func (c *connection) errorSend(data error) {
 	resp := WsResp{
-		StatusCode: http.StatusBadRequest,
+		StatusCode: http.StatusOK,
 		WsBody:     WsBody{Body: data},
 	}
 	c.sendMessage(resp)
