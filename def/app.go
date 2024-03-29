@@ -2,6 +2,7 @@ package def
 
 const (
 	AppCore = "core"
+	AppAll  = "all" //绑定所有模块
 )
 
 const (
