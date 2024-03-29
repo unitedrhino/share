@@ -18,7 +18,7 @@ require (
 	github.com/casbin/redis-watcher/v2 v2.5.0
 	github.com/dgraph-io/ristretto v0.1.0
 	github.com/dop251/goja v0.0.0-20230402114112-623f9dda9079
-	github.com/dtm-labs/client v1.18.7
+	github.com/dtm-labs/client v1.17.3
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/glebarez/sqlite v1.8.0
 	github.com/go-co-op/gocron v1.18.1
@@ -30,6 +30,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hibiken/asynq v0.24.1
+	github.com/jinzhu/copier v0.4.0
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/minio/minio-go/v7 v7.0.27
 	github.com/mojocn/base64Captcha v1.3.6
@@ -46,6 +47,8 @@ require (
 	github.com/twpayne/go-geom v1.5.4
 	github.com/zeromicro/go-zero v1.6.3
 	github.com/zhaoyunxing92/dingtalk/v2 v2.1.0
+	go.opentelemetry.io/otel v1.24.0
+	go.opentelemetry.io/otel/trace v1.24.0
 	go.uber.org/atomic v1.10.0
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	golang.org/x/net v0.21.0

@@ -85,3 +85,21 @@ const (
 	ActionDirUp   ActionDir = "up"   //向上调用
 	ActionDirDown ActionDir = "down" //向下调用
 )
+
+type (
+	PropertyDef struct {
+		IsUseShadow bool         `json:"isUseShadow"` //是否使用设备影子
+		IsNoRecord  bool         `json:"isNoRecord"`  //不存储历史记录
+		Define      Define       `json:"define"`      //数据定义
+		Mode        PropertyMode `json:"mode"`        //读写类型: 1:r(只读) 2:rw(可读可写)
+	}
+	EventDef struct {
+		Type   EventType `json:"type"`   //事件类型: 1:信息:info  2:告警alert  3:故障:fault
+		Params Params    `json:"params"` //事件参数
+	}
+	ActionDef struct {
+		Dir    ActionDir `json:"dir"`    //调用方向
+		Input  Params    `json:"input"`  //调用参数
+		Output Params    `json:"output"` //返回参数
+	}
+)
