@@ -40,6 +40,9 @@ const (
 	SceneBackgroundImg   = "backgroundImg" //
 	SceneLogoImg         = "logoImg"
 )
+const (
+	BusinessScene = "scene" //场景
+)
 
 const (
 	SceneFirmware = "firmware"

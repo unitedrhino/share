@@ -91,7 +91,7 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 			for i := 0; i < destV.Len(); i++ {
 				dest := destV.Index(i)
 				field := GetField(dest, f.BindNames...)
-				if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+				if !field.IsValid() || (len(ids) == 0 && !field.IsZero()) { //只有root权限的租户可以设置为其他租户
 					continue
 				}
 				var v ProjectID
