@@ -7,8 +7,8 @@ type Info struct {
 	Name             string `json:"name"`               // 租户名称
 	AdminUserID      int64  `json:"adminUserID,string"` // 超级管理员id
 	AdminRoleID      int64  `json:"adminRoleID"`        // 超级管理员id
-	BaseUrl          string `json:"baseUrl"`            //应用首页
-	LogoUrl          string `json:"logoUrl"`            //应用logo地址
+	BackgroundImg    string `json:"backgroundImg"`      //应用首页
+	LogoImg          string `json:"logoImg"`            //应用logo地址
 	Desc             string `json:"desc"`               //应用描述
 	CreatedTime      int64  `json:"createdTime,string"`
 	ProjectLimit     int64  `json:"projectLimit"` //项目数量限制: 1: 单项目 2: 多项目
