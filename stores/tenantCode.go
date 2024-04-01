@@ -147,8 +147,12 @@ func (sd TenantCodeClause) ModifyStatement(stmt *gorm.Statement) { //查询的�
 					}
 				}
 			}
+			values := []any{tenantCode}
+			if sd.Opt == Select { //all租户可以让所有人查
+				values = []any{tenantCode, def.TenantCodeAll}
+			}
 			stmt.AddClause(clause.Where{Exprs: []clause.Expression{
-				clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: []any{tenantCode}},
+				clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: values},
 			}})
 			stmt.Clauses[sd.GenAuthKey()] = clause.Clause{}
 		}

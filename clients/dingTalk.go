@@ -29,7 +29,7 @@ func NewDingTalkClient(c *conf.ThirdConf) (*DingTalk, error) {
 // * @return Client
 // * @throws Exception
 // */
-//func CreateClient() (_result *dingtalkoauth2_1_0.Client, _err error) {
+//func CreateAliClient() (_result *dingtalkoauth2_1_0.Client, _err error) {
 //	config := &openapi.Config{}
 //	config.Protocol = tea.String("https")
 //	config.RegionId = tea.String("central")
@@ -39,7 +39,7 @@ func NewDingTalkClient(c *conf.ThirdConf) (*DingTalk, error) {
 //}
 //
 //func _main(args []*string) (_err error) {
-//	client, _err := CreateClient()
+//	client, _err := CreateAliClient()
 //	if _err != nil {
 //		return _err
 //	}
@@ -78,7 +78,7 @@ func NewDingTalkClient(c *conf.ThirdConf) (*DingTalk, error) {
 //}
 //
 //func _main2(args []*string) (_err error) {
-//	client, _err := CreateClient()
+//	client, _err := CreateAliClient()
 //	if _err != nil {
 //		return _err
 //	}

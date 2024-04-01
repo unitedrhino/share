@@ -7,6 +7,7 @@ const (
 
 const (
 	TenantCodeDefault = "default" //默认租户
+	TenantCodeAll     = "all"     //特殊租户:所有租户都能获取该租户的信息
 )
 const (
 	ModuleSystemManage = "systemManage" //租户内的系统管理

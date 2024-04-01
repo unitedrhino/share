@@ -129,14 +129,14 @@ func ProxyMediaServer(cmd string, mgr *SvcZlmedia, values []byte) (data []byte, 
 	values, err = json.Marshal(tdata)
 	if err != nil {
 		er := errors.Fmt(err).AddMsg("构造服务数据失败")
-		fmt.Print("%s map string phares failed  err=%+v", utils.FuncName(), er)
+		fmt.Printf("%s map string phares failed  err=%+v", utils.FuncName(), er)
 		return nil, err
 	}
 	//fmt.Println("[****test***] ", string(values))
 	vidRecv, error := mediaSrv.PostMediaServerJson(cmd, values)
 	if error != nil {
 		er := errors.Fmt(error).AddMsg("服务不在线")
-		fmt.Print("%s rpc.PostMediaServer  err=%+v", utils.FuncName(), er)
+		fmt.Printf("%s rpc.PostMediaServer  err=%+v", utils.FuncName(), er)
 		return nil, error
 	}
 	return vidRecv, nil
