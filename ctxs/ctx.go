@@ -55,18 +55,16 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				tenantCode = def.TenantCodeDefault
 			}
 			uc = &UserCtx{
-				AppCode:        appCode,
-				TenantCode:     tenantCode,
-				IP:             strIP,
-				Os:             r.Header.Get("User-Agent"),
-				AcceptLanguage: r.Header.Get("Accept-Language"),
+				AppCode:    appCode,
+				TenantCode: tenantCode,
+				IP:         strIP,
 			}
 			c := context.WithValue(r.Context(), UserInfoKey, uc)
 			r = r.WithContext(c)
-		} else {
-			uc.Os = r.Header.Get("User-Agent")
-			uc.AcceptLanguage = r.Header.Get("Accept-Language")
 		}
+		uc.Os = r.Header.Get("User-Agent")
+		uc.AcceptLanguage = r.Header.Get("Accept-Language")
+		uc.Token = r.Header.Get(UserTokenKey)
 		next(w, r)
 	}
 }
