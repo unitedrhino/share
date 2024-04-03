@@ -116,7 +116,7 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 	cacheKey := c.genCacheKey(key)
 	temp, ok := c.cache.Get(cacheKey)
 	if ok {
-		if temp == nil {
+		if temp == nil || temp.(*dataT) == nil {
 			return nil, errors.NotFind
 		}
 		return temp.(*dataT), nil
