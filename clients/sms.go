@@ -8,6 +8,7 @@ import (
 	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
+	"strings"
 )
 
 type Sms struct {
@@ -16,7 +17,7 @@ type Sms struct {
 }
 
 type SendSmsParam struct {
-	PhoneNumbers  string         `json:"phoneNumbers"`
+	PhoneNumbers  []string       `json:"phoneNumbers"`
 	SignName      string         `json:"signName"`
 	TemplateCode  string         `json:"templateCode"`
 	TemplateParam map[string]any `json:"templateParam"`
@@ -47,7 +48,7 @@ func (s *Sms) SendSms(param SendSmsParam) error {
 }
 func (s *Sms) SendSmsAli(param SendSmsParam) error {
 	sendSmsRequest := &dysmsapi20170525.SendSmsRequest{
-		PhoneNumbers:  tea.String(param.PhoneNumbers),
+		PhoneNumbers:  tea.String(strings.Join(param.PhoneNumbers, ",")),
 		SignName:      tea.String(param.SignName),
 		TemplateCode:  tea.String(param.TemplateCode),
 		TemplateParam: tea.String(utils.MarshalNoErr(param.TemplateParam)),

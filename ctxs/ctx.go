@@ -36,9 +36,10 @@ func (u *UserCtx) ClearInner() *UserCtx {
 }
 
 type InnerCtx struct {
-	AllProject bool
-	AllArea    bool //内部使用,不限制区域
-	AllTenant  bool //所有租户的权限
+	AllProject       bool
+	AllArea          bool //内部使用,不限制区域
+	AllTenant        bool //所有租户的权限
+	WithCommonTenant bool //同时获取公共租户
 }
 
 func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
@@ -138,12 +139,18 @@ func GetUserCtxNoNil(ctx context.Context) *UserCtx {
 	return val
 }
 func WithRoot(ctx context.Context) context.Context {
-	uc := GetUserCtxNoNil(ctx)
+	uc := *GetUserCtxNoNil(ctx)
 	uc.TenantCode = def.TenantCodeDefault //只有default租户有root权限去读其他租户的数据
 	uc.AllTenant = true
 	uc.AllProject = true
 	uc.AllArea = true
-	return SetUserCtx(ctx, uc)
+	return SetUserCtx(ctx, &uc)
+}
+
+func WithCommonTenant(ctx context.Context) context.Context {
+	uc := *GetUserCtxNoNil(ctx)
+	uc.WithCommonTenant = true
+	return SetUserCtx(ctx, &uc)
 }
 
 func NewUserCtx(ctx context.Context) context.Context {
