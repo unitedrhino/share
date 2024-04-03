@@ -28,15 +28,13 @@ const (
 )
 
 // 物模型标签
-type Tag int64
+type Tag = int64
 
 const (
 	TagCustom   Tag = 1 //自定义
 	TagOptional Tag = 2 //可选
 	TagRequired Tag = 3 //必选 必选不可删除
 )
-
-
 
 // 属性读写类型: r(只读) rw(可读可写)
 type PropertyMode string
@@ -62,5 +60,3 @@ const (
 	ActionDirUp   ActionDir = "up"   //向上调用
 	ActionDirDown ActionDir = "down" //向下调用
 )
-
-

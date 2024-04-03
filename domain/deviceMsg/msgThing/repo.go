@@ -54,16 +54,16 @@ type (
 		// InsertEventData 插入事件数据
 		InsertEventData(ctx context.Context, productID string, deviceName string, event *EventData) error
 		// InsertPropertyData 插入一条属性数据
-		InsertPropertyData(ctx context.Context, t *schema.Model, productID string, deviceName string, property *PropertyData) error
+		InsertPropertyData(ctx context.Context, t *schema.Property, productID string, deviceName string, property *PropertyData) error
 		// InsertPropertiesData 插入多条属性数据 params key为属性的id,val为属性的值
 		InsertPropertiesData(ctx context.Context, t *schema.Model, productID string, deviceName string, params map[string]any, timestamp time.Time) error
 		// GetEventDataWithID 根据事件id获取事件信息
 		GetEventDataByFilter(ctx context.Context, filter FilterOpt) ([]*EventData, error)
 		GetEventCountByFilter(ctx context.Context, filter FilterOpt) (int64, error)
 		// GetPropertyDataByID 根据属性id获取属性信息
-		GetPropertyDataByID(ctx context.Context, filter FilterOpt) ([]*PropertyData, error)
-		GetLatestPropertyDataByID(ctx context.Context, filter LatestFilter) (*PropertyData, error)
-		GetPropertyCountByID(ctx context.Context, filter FilterOpt) (int64, error)
+		GetPropertyDataByID(ctx context.Context, p *schema.Property, filter FilterOpt) ([]*PropertyData, error)
+		GetLatestPropertyDataByID(ctx context.Context, p *schema.Property, filter LatestFilter) (*PropertyData, error)
+		GetPropertyCountByID(ctx context.Context, p *schema.Property, filter FilterOpt) (int64, error)
 		// InitProduct 初始化产品的物模型相关表及日志记录表
 		InitProduct(ctx context.Context, t *schema.Model, productID string) error
 		// DeleteProduct 删除产品时需要删除产品下的所有表
@@ -73,9 +73,9 @@ type (
 		// DeleteDevice 删除设备时需要删除设备的所有表
 		DeleteDevice(ctx context.Context, t *schema.Model, productID string, deviceName string) error
 		// UpdateProduct 修改产品物模型 只支持新增和删除,不支持修改数据类型
-		UpdateProduct(ctx context.Context, oldT *schema.Model, newt *schema.Model, productID string) error
+		//UpdateProduct(ctx context.Context, oldT *schema.Model, newt *schema.Model, productID string) error
 		CreateProperty(ctx context.Context, p *schema.Property, productID string) error
-		DeleteProperty(ctx context.Context, productID string, identifier string) error
+		DeleteProperty(ctx context.Context, p *schema.Property, productID string, identifier string) error
 		UpdateProperty(ctx context.Context, oldP *schema.Property, newP *schema.Property, productID string) error
 	}
 )

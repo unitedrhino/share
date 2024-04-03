@@ -20,11 +20,16 @@ type (
 		Action     ActionMap   `json:"-"`          //内部使用,使用map加速匹配,key为id
 	}
 	CommonParam struct {
-		Identifier   string `json:"identifier"`   //标识符
-		Name         string `json:"name"`         //功能名称
-		Desc         string `json:"desc"`         //描述
-		Required     bool   `json:"required"`     //是否必须
-		ExtendConfig string `json:"extendConfig"` //拓展参数,json格式
+		Identifier        string `json:"identifier"`        //标识符 (统一)
+		Tag               int64  `json:"tag"`               //物模型标签 1:自定义 2:可选 3:必选  必选不可删除
+		Name              string `json:"name"`              //功能名称
+		Desc              string `json:"desc"`              //描述
+		Required          bool   `json:"required"`          //是否必须
+		ExtendConfig      string `json:"extendConfig"`      //拓展参数,json格式
+		IsCanSceneLinkage int64  `json:"isCanSceneLinkage"` //是否支持场景联动控制 (统一)
+		IsShareAuthPerm   int64  `json:"isShareAuthPerm"`   // 分享是否需要校验权限 (统一)
+		IsHistory         int64  `json:"isHistory"`         // 是否存储历史记录
+		Order             int64  `json:"order"`             //排序
 	}
 	/*配置信息*/
 	Profile struct {
