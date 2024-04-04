@@ -137,12 +137,12 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 				if c.fmt != nil {
 					c.fmt(ctx, key, &ret)
 				}
-				c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime*2/3)
+				c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime*1/3)
 				return &ret, nil
 			}
 		}
 		if c.getData == nil { //如果没有设置第三级缓存则直接设置该参数为空并返回
-			c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime*2/3)
+			c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime*1/3)
 			return nil, nil
 		}
 		//redis上没有就读数据库
@@ -151,7 +151,7 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 			return nil, err
 		}
 		//读到了之后设置缓存
-		c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime*2/3)
+		c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime*1/3)
 		if data == nil {
 			return data, err
 		}

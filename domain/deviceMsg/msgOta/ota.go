@@ -166,6 +166,8 @@ var PackageTypeMap = map[int]string{
 	DiffPackage: "差包",
 }
 
+const ModuleCodeDefault = "default"
+
 const (
 	DeviceStatusConfirm    = iota + 1 //待确认
 	DeviceStatusQueued                //待推送
