@@ -253,3 +253,15 @@ func MapBoolToInt(in map[string]any) {
 	}
 	return
 }
+
+func ToStringMap(in any) map[string]any {
+	var m = map[string]interface{}{}
+	switch v := in.(type) {
+	case map[string]string:
+		for k, val := range v {
+			m[k] = val
+		}
+		return m
+	}
+	return cast.ToStringMap(in)
+}

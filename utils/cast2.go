@@ -145,11 +145,6 @@ func ToStringMapInt64(i any) map[string]int64 {
 	return cast.ToStringMapInt64(i)
 }
 
-// ToStringMap casts an interface to a map[string]interface{} type.
-func ToStringMap(i any) map[string]any {
-	return cast.ToStringMap(i)
-}
-
 // ToSlice casts an interface to a []interface{} type.
 func ToSlice(i any) []any {
 	return cast.ToSlice(i)

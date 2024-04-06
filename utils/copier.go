@@ -131,3 +131,14 @@ func Copy[toT any](fromValue any) *toT {
 	}
 	return &toValue
 }
+
+func CopySlice[toT any, fromT any](fromValue []*fromT) []*toT {
+	if len(fromValue) == 0 {
+		return nil
+	}
+	var ret []*toT
+	for _, v := range fromValue {
+		ret = append(ret, Copy[toT](v))
+	}
+	return ret
+}
