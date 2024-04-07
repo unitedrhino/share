@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gitee.com/i-Things/share/caches"
 	"gitee.com/i-Things/share/ctxs"
+	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/utils"
 	"gorm.io/gorm"
@@ -80,6 +81,14 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 		return
 	}
 	uc := ctxs.GetUserCtxNoNil(stmt.Context)
+	if uc.ProjectID == 0 || uc.ProjectID == def.NotClassified {
+		ti, err := caches.GetTenant(stmt.Context, uc.TenantCode)
+		if err != nil {
+			uc.ProjectID = def.NotClassified
+		} else {
+			uc.ProjectID = ti.DefaultProjectID
+		}
+	}
 	switch sd.Opt {
 	case Create:
 		f := stmt.Schema.FieldsByName[sd.Field.Name]
