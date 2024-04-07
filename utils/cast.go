@@ -151,6 +151,14 @@ func Int64ToTimex(in int64) *time.Time {
 	return &ret
 }
 
+func Int64ToSqlTime(in int64) sql.NullTime {
+	if in == 0 {
+		return sql.NullTime{}
+	}
+	ret := time.Unix(in, 0)
+	return sql.NullTime{Valid: true, Time: ret}
+}
+
 func TimeToInt64(t time.Time) int64 {
 	if t == empty {
 		return 0

@@ -84,14 +84,14 @@ func init() {
 		copier.TypeConverter{SrcType: time2, DstType: int2, Fn: func(src interface{}) (dst interface{}, err error) {
 			t := src.(*time.Time)
 			if t == nil {
-				return 0, nil
+				return int64(0), nil
 			}
 			return t.Unix(), nil
 		}},
 		copier.TypeConverter{SrcType: time3, DstType: int2, Fn: func(src interface{}) (dst interface{}, err error) {
 			t := src.(sql.NullTime)
 			if t.Valid == false {
-				return 0, nil
+				return int64(0), nil
 			}
 			return t.Time.Unix(), nil
 		}},
@@ -103,10 +103,10 @@ func init() {
 			return time.Unix(in, 0), nil
 		}},
 		copier.TypeConverter{SrcType: int2, DstType: time2, Fn: func(src interface{}) (dst interface{}, err error) {
-			return ToRpcNullInt64(src), nil
+			return Int64ToTimex(src.(int64)), nil
 		}},
 		copier.TypeConverter{SrcType: int2, DstType: time3, Fn: func(src interface{}) (dst interface{}, err error) {
-			return Int64ToTimex(src.(int64)), nil
+			return Int64ToSqlTime(src.(int64)), nil
 		}})
 }
 
