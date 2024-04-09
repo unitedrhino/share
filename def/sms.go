@@ -11,6 +11,7 @@ const (
 const (
 	NotifyGroupCaptcha = "captcha" //验证码通知
 	NotifyGroupDevice  = "device"  //设备通知
+	NotifyGroupSystem  = "system"  //系统通知
 )
 
 type NotifyType = string
