@@ -7,7 +7,7 @@ import (
 	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/eventBus"
-	"github.com/dgraph-io/ristretto"
+	"github.com/maypok86/otter"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/syncx"
 	"math/rand"
@@ -21,7 +21,7 @@ type CacheSyncStu struct {
 
 type Cache[dataT any] struct {
 	keyType    string
-	cache      *ristretto.Cache
+	cache      otter.Cache[string, *dataT]
 	fastEvent  *eventBus.FastEvent
 	getData    func(ctx context.Context, key string) (*dataT, error)
 	fmt        func(ctx context.Context, key string, data *dataT)
@@ -48,11 +48,21 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 	if v, ok := cacheMap[cfg.KeyType]; ok {
 		return v.(*Cache[dataT]), nil
 	}
-	cache, _ := ristretto.NewCache(&ristretto.Config{
-		NumCounters: 1e7,     // number of keys to track frequency of (10M).
-		MaxCost:     1 << 30, // maximum cost of cache (1GB).
-		BufferItems: 64,      // number of keys per Get buffer.
-	})
+	cache, err := otter.MustBuilder[string, *dataT](10_000).
+		CollectStats().
+		Cost(func(key string, value *dataT) uint32 {
+			return 1
+		}).
+		WithTTL(cfg.ExpireTime/3 + 1).
+		Build()
+	if err != nil {
+		return nil, err
+	}
+	//cache, _ := ristretto.NewCache(&ristretto.Config{
+	//	NumCounters: 1e7,     // number of keys to track frequency of (10M).
+	//	MaxCost:     1 << 30, // maximum cost of cache (1GB).
+	//	BufferItems: 64,      // number of keys per Get buffer.
+	//})
 	ret := Cache[dataT]{
 		sf:         syncx.NewSingleFlight(),
 		keyType:    cfg.KeyType,
@@ -65,9 +75,9 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 	if ret.expireTime == 0 {
 		ret.expireTime = time.Minute*10 + time.Second*time.Duration(rand.Int63n(60))
 	}
-	err := ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
+	err = ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
 		cacheKey := string(body)
-		ret.cache.Del(cacheKey)
+		ret.cache.Delete(cacheKey)
 		return nil
 	})
 	if err != nil {
@@ -104,7 +114,7 @@ func (c *Cache[dataT]) SetData(ctx context.Context, key string, data *dataT) err
 			logx.WithContext(ctx).Error(err)
 		}
 	}
-	c.cache.Del(cacheKey)
+	c.cache.Delete(cacheKey)
 	err := c.fastEvent.Publish(ctx, c.genTopic(), cacheKey)
 	if err != nil {
 		logx.WithContext(ctx).Error(err)
@@ -116,10 +126,10 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 	cacheKey := c.genCacheKey(key)
 	temp, ok := c.cache.Get(cacheKey)
 	if ok {
-		if temp == nil || temp.(*dataT) == nil {
+		if temp == nil {
 			return nil, errors.NotFind
 		}
-		return temp.(*dataT), nil
+		return temp, nil
 	}
 	//并发获取的情况下避免击穿
 	ret, err := c.sf.Do(key, func() (any, error) {
@@ -137,12 +147,12 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 				if c.fmt != nil {
 					c.fmt(ctx, key, &ret)
 				}
-				c.cache.SetWithTTL(cacheKey, &ret, 1, c.expireTime*1/3)
+				c.cache.Set(cacheKey, &ret)
 				return &ret, nil
 			}
 		}
 		if c.getData == nil { //如果没有设置第三级缓存则直接设置该参数为空并返回
-			c.cache.SetWithTTL(cacheKey, nil, 1, c.expireTime*1/3)
+			c.cache.Set(cacheKey, nil)
 			return nil, nil
 		}
 		//redis上没有就读数据库
@@ -151,7 +161,7 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 			return nil, err
 		}
 		//读到了之后设置缓存
-		c.cache.SetWithTTL(cacheKey, data, 1, c.expireTime*1/3)
+		c.cache.Set(cacheKey, data)
 		if data == nil {
 			return data, err
 		}
