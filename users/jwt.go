@@ -11,11 +11,8 @@ func CreateToken(secretKey string, claims jwt.Claims) (string, error) {
 	return token.SignedString([]byte(secretKey))
 }
 
-// 解析 token
-func ParseToken(claim jwt.Claims, tokenString string, secretKey string) error {
-	token, err := jwt.ParseWithClaims(tokenString, claim, func(token *jwt.Token) (i any, e error) {
-		return []byte(secretKey), nil
-	})
+func ParseTokenWithFunc(claim jwt.Claims, tokenString string, f jwt.Keyfunc) error {
+	token, err := jwt.ParseWithClaims(tokenString, claim, f)
 	if err != nil {
 		switch {
 		case errors.Is(err, jwt.ErrTokenExpired):
@@ -37,4 +34,11 @@ func ParseToken(claim jwt.Claims, tokenString string, secretKey string) error {
 	} else {
 		return errors.TokenInvalid
 	}
+}
+
+// 解析 token
+func ParseToken(claim jwt.Claims, tokenString string, secretKey string) error {
+	return ParseTokenWithFunc(claim, tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
 }
