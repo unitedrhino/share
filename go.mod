@@ -35,7 +35,9 @@ require (
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hibiken/asynq v0.24.1
 	github.com/jinzhu/copier v0.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
+	github.com/maypok86/otter v1.2.0
 	github.com/minio/minio-go/v7 v7.0.27
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/nats-io/nats.go v1.27.0
@@ -48,6 +50,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/suifengtec/gocoord v0.0.0-20210116135606-a0cd8c71c959
 	github.com/taosdata/driver-go/v3 v3.0.0
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.898
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.898
 	github.com/twpayne/go-geom v1.5.3
 	github.com/zeromicro/go-zero v1.5.6
 	github.com/zhaoyunxing92/dingtalk/v2 v2.1.0
@@ -131,7 +135,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
-	github.com/maypok86/otter v1.2.0 // indirect
 	github.com/minio/md5-simd v1.1.0 // indirect
 	github.com/minio/sha256-simd v0.1.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
