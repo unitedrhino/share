@@ -18,9 +18,9 @@ const (
 )
 
 const (
-	ServerCacheKeySysTenant = "sys:tenant"
-
-	ServerCacheKeyDmProduct = "dm:product"
-	ServerCacheKeyDmDevice  = "dm:device"
-	ServerCacheKeyDmSchema  = "dm:schema"
+	ServerCacheKeySysTenantInfo        = "sys:tenant:info"
+	ServerCacheKeySysTenantOpenWebhook = "sys:tenant:open:webhook"
+	ServerCacheKeyDmProduct            = "dm:product"
+	ServerCacheKeyDmDevice             = "dm:device"
+	ServerCacheKeyDmSchema             = "dm:schema"
 )

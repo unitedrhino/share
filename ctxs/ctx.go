@@ -6,6 +6,7 @@ import (
 	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/utils"
+	"github.com/spf13/cast"
 	"google.golang.org/grpc/metadata"
 	"net/http"
 )
@@ -23,6 +24,7 @@ type UserCtx struct {
 	IsAllData      bool   //是否所有数据权限（开放认证用户值为true）
 	IP             string //用户的ip地址
 	Os             string //操作系统
+	UserName       string
 	InnerCtx
 }
 
@@ -55,6 +57,7 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			if tenantCode == "" {
 				tenantCode = def.TenantCodeDefault
 			}
+
 			uc = &UserCtx{
 				AppCode:    appCode,
 				TenantCode: tenantCode,
@@ -63,6 +66,13 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			c := context.WithValue(r.Context(), UserInfoKey, uc)
 			r = r.WithContext(c)
 		}
+		strProjectID := r.Header.Get(UserProjectID)
+		projectID := cast.ToInt64(strProjectID)
+		if projectID == 0 {
+			projectID = def.NotClassified
+		}
+		uc.AppCode = r.Header.Get(UserAppCodeKey)
+		uc.ProjectID = projectID
 		uc.Os = r.Header.Get("User-Agent")
 		uc.AcceptLanguage = r.Header.Get("Accept-Language")
 		uc.Token = r.Header.Get(UserTokenKey)
