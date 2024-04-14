@@ -7,4 +7,5 @@ var (
 	DeviceTimeOut = NewCodeError(DeviceError+2, "设备回复超时")
 	NotOnline     = NewCodeError(DeviceError+3, "设备不在线")
 	DeviceResp    = NewCodeError(DeviceError+4, "设备回复错误")
+	DeviceBound   = NewCodeError(DeviceError+5, "设备已被绑定")
 )
