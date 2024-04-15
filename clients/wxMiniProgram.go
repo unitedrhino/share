@@ -5,6 +5,7 @@ import (
 	"gitee.com/i-Things/share/conf"
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
+	"github.com/silenceper/wechat/v2/credential"
 	"github.com/silenceper/wechat/v2/miniprogram"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
 	zeroCache "github.com/zeromicro/go-zero/core/stores/cache"
@@ -27,5 +28,6 @@ func NewWxMiniProgram(ctx context.Context, conf *conf.ThirdConf, redisConf zeroC
 		Cache:     memory,
 	}
 	program := wc.GetMiniProgram(cfg)
+	program.SetAccessTokenHandle(credential.NewStableAccessToken(cfg.AppID, cfg.AppSecret, credential.CacheKeyMiniProgramPrefix, cfg.Cache))
 	return program, nil
 }
