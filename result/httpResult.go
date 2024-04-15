@@ -49,8 +49,8 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 
 		msg = er.GetI18nMsg(ctxs.GetUserCtxNoNil(r.Context()).AcceptLanguage)
 
-		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %v ",
-			r.URL.Path, msg)
+		logx.WithContext(r.Context()).Errorf("【http handle err】router:%v err: %#v ",
+			r.URL.Path, err)
 		httpx.WriteJson(w, http.StatusOK, Error(er.Code, msg))
 		code = int(er.Code)
 	}
