@@ -18,8 +18,8 @@ type Time struct {
 }
 
 type OnlyTime struct {
-	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
-	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
+	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;autoCreateTime"`
+	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime"`
 }
 
 type NoDelTime struct {

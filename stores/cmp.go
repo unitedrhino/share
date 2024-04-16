@@ -9,14 +9,15 @@ import (
 type CmpType string
 
 const (
-	CmpTypeEq   CmpType = "="    //相等
-	CmpTypeNot  CmpType = "!="   //不相等
-	CmpTypeGt   CmpType = ">"    //大于
-	CmpTypeGte  CmpType = ">="   //大于等于
-	CmpTypeLt   CmpType = "<"    //小于
-	CmpTypeLte  CmpType = "<="   //小于等于
-	CmpTypeIn   CmpType = "in"   //在xx值之中,可以有n个参数
-	CmpTypeLike CmpType = "like" //模糊查询
+	CmpTypeEq    CmpType = "="      //相等
+	CmpTypeNot   CmpType = "!="     //不相等
+	CmpTypeGt    CmpType = ">"      //大于
+	CmpTypeGte   CmpType = ">="     //大于等于
+	CmpTypeLt    CmpType = "<"      //小于
+	CmpTypeLte   CmpType = "<="     //小于等于
+	CmpTypeIn    CmpType = "in"     //在xx值之中,可以有n个参数
+	CmpTypeNotIn CmpType = "not in" //在xx值之中,可以有n个参数
+	CmpTypeLike  CmpType = "like"   //模糊查询
 )
 
 type toSqlFunc func(column string) string
@@ -80,6 +81,13 @@ func CmpIn(values ...any) *Cmp {
 		return nil
 	}
 	return &Cmp{toSqlFunc: defaultToSql(CmpTypeIn), Value: values}
+}
+
+func CmpNotIn(values ...any) *Cmp {
+	if len(values) == 0 {
+		return nil
+	}
+	return &Cmp{toSqlFunc: defaultToSql(CmpTypeNotIn), Value: values}
 }
 
 // 过滤二进制比特位
