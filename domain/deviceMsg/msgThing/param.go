@@ -153,18 +153,14 @@ func GetVal(d *schema.Define, val any) (any, error) {
 			return str, nil
 		}
 	case schema.DataTypeEnum: //枚举类型 报文中传递的是数字
-		if num, ok := val.(json.Number); !ok {
+		if num, err := cast.ToInt64E(val); err != nil {
 			return nil, errors.Parameter.AddDetail(val)
 		} else {
-			ret, err := num.Int64()
-			if err != nil {
-				return nil, errors.Parameter.AddDetail(val)
-			}
-			_, ok := d.Mapping[string(num)]
+			_, ok := d.Mapping[cast.ToString(num)]
 			if !ok {
 				return nil, errors.OutRange.AddDetailf("value %v not in enum", val)
 			}
-			return ret, nil
+			return num, nil
 		}
 	case schema.DataTypeTimestamp:
 		switch val.(type) {
