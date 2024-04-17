@@ -221,3 +221,60 @@ func GetVal(d *schema.Define, val any) (any, error) {
 	}
 	return nil, errors.Parameter.AddDetail("need param")
 }
+
+func ToParamValues(tp map[string]Param) (map[string]any, error) {
+	ret := make(map[string]any, len(tp))
+	var err error
+	for k, v := range tp {
+		ret[k], err = ToParamValue(v)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return ret, nil
+}
+
+func ToParamValue(p Param) (any, error) {
+	var ret any
+	var err error
+	switch p.Value.Type {
+	case schema.DataTypeStruct:
+		v, ok := p.Value.Value.(map[string]Param)
+		if ok == false {
+			return ret, errors.Parameter.AddMsgf("struct Param is not find")
+		}
+		val := make(map[string]any, len(v)+1)
+		for _, tp := range v {
+			val[tp.Identifier], err = ToParamValue(tp)
+			if err != nil {
+				return ret, err
+			}
+		}
+		ret = val
+		return ret, nil
+	case schema.DataTypeArray:
+		array, ok := p.Value.Value.([]any)
+		if ok == false {
+			return ret, errors.Parameter.AddMsgf("array Param is not find")
+		}
+		val := make([]any, 0, len(array)+1)
+		for _, value := range array {
+			switch value.(type) {
+			case map[string]Param:
+				valMap := make(map[string]any, len(array)+1)
+				for _, tp := range value.(map[string]Param) {
+					valMap[tp.Identifier], err = ToParamValue(tp)
+					return ret, err
+				}
+				val = append(val, valMap)
+			default:
+				val = append(val, value)
+			}
+		}
+		ret = val
+		return ret, nil
+	default:
+		ret = p.Value.Value
+		return ret, nil
+	}
+}

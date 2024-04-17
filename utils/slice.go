@@ -30,6 +30,25 @@ func ToAnySlice[t any](in []t) (ret []any) {
 	return
 }
 
+func GetAddSlice[t comparable](oldV, newV []t) []t {
+	var oldMap = SliceToSet(oldV)
+	var ret []t
+	for _, v := range newV {
+		if _, ok := oldMap[v]; !ok {
+			ret = append(ret, v)
+		}
+	}
+	return ret
+}
+
+func SliceToSet[t comparable](in []t) map[t]struct{} {
+	var retM = map[t]struct{}{}
+	for _, v := range in {
+		retM[v] = struct{}{}
+	}
+	return retM
+}
+
 func ToSliceWithFunc[inT any, retT any](in []*inT, f func(in *inT) retT) (ret []retT) {
 	if in == nil {
 		return nil
