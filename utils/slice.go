@@ -30,6 +30,16 @@ func ToAnySlice[t any](in []t) (ret []any) {
 	return
 }
 
+func ToSliceWithFunc[inT any, retT any](in []*inT, f func(in *inT) retT) (ret []retT) {
+	if in == nil {
+		return nil
+	}
+	for _, v := range in {
+		ret = append(ret, f(v))
+	}
+	return ret
+}
+
 func AnyToSlice[t any](in []any) (ret []t) {
 	for _, v := range in {
 		ret = append(ret, v.(t))
