@@ -30,5 +30,4 @@ func (r *response) Write(buf []byte) (int, error) {
 }
 
 func (r *response) WriteHeader(statusCode int) {
-	r.resp.StatusCode = statusCode
 }

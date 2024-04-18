@@ -17,6 +17,11 @@ const (
 	UnSubRet   WsType = "down.unSubRet"   //取消订阅回复
 )
 
+type SubscribeInfo struct {
+	Code   string         `json:"code"`
+	Params map[string]any `json:"params"`
+}
+
 type (
 	WsBody struct {
 		Handler map[string]string `json:"handler,omitempty"`
@@ -36,7 +41,8 @@ type (
 	}
 
 	WsResp struct {
-		StatusCode int `json:"statusCode"` // http状态码 200
+		Code int64  `json:"code,omitempty"`
+		Msg  string `json:"msg,omitempty"`
 		WsBody
 	}
 

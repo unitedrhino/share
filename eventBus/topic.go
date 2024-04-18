@@ -15,6 +15,8 @@ const (
 	PAliTimer = "server.things.pali.data.timer"
 
 	ServerCacheSync = "server.cache.sync.%s"
+
+	CoreApiUserPublish = "server.core.api.user.publish.%d"
 )
 
 const (

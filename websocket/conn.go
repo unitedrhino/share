@@ -5,14 +5,16 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"gitee.com/asktop_golib/util/aslice"
 	"gitee.com/i-Things/share/ctxs"
-	e "gitee.com/i-Things/share/errors"
+	"gitee.com/i-Things/share/errors"
+	"gitee.com/i-Things/share/eventBus"
 	"gitee.com/i-Things/share/utils"
 	"github.com/gorilla/websocket"
-	"github.com/hashicorp/go-uuid"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/kv"
 	"github.com/zeromicro/go-zero/core/trace"
 	"io"
 	"net/http"
@@ -23,7 +25,11 @@ import (
 )
 
 var (
-	dp *dispatcher //ws调度器
+	dp             *dispatcher //ws调度器
+	once           sync.Once
+	store          kv.Store
+	nodeID         int64
+	checkSubscribe func(ctx context.Context, in *SubscribeInfo) error
 )
 
 const (
@@ -34,9 +40,10 @@ const (
 
 type connection struct {
 	r        *http.Request
+	uc       *ctxs.UserCtx
 	server   *Server
 	ws       *websocket.Conn   //ws连接实例
-	clientId string            //ws连接实例唯一标识
+	userID   int64             //ws连接实例唯一标识
 	closed   bool              //ws连接已关闭
 	send     chan []byte       //发送信息管道
 	topics   map[string]string //订阅信息
@@ -46,51 +53,72 @@ type connection struct {
 
 // ws调度器
 type dispatcher struct {
-	s2cGzip  bool                              //发送的信息是否gzip压缩
-	connPool map[string]*connection            //ws连接池 map[clientId]*connection
-	subPool  map[string]map[string]*connection //订阅池 map[topic]map[clientId]*connection
-	sendSub  chan WsResp                       //发送订阅
-	mu       sync.Mutex                        // 互斥锁
+	s2cGzip  bool                  //发送的信息是否gzip压缩
+	connPool map[int64]*connection //ws连接池 map[clientId]*connection
+	mu       sync.RWMutex          // 互斥锁
 }
+type WsPublish struct {
+	UserID int64
+	Code   string
+	Data   any
+}
+type WsPublishes []WsPublish
 
 // 创建ws调度器
-func StartWsDp(s2cGzip bool) {
-	if dp == nil {
+func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.ClusterConf) {
+	nodeID = NodeID
+	once.Do(func() {
+		store = kv.NewStore(c)
 		dp = newDp(s2cGzip)
-	}
+		event.Subscribe(fmt.Sprintf(eventBus.CoreApiUserPublish, NodeID), func(ctx context.Context, t time.Time, body []byte) error {
+			var pbs = WsPublishes{}
+			err := json.Unmarshal(body, &pbs)
+			if err != nil {
+				return err
+			}
+			for _, pb := range pbs {
+				err := func() error {
+					dp.mu.RLock()
+					defer dp.mu.RUnlock()
+					conn := dp.connPool[pb.UserID]
+					if conn == nil {
+						return err
+					}
+					conn.sendMessage(WsResp{
+						WsBody: WsBody{
+							Type: Pub,
+							Path: pb.Code,
+							Body: pb.Data,
+						},
+					})
+					return nil
+				}()
+				if err != nil {
+					logx.WithContext(ctx).Error(err)
+					continue
+				}
+			}
+			return nil
+		})
+	})
+}
+
+func RegisterSubscribeCheck(f func(ctx context.Context, in *SubscribeInfo) error) {
+	checkSubscribe = f
 }
 
 // 创建ws调度器
 func newDp(s2cGzip bool) *dispatcher {
 	d := &dispatcher{
 		s2cGzip:  s2cGzip,
-		connPool: make(map[string]*connection),
-		subPool:  make(map[string]map[string]*connection),
-		sendSub:  make(chan WsResp, 10000),
+		connPool: make(map[int64]*connection),
 	}
-	go func(d *dispatcher) {
-		for {
-			select {
-			//发送订阅
-			case subBody := <-d.sendSub:
-				subs, ok := d.subPool[subBody.Path]
-				if !ok {
-					break
-				}
-				d.mu.Lock()
-				for _, conn := range subs {
-					conn.sendMessage(subBody)
-				}
-				d.mu.Unlock()
-			}
-		}
-	}(d)
 	return d
 }
 
 // 读ping心跳
 func (c *connection) pingRead(message []byte) error {
-	logx.Infof("%s.[ws] message:%s clientId:%s", utils.FuncName(), string(message), c.clientId)
+	logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
 	if aslice.ContainInt64(c.pingErrs, int64(binary.BigEndian.Uint64(message))) {
 		c.pingErrs = []int64{}
 	} else {
@@ -101,7 +129,7 @@ func (c *connection) pingRead(message []byte) error {
 
 // 读pong心跳
 func (c *connection) pongRead(message []byte) error {
-	logx.Infof("%s.[ws] message:%s clientId:%s", utils.FuncName(), string(message), c.clientId)
+	logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
 	if aslice.ContainInt64(c.pongErrs, int64(binary.BigEndian.Uint64(message))) {
 		c.pongErrs = []int64{}
 	} else {
@@ -114,7 +142,7 @@ func (c *connection) pongRead(message []byte) error {
 func (c *connection) pingSend() error {
 	if len(c.pingErrs) >= errorCount || len(c.pongErrs) >= errorCount {
 		//连续5次没有收到ping心跳 关闭连接
-		return errors.New("connection timeout")
+		return errors.System.AddMsg("connection timeout")
 	}
 	nowTime := []byte(strconv.FormatInt(time.Now().Unix(), 10))
 	if err := c.writeMessage(websocket.PingMessage, nowTime); err != nil {
@@ -130,7 +158,7 @@ func (c *connection) pingSend() error {
 func (c *connection) pongSend() error {
 	if len(c.pingErrs) >= errorCount || len(c.pongErrs) >= errorCount {
 		//连续5次没有收到pong心跳 关闭连接
-		return errors.New("connection timeout")
+		return errors.System.AddMsg("connection timeout")
 	}
 	nowTime := []byte(strconv.FormatInt(time.Now().Unix(), 10))
 	if err := c.writeMessage(websocket.PongMessage, nowTime); err != nil {
@@ -146,30 +174,22 @@ func (c *connection) pongSend() error {
 func SendSub(ctx context.Context, body WsResp) {
 	clientToken := trace.TraceIDFromContext(ctx)
 	body.Handler = map[string]string{"Traceparent": clientToken}
-	dp.sendSub <- body
 }
 
 // 创建ws连接
-func NewConn(ctx context.Context, server *Server, r *http.Request, wsConn *websocket.Conn) *connection {
-	var clientId string
-	for {
-		clientId, _ = uuid.GenerateUUID()
-		if _, ok := dp.connPool[clientId]; !ok {
-			break
-		}
-	}
-
+func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request, wsConn *websocket.Conn) *connection {
 	conn := &connection{
-		server:   server,
-		ws:       wsConn,
-		r:        r,
-		clientId: clientId,
-		send:     make(chan []byte, 10000),
-		topics:   make(map[string]string),
+		server: server,
+		ws:     wsConn,
+		uc:     ctxs.GetUserCtx(ctx),
+		r:      r,
+		userID: userID,
+		send:   make(chan []byte, 10000),
+		topics: make(map[string]string),
 	}
-	dp.connPool[clientId] = conn
-	logx.Infof("%s.[ws]创建连接成功 RemoteAddr::%s clientId:%s", utils.FuncName(), wsConn.RemoteAddr().String(), clientId)
-	resp := WsResp{StatusCode: http.StatusOK}
+	dp.connPool[userID] = conn
+	logx.Infof("%s.[ws]创建连接成功 RemoteAddr::%s userID:%v", utils.FuncName(), wsConn.RemoteAddr().String(), userID)
+	resp := WsResp{}
 	clientToken := trace.TraceIDFromContext(ctx)
 	resp.Handler = map[string]string{"Traceparent": clientToken}
 	conn.sendMessage(resp)
@@ -194,20 +214,21 @@ func (c *connection) StartRead() {
 		if err != nil {
 			break
 		}
-		logx.Infof("%s.[ws] message:%s clientId:%s", utils.FuncName(), string(message), c.clientId)
+		logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
 		var data map[string]interface{}
 		err = json.Unmarshal(message, &data)
 		if err != nil {
-			c.errorSend(e.Type.AddDetail("error reading message"))
+			c.errorSend(errors.Type.AddDetail("error reading message"))
 			continue
 		}
 		c.handleRequest(message)
 	}
 }
 func (c *connection) errorSend(data error) {
+	e := errors.Fmt(data)
 	resp := WsResp{
-		StatusCode: http.StatusOK,
-		WsBody:     WsBody{Body: data},
+		Code: e.GetCode(),
+		Msg:  e.GetI18nMsg(""),
 	}
 	c.sendMessage(resp)
 }
@@ -216,7 +237,7 @@ func (c *connection) handleRequest(message []byte) {
 	var body WsReq
 	err := json.Unmarshal(message, &body)
 	if err != nil {
-		c.errorSend(e.Parameter)
+		c.errorSend(errors.Parameter)
 		return
 	}
 	if err := isDataComplete(body.Type, body); err != nil {
@@ -228,32 +249,33 @@ func (c *connection) handleRequest(message []byte) {
 			c.r.Header.Set(k, v)
 		}
 	}
+	ctx := ctxs.SetUserCtx(context.Background(), c.uc)
 	switch body.Type {
 	case Control:
 		downControl(c, body)
 	case Sub:
-		subscribeHandle(c, body)
+		subscribeHandle(ctx, c, body)
 	case UnSub:
-		unSubscribeHandle(c, body)
+		unSubscribeHandle(ctx, c, body)
 	default:
 	}
 }
 
 func isDataComplete(wsType WsType, body WsReq) error {
 	if wsType == "" {
-		return e.Parameter.AddDetail("type is  null")
+		return errors.Parameter.AddDetail("type is  null")
 	}
 	switch wsType {
 	case Control:
 		if body.Path == "" || body.Method == "" || body.Body == "" {
-			return e.Parameter.AddDetail("path|method|body is  null")
+			return errors.Parameter.AddDetail("path|method|body is  null")
 		}
 	case Sub, UnSub:
-		if body.Path == "" {
-			return e.Parameter.AddDetail("path  is  null")
+		if _, ok := body.Body.(map[string]interface{}); !ok {
+			return errors.Parameter.AddDetail("body is  null")
 		}
 	case Pub:
-		return e.NotRealize
+		return errors.NotRealize
 	default:
 	}
 	return nil
@@ -350,21 +372,23 @@ func (c *connection) StartWrite() {
 func (c *connection) Close(msg string) {
 	dp.mu.Lock()
 	defer dp.mu.Unlock()
-	_, ok := dp.connPool[c.clientId]
+	_, ok := dp.connPool[c.userID]
 	if ok || !c.closed {
 		c.closed = true
 		close(c.send)
-		delete(dp.connPool, c.clientId)
-		for _, subs := range dp.subPool {
-			delete(subs, c.clientId)
-		}
+		delete(dp.connPool, c.userID)
+		NewUserSubscribe(store).Clear(context.Background(), c.userID)
 		c.ws.Close()
-		logx.Infof("%s.[ws]关闭连接  clientId:%s", utils.FuncName(), c.clientId)
+		logx.Infof("%s.[ws]关闭连接  userID:%v", utils.FuncName(), c.userID)
 	}
 }
 
 // 发送信息
 func (c *connection) sendMessage(body WsResp) {
+	if body.Code == 0 {
+		body.Code = errors.OK.Code
+		body.Msg = errors.OK.GetMsg()
+	}
 	message, _ := json.Marshal(body)
 	if !c.closed {
 		c.send <- message
@@ -380,14 +404,14 @@ func (c *connection) writeMessage(messageType int, message []byte) error {
 	case websocket.PingMessage, websocket.PongMessage:
 		err := c.ws.WriteControl(messageType, message, time.Time{})
 		if err != nil {
-			logx.Infof("%s.[ws]error message::%s clientId:%s", utils.FuncName(), string(message), c.clientId)
+			logx.Infof("%s.[ws]error message::%s userID:%v", utils.FuncName(), string(message), c.userID)
 		}
 	case websocket.TextMessage:
 		err := c.ws.WriteMessage(messageType, message)
 		if err != nil {
-			logx.Infof("%s.[ws]error message::%s clientId:%s", utils.FuncName(), string(message), c.clientId)
+			logx.Infof("%s.[ws]error message::%s userID:%v", utils.FuncName(), string(message), c.userID)
 		}
 	}
-	logx.Infof("%s.[ws] message:%s clientId:%s", utils.FuncName(), string(message), c.clientId)
+	logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
 	return nil
 }
