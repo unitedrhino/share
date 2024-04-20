@@ -72,11 +72,15 @@ func (t *Td) asyncInsertRuntime() {
 			return
 		}
 		sql, args := t.genInsertSql(execCache...)
+		var err error
 		for i := 3; i > 0; i-- { //三次重试
-			_, err := t.Exec(sql, args...)
+			_, err = t.Exec(sql, args...)
 			if err == nil {
 				break
 			}
+		}
+		if err != nil {
+			logx.Error(err)
 		}
 		execCache = execCache[0:0] //清空切片
 	}

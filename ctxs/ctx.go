@@ -25,6 +25,7 @@ type UserCtx struct {
 	IP             string //用户的ip地址
 	Os             string //操作系统
 	UserName       string
+	Account        string
 	InnerCtx
 }
 
