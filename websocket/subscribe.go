@@ -34,5 +34,21 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 }
 
 func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
+	var info SubscribeInfo
+	err := mapstructure.Decode(body.Body, &info)
+	if err != nil {
+		logx.Error(err)
+		c.errorSend(err)
+		return
+	}
+	err = NewUserSubscribe(store).Del(ctx, c.userID, &info)
+	if err != nil {
+		logx.Error(err)
+		c.errorSend(err)
+		return
+	}
+	var resp WsResp
+	resp.WsBody.Type = UnSubRet
+	c.sendMessage(resp)
 
 }
