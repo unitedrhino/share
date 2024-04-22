@@ -157,6 +157,11 @@ func WithRoot(ctx context.Context) context.Context {
 	uc.AllArea = true
 	return SetUserCtx(ctx, &uc)
 }
+func WithAllProject(ctx context.Context) context.Context {
+	uc := *GetUserCtxNoNil(ctx)
+	uc.AllProject = true
+	return SetUserCtx(ctx, &uc)
+}
 
 func WithCommonTenant(ctx context.Context) context.Context {
 	uc := *GetUserCtxNoNil(ctx)
