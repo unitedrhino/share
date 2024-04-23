@@ -412,6 +412,6 @@ func (c *connection) writeMessage(messageType int, message []byte) error {
 			logx.Infof("%s.[ws]error message::%s userID:%v", utils.FuncName(), string(message), c.userID)
 		}
 	}
-	logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
+	logx.Debugf("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
 	return nil
 }
