@@ -129,7 +129,7 @@ func (c *connection) pingRead(message []byte) error {
 
 // 读pong心跳
 func (c *connection) pongRead(message []byte) error {
-	logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
+	//logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
 	if aslice.ContainInt64(c.pongErrs, int64(binary.BigEndian.Uint64(message))) {
 		c.pongErrs = []int64{}
 	} else {
