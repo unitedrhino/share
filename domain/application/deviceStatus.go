@@ -7,6 +7,7 @@ import (
 // 连接和断连消息信息
 type ConnectMsg struct {
 	Device    devices.Core `json:"device"`
+	Status    int64        `json:"status"`
 	Timestamp int64        `json:"timestamp,string"` //毫秒时间戳
 }
 
