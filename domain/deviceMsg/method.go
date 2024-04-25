@@ -65,14 +65,14 @@ const (
 		数据上行 Topic（用于发布）：$gateway/topo/${productid}/${devicename}
 		数据下行 Topic（用于订阅）：$gateway/topo/${productid}/${devicename}
 	*/
-	Bind               Method = "bind"               //绑定设备
-	Unbind             Method = "unbind"             //解绑设备
-	DescribeSubDevices Method = "describeSubDevices" //查询拓扑关系
-	Change             Method = "change"             //拓扑关系变化
-	Register           Method = "register"           //注册新设备
-	GetFound           Method = "getFound"           //获取发现的子设备(可以用来绑定的设备列表)
+	Bind     Method = "bind"     //绑定设备
+	Unbind   Method = "unbind"   //解绑设备
+	GetTopo  Method = "getTopo"  //查询拓扑关系
+	Change   Method = "change"   //拓扑关系变化
+	Register Method = "register" //注册新设备
+	GetFound Method = "getFound" //获取发现的子设备(可以用来绑定的设备列表)
 
-	NotifyBind
+	NotifyBind Method = "notifyBind" //通知网关绑定子设备
 	/*
 		数据上行 Topic（用于发布）：$gateway/status/${productid}/${devicename}
 		数据下行 Topic（用于订阅）：$gateway/status/${productid}/${devicename}
