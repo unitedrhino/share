@@ -62,14 +62,17 @@ const (
 	/*
 		拓扑关系管理
 		网关类型的设备，可通过与云端的数据通信，对其下的子设备进行绑定与解绑操作。实现此类功能需利用如下两个 Topic：
-		数据上行 Topic（用于发布）：$gateway/operation/${productid}/${devicename}
-		数据下行 Topic（用于订阅）：$gateway/operation/${productid}/${devicename}
+		数据上行 Topic（用于发布）：$gateway/topo/${productid}/${devicename}
+		数据下行 Topic（用于订阅）：$gateway/topo/${productid}/${devicename}
 	*/
 	Bind               Method = "bind"               //绑定设备
 	Unbind             Method = "unbind"             //解绑设备
 	DescribeSubDevices Method = "describeSubDevices" //查询拓扑关系
 	Change             Method = "change"             //拓扑关系变化
 	Register           Method = "register"           //注册新设备
+	GetFound           Method = "getFound"           //获取发现的子设备(可以用来绑定的设备列表)
+
+	NotifyBind
 	/*
 		数据上行 Topic（用于发布）：$gateway/status/${productid}/${devicename}
 		数据下行 Topic（用于订阅）：$gateway/status/${productid}/${devicename}

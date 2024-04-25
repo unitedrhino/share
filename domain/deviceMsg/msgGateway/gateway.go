@@ -38,8 +38,8 @@ type (
 )
 
 const (
-	TypeOperation = "operation" //拓扑关系管理
-	TypeStatus    = "status"    //代理子设备上下线
+	TypeTopo   = "topo"   //拓扑关系管理
+	TypeStatus = "status" //代理子设备上下线
 )
 
 // 获取产品id列表(不重复的)
