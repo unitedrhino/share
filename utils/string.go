@@ -100,3 +100,11 @@ func CamelCaseToUdnderscore(s string) string {
 	}
 	return string(output)
 }
+
+func JoinWithFunc[t any](elems []*t, sep string, f func(in *t) string) string {
+	var strs []string
+	for _, v := range elems {
+		strs = append(strs, f(v))
+	}
+	return strings.Join(strs, sep)
+}
