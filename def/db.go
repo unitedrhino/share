@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	OrderAes  = iota //从久到近排序
-	OrderDesc        //时间从近到久排序
+	OrderAsc  = iota + 1 //从久到近排序
+	OrderDesc            //时间从近到久排序
 )
 
 var orderMap = map[int64]string{
-	OrderAes:  "aes",
+	OrderAsc:  "asc",
 	OrderDesc: "desc",
 }
 
@@ -49,7 +49,7 @@ type DateRange struct {
 // 排序结构体
 type OrderBy struct {
 	Filed string `json:"filed" form:"filed"` //要排序的字段名
-	Sort  int64  `json:"sort" form:"sort"`   //排序的方式：0 OrderAes、1 OrderDesc
+	Sort  int64  `json:"sort" form:"sort"`   //排序的方式：0 OrderAsc、1 OrderDesc
 }
 
 func (p *PageInfo) GetLimit() int64 {
