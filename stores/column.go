@@ -3,6 +3,8 @@ package stores
 import (
 	"fmt"
 	"gitee.com/i-Things/share/conf"
+	"gitee.com/i-Things/share/utils"
+	"gorm.io/gorm"
 )
 
 // 特殊字符需要用该函数来包裹
@@ -13,4 +15,15 @@ func Col(column string) string {
 	default:
 		return fmt.Sprintf("`%s`", column)
 	}
+}
+
+func WithSelect(db *gorm.DB, columns ...string) *gorm.DB {
+	if len(columns) == 0 {
+		return db
+	}
+	var newColumns []string
+	for _, v := range columns {
+		newColumns = append(newColumns, utils.CamelCaseToUdnderscore(v))
+	}
+	return db.Select(newColumns)
 }

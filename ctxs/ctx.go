@@ -176,7 +176,7 @@ func NewUserCtx(ctx context.Context) context.Context {
 	}
 	var newUc UserCtx
 	newUc = *val
-	return context.WithValue(ctx, UserInfoKey, &newUc)
+	return context.WithValue(context.Background(), UserInfoKey, &newUc)
 }
 
 func IsRoot(ctx context.Context) error {
