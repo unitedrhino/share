@@ -51,14 +51,7 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		if uc == nil {
 			strIP, _ := utils.GetIP(r)
 			appCode := r.Header.Get(UserAppCodeKey)
-			if appCode == "" {
-				appCode = def.AppCore
-			}
 			tenantCode := r.Header.Get(UserTenantCodeKey)
-			if tenantCode == "" {
-				tenantCode = def.TenantCodeDefault
-			}
-
 			uc = &UserCtx{
 				AppCode:    appCode,
 				TenantCode: tenantCode,
@@ -73,6 +66,12 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			projectID = def.NotClassified
 		}
 		uc.AppCode = r.Header.Get(UserAppCodeKey)
+		if uc.AppCode == "" {
+			uc.AppCode = def.AppCore
+		}
+		if uc.TenantCode == "" {
+			uc.TenantCode = def.TenantCodeDefault
+		}
 		uc.ProjectID = projectID
 		uc.Os = r.Header.Get("User-Agent")
 		uc.AcceptLanguage = r.Header.Get("Accept-Language")

@@ -1,11 +1,13 @@
 package def
 
-const (
-	NotifyCodeSysUserLoginCaptcha    = "sysUserLoginCaptcha"
-	NotifyCodeSysUserRegisterCaptcha = "sysUserRegisterCaptcha"
+type NotifyCode = string
 
-	NotifyCodeRuleScene   = "ruleScene"       //场景联动通知
-	NotifyCodeDeviceAlarm = "ruleDeviceAlarm" //设备告警通知
+const (
+	NotifyCodeSysUserLoginCaptcha    NotifyCode = "sysUserLoginCaptcha"
+	NotifyCodeSysUserRegisterCaptcha NotifyCode = "sysUserRegisterCaptcha"
+
+	NotifyCodeRuleScene   NotifyCode = "ruleScene"       //场景联动通知
+	NotifyCodeDeviceAlarm NotifyCode = "ruleDeviceAlarm" //设备告警通知
 )
 
 const (
