@@ -18,6 +18,20 @@ const (
 	AuthTypeCore = "core"
 )
 
+const (
+	CodeAreaInfo      = "areaInfo"      //区域
+	CodeUserSubscribe = "userSubscribe" //用户订阅
+	CodeDeviceSend    = "deviceSend"    //设备控制
+
+	SubCodeCreate              = "create" //创建
+	SubCodeDelete              = "delete" //创建
+	SubCodePropertyControlSend = "propertyControlSend"
+)
+
+const (
+	SlotCodeIthings = "ithings"
+)
+
 type Info struct {
 	Code     string            `json:"code"` // 鉴权的编码
 	SubCode  string            `json:"subCode"`

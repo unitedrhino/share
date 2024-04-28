@@ -75,14 +75,17 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 	if ret.expireTime == 0 {
 		ret.expireTime = time.Minute*10 + time.Second*time.Duration(rand.Int63n(60))
 	}
-	err = ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
-		cacheKey := string(body)
-		ret.cache.Delete(cacheKey)
-		return nil
-	})
-	if err != nil {
-		return nil, err
+	if ret.fastEvent != nil {
+		err = ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
+			cacheKey := string(body)
+			ret.cache.Delete(cacheKey)
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	cacheMap[cfg.KeyType] = &ret
 	return &ret, nil
 }
@@ -115,10 +118,13 @@ func (c *Cache[dataT]) SetData(ctx context.Context, key string, data *dataT) err
 		}
 	}
 	c.cache.Delete(cacheKey)
-	err := c.fastEvent.Publish(ctx, c.genTopic(), cacheKey)
-	if err != nil {
-		logx.WithContext(ctx).Error(err)
+	if c.fastEvent != nil {
+		err := c.fastEvent.Publish(ctx, c.genTopic(), cacheKey)
+		if err != nil {
+			logx.WithContext(ctx).Error(err)
+		}
 	}
+
 	return nil
 }
 

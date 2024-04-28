@@ -28,6 +28,8 @@ type (
 		ExtendConfig      string `json:"extendConfig"`      //拓展参数,json格式
 		IsCanSceneLinkage int64  `json:"isCanSceneLinkage"` //是否支持场景联动控制 (统一)
 		IsShareAuthPerm   int64  `json:"isShareAuthPerm"`   // 分享是否需要校验权限 (统一)
+		FuncGroup         int64  `json:"funcGroup"`         // 功能分类: 1:普通功能 2:系统功能
+		UserAuth          int64  `json:"userAuth"`          //用户权限操作: 1:r(只读) 3:rw(可读可写)
 		IsHistory         int64  `json:"isHistory"`         // 是否存储历史记录
 		Order             int64  `json:"order"`             //排序
 	}
