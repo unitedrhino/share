@@ -25,9 +25,11 @@ const (
 	False = 2 //否
 )
 
+type Bool = int64
+
 const (
-	Enable  = 1 //启用
-	Disable = 2 //禁用
+	Enable  Bool = 1 //启用
+	Disable Bool = 2 //禁用
 )
 
 const (

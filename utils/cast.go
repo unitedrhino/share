@@ -8,6 +8,7 @@ import (
 	"golang.org/x/exp/constraints"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"reflect"
+	"strconv"
 	"time"
 )
 
@@ -272,4 +273,15 @@ func ToStringMap(in any) map[string]any {
 		return m
 	}
 	return cast.ToStringMap(in)
+}
+
+func BStrToInt64(binStr string) int64 {
+	decimal, err := strconv.ParseInt(binStr, 2, 64)
+	if err != nil {
+		panic(err)
+	}
+	return decimal
+}
+func Int64ToBStr(num int64) string {
+	return strconv.FormatInt(num, 2)
 }
