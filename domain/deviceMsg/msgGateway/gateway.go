@@ -1,6 +1,7 @@
 package msgGateway
 
 import (
+	"gitee.com/i-Things/share/devices"
 	"gitee.com/i-Things/share/domain/deviceMsg"
 	"gitee.com/i-Things/share/utils"
 )
@@ -59,6 +60,19 @@ func (d Devices) GetCore() Devices {
 	var ret Devices
 	for _, v := range d {
 		ret = append(ret, &Device{
+			ProductID:  v.ProductID,
+			DeviceName: v.DeviceName,
+		})
+	}
+	return ret
+}
+func (d Devices) GetDevCore() []*devices.Core {
+	if d == nil {
+		return nil
+	}
+	var ret []*devices.Core
+	for _, v := range d {
+		ret = append(ret, &devices.Core{
 			ProductID:  v.ProductID,
 			DeviceName: v.DeviceName,
 		})
