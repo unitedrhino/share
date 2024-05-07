@@ -45,17 +45,6 @@ type (
 	}
 )
 
-const (
-	HandleThing  = "thing"
-	HandleOta    = "ota"
-	HandleConfig = "config"
-)
-const (
-	TypeProperty = "property"
-	TypeEvent    = "event"
-	TypeAction   = "action"
-)
-
 // 发送给设备的数据组包
 func PublishToDev(handle string, Type string, payload []byte, protocolCode string, productID string, deviceName string) []byte {
 	pub := InnerPublish{
