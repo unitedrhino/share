@@ -2,6 +2,7 @@ package clients
 
 import (
 	"context"
+	"fmt"
 	"gitee.com/i-Things/share/conf"
 	"gitee.com/i-Things/share/events"
 	"gitee.com/i-Things/share/utils"
@@ -20,11 +21,12 @@ type NatsClient struct {
 	consumerName string
 }
 
-func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf) (*NatsClient, error) {
+func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf, nodeID int64) (*NatsClient, error) {
+	consumerName := fmt.Sprintf("%s-%d", ConsumerName, nodeID)
 	client := NatsClient{
 		conf:         natsConf,
 		mode:         mode,
-		consumerName: ConsumerName,
+		consumerName: consumerName,
 	}
 	if mode == conf.EventModeNatsJs {
 		js, err := NewNatsJetStreamClient(natsConf)
@@ -36,7 +38,7 @@ func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf) (*
 			conf:         natsConf,
 			js:           js,
 			mode:         mode,
-			consumerName: ConsumerName,
+			consumerName: consumerName,
 		}, nil
 	} else {
 		nc, err := NewNatsClient(natsConf)

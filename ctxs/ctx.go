@@ -156,6 +156,15 @@ func WithRoot(ctx context.Context) context.Context {
 	uc.AllArea = true
 	return SetUserCtx(ctx, &uc)
 }
+
+// 如果是default租户直接给root权限
+func WithDefaultRoot(ctx context.Context) context.Context {
+	if GetUserCtxNoNil(ctx).TenantCode != def.TenantCodeDefault {
+		return ctx
+	}
+	return WithRoot(ctx)
+}
+
 func WithAllProject(ctx context.Context) context.Context {
 	uc := *GetUserCtxNoNil(ctx)
 	uc.AllProject = true

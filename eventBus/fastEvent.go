@@ -35,12 +35,12 @@ var (
 	fastOnce  sync.Once
 )
 
-func NewFastEvent(c conf.EventConf, serverName string) (s *FastEvent, err error) {
+func NewFastEvent(c conf.EventConf, serverName string, nodeID int64) (s *FastEvent, err error) {
 	fastOnce.Do(func() {
 		fastEvent = &FastEvent{handlers: map[string][]FastFunc{}, queueHandlers: map[string][]FastFunc{}, serverName: serverName}
 		switch c.Mode {
 		case conf.EventModeNats, conf.EventModeNatsJs:
-			fastEvent.natsCli, err = clients.NewNatsClient2(c.Mode, serverName, c.Nats)
+			fastEvent.natsCli, err = clients.NewNatsClient2(c.Mode, serverName, c.Nats, nodeID)
 		default:
 			err = errors.Parameter.AddMsgf("mode:%v not support", c.Mode)
 		}
