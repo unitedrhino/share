@@ -35,7 +35,7 @@ type (
 		Mode        PropertyMode `json:"mode"`        //读写类型: 1:r(只读) 2:rw(可读可写)
 	}
 	EventAffordance struct {
-		Type   EventType `json:"type"`   //事件类型: 1:信息:info  2:告警alert  3:故障:fault
+		Type   EventType `json:"type"`   //事件类型: 信息:info  告警alert  故障:fault
 		Params Params    `json:"params"` //事件参数
 	}
 	ActionAffordance struct {
