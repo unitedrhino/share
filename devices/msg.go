@@ -17,12 +17,14 @@ const (
 type (
 	// DevConn ddsvr 发布设备 连接和断连 的结构体
 	DevConn struct {
-		UserName  string `json:"username"`
-		Timestamp int64  `json:"timestamp"` //毫秒时间戳
-		Address   string `json:"addr"`
-		ClientID  string `json:"clientID"`
-		Reason    string `json:"reason"`
-		Action    string `json:"action"` //登录 onLogin 登出 onLogout
+		UserName   string `json:"username"`
+		Timestamp  int64  `json:"timestamp"` //毫秒时间戳
+		Address    string `json:"addr"`
+		ClientID   string `json:"clientID"`
+		Reason     string `json:"reason"`
+		Action     string `json:"action"` //登录 onLogin 登出 onLogout
+		ProductID  string `json:"productID"`
+		DeviceName string `json:"deviceName"`
 	}
 	// DevPublish ddsvr 发布设备 发布信息 的结构体
 	DevPublish struct {

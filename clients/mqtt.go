@@ -4,8 +4,11 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"gitee.com/i-Things/share/def"
+	"gitee.com/i-Things/share/devices"
 	"gitee.com/i-Things/share/errors"
 	"github.com/parnurzeal/gorequest"
+	"github.com/spf13/cast"
 	"math/rand"
 	"net/url"
 	"os"
@@ -88,6 +91,108 @@ func (m MqttClient) CheckIsOnline(ctx context.Context, clientID string) (bool, e
 		return true, nil
 	}
 	return false, nil
+}
+
+type EmqGetClientsResp struct {
+	Data []struct {
+		HeapSize                         int       `json:"heap_size"`
+		SendMsgDroppedExpired            int       `json:"send_msg.dropped.expired"`
+		SendOct                          int       `json:"send_oct"`
+		RecvMsgQos1                      int       `json:"recv_msg.qos1"`
+		IsPersistent                     bool      `json:"is_persistent"`
+		SendPkt                          int       `json:"send_pkt"`
+		CleanStart                       bool      `json:"clean_start"`
+		InflightCnt                      int       `json:"inflight_cnt"`
+		Node                             string    `json:"node"`
+		SendMsgDroppedQueueFull          int       `json:"send_msg.dropped.queue_full"`
+		AwaitingRelCnt                   int       `json:"awaiting_rel_cnt"`
+		InflightMax                      int       `json:"inflight_max"`
+		CreatedAt                        time.Time `json:"created_at"`
+		SubscriptionsCnt                 int       `json:"subscriptions_cnt"`
+		MailboxLen                       int       `json:"mailbox_len"`
+		SendCnt                          int       `json:"send_cnt"`
+		Connected                        bool      `json:"connected"`
+		IpAddress                        string    `json:"ip_address"`
+		AwaitingRelMax                   int       `json:"awaiting_rel_max"`
+		RecvMsgQos2                      int       `json:"recv_msg.qos2"`
+		ProtoVer                         int       `json:"proto_ver"`
+		Mountpoint                       string    `json:"mountpoint"`
+		ProtoName                        string    `json:"proto_name"`
+		Port                             int       `json:"port"`
+		ConnectedAt                      time.Time `json:"connected_at"`
+		EnableAuthn                      bool      `json:"enable_authn"`
+		ExpiryInterval                   int       `json:"expiry_interval"`
+		Username                         *string   `json:"username"`
+		RecvMsg                          int       `json:"recv_msg"`
+		RecvOct                          int       `json:"recv_oct"`
+		SendMsgDroppedTooLarge           int       `json:"send_msg.dropped.too_large"`
+		Keepalive                        int       `json:"keepalive"`
+		SendMsgQos1                      int       `json:"send_msg.qos1"`
+		SendMsgQos2                      int       `json:"send_msg.qos2"`
+		RecvMsgQos0                      int       `json:"recv_msg.qos0"`
+		SendMsgQos0                      int       `json:"send_msg.qos0"`
+		SubscriptionsMax                 string    `json:"subscriptions_max"`
+		MqueueMax                        int       `json:"mqueue_max"`
+		MqueueDropped                    int       `json:"mqueue_dropped"`
+		Clientid                         string    `json:"clientid"`
+		IsBridge                         bool      `json:"is_bridge"`
+		Peerport                         int       `json:"peerport"`
+		SendMsg                          int       `json:"send_msg"`
+		Listener                         string    `json:"listener"`
+		RecvCnt                          int       `json:"recv_cnt"`
+		RecvPkt                          int       `json:"recv_pkt"`
+		RecvMsgDropped                   int       `json:"recv_msg.dropped"`
+		SendMsgDropped                   int       `json:"send_msg.dropped"`
+		RecvMsgDroppedAwaitPubrelTimeout int       `json:"recv_msg.dropped.await_pubrel_timeout"`
+		Reductions                       int       `json:"reductions"`
+		MqueueLen                        int       `json:"mqueue_len"`
+	} `json:"data"`
+	Meta struct {
+		Count   int64 `json:"count"`
+		Hasnext bool  `json:"hasnext"`
+		Limit   int   `json:"limit"`
+		Page    int   `json:"page"`
+	} `json:"meta"`
+}
+
+type OnlineClientsInfo struct {
+	ClientID    string
+	UserName    string
+	ConnectedAt time.Time
+}
+type GetOnlineClientsFilter struct {
+	UserName string
+}
+
+func (m MqttClient) GetOnlineClients(ctx context.Context, f GetOnlineClientsFilter, page *def.PageInfo) ([]*devices.DevConn, int64, error) {
+	if m.cfg.OpenApi == nil {
+		return nil, 0, errors.System.AddMsg("未开启登录检查")
+	}
+	oa := m.cfg.OpenApi
+	greq := gorequest.New().Retry(1, time.Second*2)
+	greq.SetBasicAuth(oa.ApiKey, oa.SecretKey)
+	greq.Get(fmt.Sprintf("%s/api/v5/clients", oa.Host))
+	if f.UserName != "" {
+		greq.Query("username=" + f.UserName)
+	}
+	if page != nil {
+		greq.Query(fmt.Sprintf("page=%v", page.Page))
+		greq.Query(fmt.Sprintf("limit=%v", page.Size))
+	}
+	var ret EmqGetClientsResp
+	_, _, errs := greq.EndStruct(&ret)
+	if errs != nil {
+		return nil, 0, errors.System.AddDetail(errs)
+	}
+	var infos []*devices.DevConn
+	for _, v := range ret.Data {
+		infos = append(infos, &devices.DevConn{
+			ClientID:  v.Clientid,
+			UserName:  cast.ToString(v.Username),
+			Timestamp: v.ConnectedAt.UnixMilli(),
+		})
+	}
+	return infos, ret.Meta.Count, nil
 }
 
 func (m MqttClient) Subscribe(cli mqtt.Client, topic string, qos byte, callback mqtt.MessageHandler) error {
