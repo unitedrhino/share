@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"gitee.com/i-Things/share/utils"
 	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/trace"
 )
@@ -44,6 +45,18 @@ type (
 		ProtocolCode string `json:"protocolCode"`
 	}
 )
+
+func (i InnerPublish) String() string {
+	m := map[string]any{
+		"handle":       i.Handle,
+		"type":         i.Type,
+		"payload":      i.Payload,
+		"productID":    i.ProductID,
+		"deviceName":   i.DeviceName,
+		"protocolCode": i.ProtocolCode,
+	}
+	return utils.Fmt(m)
+}
 
 // 发送给设备的数据组包
 func PublishToDev(handle string, Type string, payload []byte, protocolCode string, productID string, deviceName string) []byte {
