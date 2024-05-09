@@ -25,4 +25,5 @@ const (
 	NotifyTypeDingWebhook NotifyType = "dingWebhook"
 	NotifyTypeWx          NotifyType = "wx"      //微信推送 todo
 	NotifyTypeMessage     NotifyType = "message" //站内信通知
+	NotifyTypePhoneCall   NotifyType = "phoneCall"
 )
