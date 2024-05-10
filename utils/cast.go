@@ -276,9 +276,12 @@ func ToStringMap(in any) map[string]any {
 }
 
 func BStrToInt64(binStr string) int64 {
+	if binStr == "" {
+		return 0
+	}
 	decimal, err := strconv.ParseInt(binStr, 2, 64)
 	if err != nil {
-		panic(err)
+		return 0
 	}
 	return decimal
 }
