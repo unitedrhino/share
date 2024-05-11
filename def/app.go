@@ -16,3 +16,21 @@ const (
 	ModuleView         = "view"         //大屏模块
 	ModuleVideo        = "video"        //音视频
 )
+
+type AppType = string
+
+const (
+	AppTypeWeb  = "web"
+	AppTypeApp  = "app"
+	AppTypeMini = "mini"
+)
+
+type AppSubType = string
+
+const (
+	AppSubTypeWx   = "wx"
+	AppSubTypeDing = "ding"
+
+	AppSubTypeAndroid = "android"
+	AppSubTypeIos     = "ios"
+)

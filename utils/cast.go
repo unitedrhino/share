@@ -3,12 +3,14 @@ package utils
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/spf13/cast"
 	"golang.org/x/exp/constraints"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -287,4 +289,30 @@ func BStrToInt64(binStr string) int64 {
 }
 func Int64ToBStr(num int64) string {
 	return strconv.FormatInt(num, 2)
+}
+
+func HexToBytes(hex string) ([]byte, error) {
+	if len(hex)%2 != 0 {
+		return nil, fmt.Errorf("hex string has an odd length")
+	}
+	hex = strings.TrimSpace(hex)
+	hex = strings.ToLower(hex)
+	bytes := make([]byte, 0, len(hex)/2)
+	for i := 0; i < len(hex); i += 2 {
+		halfWord := hex[i : i+2]
+		byteValue, err := parseHexByte(halfWord)
+		if err != nil {
+			return nil, err
+		}
+		bytes = append(bytes, byteValue)
+	}
+	return bytes, nil
+}
+
+func parseHexByte(halfWord string) (byte, error) {
+	val, err := strconv.ParseInt(halfWord, 16, 16)
+	if err != nil {
+		return 0, err
+	}
+	return byte(val), nil
 }

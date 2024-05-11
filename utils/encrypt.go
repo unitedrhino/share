@@ -12,6 +12,23 @@ import (
 	"gitee.com/i-Things/share/errors"
 )
 
+type HmacType = string
+
+var (
+	HmacTypeSha256 HmacType = "hmacsha256"
+	HmacTypeSha1   HmacType = "hmacsha1"
+)
+
+func Hmac(sign HmacType, data string, secret []byte) string {
+	switch sign {
+	case HmacTypeSha1:
+		return HmacSha1(data, secret)
+	case HmacTypeSha256:
+		return HmacSha256(data, secret)
+	}
+	return ""
+}
+
 func HmacSha256(data string, secret []byte) string {
 	h := hmac.New(sha256.New, secret)
 	h.Write([]byte(data))

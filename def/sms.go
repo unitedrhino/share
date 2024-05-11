@@ -19,11 +19,12 @@ const (
 type NotifyType = string
 
 const (
-	NotifyTypeSms         NotifyType = "sms"
-	NotifyTypeEmail       NotifyType = "email"
-	NotifyTypeDingTalk    NotifyType = "dingTalk"
-	NotifyTypeDingWebhook NotifyType = "dingWebhook"
-	NotifyTypeWx          NotifyType = "wx"      //微信推送 todo
-	NotifyTypeMessage     NotifyType = "message" //站内信通知
-	NotifyTypePhoneCall   NotifyType = "phoneCall"
+	NotifyTypeSms         NotifyType = "sms"         //短信
+	NotifyTypeEmail       NotifyType = "email"       //邮箱
+	NotifyTypeDingTalk    NotifyType = "dingTalk"    //钉钉机器人
+	NotifyTypeDingWebhook NotifyType = "dingWebhook" //钉钉webhook
+	NotifyTypeWx          NotifyType = "wx"          //微信推送 todo
+	NotifyTypeWxEWebhook  NotifyType = "wxEWebHook"  //企业微信webhook
+	NotifyTypeMessage     NotifyType = "message"     //站内信通知
+	NotifyTypePhoneCall   NotifyType = "phoneCall"   //电话通知
 )
