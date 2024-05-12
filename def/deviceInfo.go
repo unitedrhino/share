@@ -18,9 +18,11 @@ var LogLevelTextToIntMap = map[string]LogLevel{
 	"调试": LogDebug,
 }
 
+type GatewayStatus = int64
+
 const (
-	GatewayBind   = 1 //绑定
-	GatewayUnbind = 2 //解绑
+	GatewayBind   GatewayStatus = 1 //绑定
+	GatewayUnbind GatewayStatus = 2 //解绑
 )
 
 type DeviceStatus = int64

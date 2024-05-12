@@ -1,6 +1,7 @@
 package msgGateway
 
 import (
+	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/devices"
 	"gitee.com/i-Things/share/domain/deviceMsg"
 	"gitee.com/i-Things/share/utils"
@@ -33,8 +34,8 @@ type (
 		SignMethod string `json:"signMethod,omitempty"` //签名算法。支持 hmacsha1、hmacsha256
 	}
 	GatewayPayload struct {
-		Status  int32   `json:"status,omitempty"`
-		Devices Devices `json:"devices"`
+		Status  def.GatewayStatus `json:"status,omitempty"`
+		Devices Devices           `json:"devices"`
 	}
 )
 
