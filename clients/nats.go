@@ -23,7 +23,7 @@ type NatsClient struct {
 }
 
 func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf, nodeID int64) (*NatsClient, error) {
-	nodeID = nodeID % 100
+	nodeID = nodeID % 20
 	consumerName := fmt.Sprintf("%s-%d", ConsumerName, nodeID)
 	client := NatsClient{
 		conf:         natsConf,
@@ -57,7 +57,7 @@ func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*
 		stream, _, _ := strings.Cut(subj, ".")
 		consumer := "queue_" + events.GenNatsJsDurable(n.consumerName, subj)
 		n.js.DeleteConsumer(stream, consumer)
-		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.DeliverLast(), nats.MaxDeliver(100), nats.AckExplicit(), nats.Durable(consumer))
+		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.DeliverLast(), nats.SkipConsumerLookup(), nats.MaxDeliver(100), nats.AckExplicit(), nats.Durable(consumer))
 	}
 	return n.nc.QueueSubscribe(subj, queue, events.NatsSubscription(cb))
 }
