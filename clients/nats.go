@@ -129,7 +129,7 @@ func CreateStream(jetStream nats.JetStreamContext, name string, subjects []strin
 		_, err = jetStream.AddStream(&nats.StreamConfig{
 			Name:      name,
 			Subjects:  subjects,
-			Retention: nats.WorkQueuePolicy,
+			Retention: nats.InterestPolicy,
 			Discard:   nats.DiscardOld,
 			MaxAge:    2 * time.Minute,
 		})
