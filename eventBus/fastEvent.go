@@ -69,7 +69,6 @@ func (bus *FastEvent) subscribe(topic string) error {
 
 func (bus *FastEvent) queueSubscribe(topic string) error {
 	_, err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
-		natsMsg.Ack()
 		ctx = ctxs.CopyCtx(ctx)
 		bus.queueMutex.RLock()
 		defer bus.queueMutex.RUnlock()
