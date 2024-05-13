@@ -50,6 +50,7 @@ func NewFastEvent(c conf.EventConf, serverName string, nodeID int64) (s *FastEve
 
 func (bus *FastEvent) subscribe(topic string) error {
 	_, err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+		natsMsg.Ack()
 		ctx = ctxs.CopyCtx(ctx)
 		bus.handlerMutex.RLock()
 		defer bus.handlerMutex.RUnlock()
@@ -68,6 +69,7 @@ func (bus *FastEvent) subscribe(topic string) error {
 
 func (bus *FastEvent) queueSubscribe(topic string) error {
 	_, err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+		natsMsg.Ack()
 		ctx = ctxs.CopyCtx(ctx)
 		bus.queueMutex.RLock()
 		defer bus.queueMutex.RUnlock()
