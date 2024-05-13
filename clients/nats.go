@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/zeromicro/go-zero/core/logx"
+	"strings"
 	"sync"
 	"time"
 )
@@ -53,7 +54,10 @@ func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf, no
 
 func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
-		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.AckExplicit(), nats.Durable("queue_"+events.GenNatsJsDurable(n.consumerName, subj)))
+		stream, _, _ := strings.Cut(subj, ".")
+		consumer := "queue_" + events.GenNatsJsDurable(n.consumerName, subj)
+		n.js.DeleteConsumer(stream, consumer)
+		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.DeliverLast(), nats.AckExplicit(), nats.Durable(consumer))
 	}
 	return n.nc.QueueSubscribe(subj, queue, events.NatsSubscription(cb))
 }
