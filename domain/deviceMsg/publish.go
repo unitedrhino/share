@@ -101,14 +101,6 @@ func GetDevPublish(ctx context.Context, data []byte) (*PublishMsg, error) {
 		logx.WithContext(ctx).Error("GetDevPublish", string(data), err)
 		return nil, err
 	}
-	ele := PublishMsg{
-		Handle:     pubInfo.Handle,
-		Topic:      pubInfo.Topic,
-		Type:       pubInfo.Type,
-		Payload:    pubInfo.Payload,
-		Timestamp:  pubInfo.Timestamp,
-		ProductID:  pubInfo.ProductID,
-		DeviceName: pubInfo.DeviceName,
-	}
-	return &ele, nil
+	ele := utils.Copy[PublishMsg](pubInfo)
+	return ele, nil
 }
