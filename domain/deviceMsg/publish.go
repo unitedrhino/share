@@ -82,7 +82,7 @@ func (c *CommonMsg) GetTimeStamp() time.Time {
 func (c *CommonMsg) AddStatus(err error) *CommonMsg {
 	e := errors.Fmt(err)
 	c.Code = e.GetCode()
-	c.Msg = e.GetDetailMsg()
+	c.Msg = e.GetI18nMsg("en")
 	return c
 }
 func (c *CommonMsg) Bytes() []byte {
