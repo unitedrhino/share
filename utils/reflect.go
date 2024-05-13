@@ -82,3 +82,7 @@ func ReflectFields(ptr any, excludeFields []string) []any {
 	}
 	return fieldValues
 }
+
+func IsMap(v interface{}) bool {
+	return reflect.ValueOf(v).Kind() == reflect.Map
+}
