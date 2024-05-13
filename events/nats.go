@@ -58,6 +58,7 @@ func NatsSubscription(handle HandleFunc) func(msg *nats.Msg) {
 
 	}
 }
+
 func GenNatsJsDurable(serverName string, topic string) string {
 	ip := netx.InternalIp()
 	ret := fmt.Sprintf("%s_%s_%s", serverName, ip, topic)

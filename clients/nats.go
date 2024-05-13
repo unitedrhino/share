@@ -23,7 +23,7 @@ type NatsClient struct {
 }
 
 func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf, nodeID int64) (*NatsClient, error) {
-	nodeID = nodeID % 20
+	nodeID = nodeID % 100
 	consumerName := fmt.Sprintf("%s-%d", ConsumerName, nodeID)
 	client := NatsClient{
 		conf:         natsConf,
@@ -57,7 +57,7 @@ func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*
 		stream, _, _ := strings.Cut(subj, ".")
 		consumer := "queue_" + events.GenNatsJsDurable(n.consumerName, subj)
 		n.js.DeleteConsumer(stream, consumer)
-		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.DeliverLast(), nats.AckExplicit(), nats.Durable(consumer))
+		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.DeliverLast(), nats.MaxDeliver(100), nats.AckExplicit(), nats.Durable(consumer))
 	}
 	return n.nc.QueueSubscribe(subj, queue, events.NatsSubscription(cb))
 }
@@ -68,7 +68,7 @@ func (n *NatsClient) Subscribe(subj string, cb events.HandleFunc) (*nats.Subscri
 
 func (n *NatsClient) SubscribeWithConsumer(subj string, consumer string, cb events.HandleFunc) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
-		return n.js.Subscribe(subj, events.NatsSubscription(cb), nats.Durable("normal_"+events.GenNatsJsDurable(consumer, subj)))
+		return n.js.Subscribe(subj, events.NatsSubscription(cb), nats.DeliverLast(), nats.MaxDeliver(100), nats.AckExplicit(), nats.Durable("normal_"+events.GenNatsJsDurable(consumer, subj)))
 	}
 	return n.nc.Subscribe(subj, events.NatsSubscription(cb))
 }
