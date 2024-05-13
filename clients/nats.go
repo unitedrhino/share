@@ -52,7 +52,7 @@ func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf, no
 
 func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
-		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.Durable("queue_"+events.GenNatsJsDurable(n.consumerName, subj)))
+		return n.js.QueueSubscribe(subj, queue, events.NatsSubscription(cb), nats.AckAll(), nats.DeliverSubject(fmt.Sprintf("_INBOX.%s", events.GenNatsJsDurable(n.consumerName, subj))), nats.Durable("queue_"+events.GenNatsJsDurable(n.consumerName, subj)))
 	}
 	return n.nc.QueueSubscribe(subj, queue, events.NatsSubscription(cb))
 }
