@@ -102,7 +102,7 @@ func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics
 		_, _, errs = greq.Post(fmt.Sprintf("%s/api/v5/clients/%s/subscribe/bulk", oa.Host,
 			url.QueryEscape(clientID))).Send(&req).EndStruct(&ret)
 		if errs != nil {
-			time.Sleep(time.Second / 5)
+			time.Sleep(time.Second / 2)
 			continue
 		}
 		break
