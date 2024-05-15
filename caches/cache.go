@@ -171,7 +171,7 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 		if data == nil {
 			return data, err
 		}
-		ctxs.GoNewCtx(ctx, func(ctx2 context.Context) { //异步设置缓存
+		ctxs.GoNewCtx(ctx, func(ctx context.Context) { //异步设置缓存
 			str, err := json.Marshal(data)
 			if err != nil {
 				logx.WithContext(ctx).Error(err)
