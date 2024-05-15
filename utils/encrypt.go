@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
+	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
@@ -17,6 +18,7 @@ type HmacType = string
 var (
 	HmacTypeSha256 HmacType = "hmacsha256"
 	HmacTypeSha1   HmacType = "hmacsha1"
+	HmacTypeMd5    HmacType = "hmacmd5"
 )
 
 func Hmac(sign HmacType, data string, secret []byte) string {
@@ -25,6 +27,8 @@ func Hmac(sign HmacType, data string, secret []byte) string {
 		return HmacSha1(data, secret)
 	case HmacTypeSha256:
 		return HmacSha256(data, secret)
+	case HmacTypeMd5:
+		return HmacMd5(data, secret)
 	}
 	return ""
 }
@@ -37,6 +41,12 @@ func HmacSha256(data string, secret []byte) string {
 
 func HmacSha1(data string, secret []byte) string {
 	h := hmac.New(sha1.New, secret)
+	h.Write([]byte(data))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func HmacMd5(data string, secret []byte) string {
+	h := hmac.New(md5.New, secret)
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
 }
