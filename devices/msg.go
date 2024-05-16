@@ -48,6 +48,20 @@ type (
 	}
 )
 
+func (i DevPublish) String() string {
+	m := map[string]any{
+		"topic":        i.Topic,
+		"timestamp":    i.Timestamp,
+		"productID":    i.ProductID,
+		"deviceName":   i.DeviceName,
+		"handle":       i.Handle,
+		"type":         i.Type,
+		"payload":      string(i.Payload),
+		"protocolCode": i.ProtocolCode,
+	}
+	return utils.Fmt(m)
+}
+
 func (i InnerPublish) String() string {
 	m := map[string]any{
 		"handle":       i.Handle,
