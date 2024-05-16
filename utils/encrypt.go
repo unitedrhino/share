@@ -11,6 +11,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"gitee.com/i-Things/share/errors"
+	"strings"
 )
 
 type HmacType = string
@@ -22,6 +23,7 @@ var (
 )
 
 func Hmac(sign HmacType, data string, secret []byte) string {
+	sign = strings.ToLower(sign)
 	switch sign {
 	case HmacTypeSha1:
 		return HmacSha1(data, secret)
