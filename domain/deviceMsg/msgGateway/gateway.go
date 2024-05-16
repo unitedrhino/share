@@ -19,8 +19,8 @@ type (
 		DeviceName   string `json:"deviceName"`             //设备名称
 		DeviceSecret string `json:"deviceSecret,omitempty"` //设备秘钥
 		Register
-		Result int64  `json:"result,omitempty"` //子设备绑定结果
-		Status string `json:"status,omitempty"` //错误原因
+		Code int64  `json:"code,omitempty"` //子设备绑定结果
+		Msg  string `json:"msg,omitempty"`  //错误原因
 	}
 	Register struct {
 		/*

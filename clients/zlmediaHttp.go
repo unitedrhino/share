@@ -114,7 +114,7 @@ func (f *mediaConfig) PostMediaServerJson(strurl string, values []byte) (data []
 		return nil, err
 	}
 	defer response.Body.Close()
-	//fmt.Println("response Status:", response.Status)
+	//fmt.Println("response Msg:", response.Msg)
 	//fmt.Println("response Headers:", response.Header)
 	body, err := io.ReadAll(response.Body)
 	//fmt.Println("response Body:", string(body))

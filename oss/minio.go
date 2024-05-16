@@ -207,7 +207,7 @@ func (m *Minio) initTemporaryPolicy() error {
 	// 			"Filter": {
 	// 				"Prefix": "uploads/2015/"
 	// 			},
-	// 			"Status": "Enabled"
+	// 			"Msg": "Enabled"
 	// 		},
 	// 		{
 	// 			"Expiration": {
@@ -217,7 +217,7 @@ func (m *Minio) initTemporaryPolicy() error {
 	// 			"Filter": {
 	// 				"Prefix": "temporary-uploads/"
 	// 			},
-	// 			"Status": "Enabled"
+	// 			"Msg": "Enabled"
 	// 		}
 	// 	]
 	// }`
