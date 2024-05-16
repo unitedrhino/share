@@ -134,7 +134,7 @@ func Copy[toT any](fromValue any) *toT {
 }
 
 func CopySlice[toT any, fromT any](fromValue []*fromT) []*toT {
-	if len(fromValue) == 0 {
+	if fromValue == nil {
 		return nil
 	}
 	var ret []*toT
