@@ -115,6 +115,38 @@ func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics
 	return nil
 }
 
+func (m MqttClient) SetClientMutUnSub(ctx context.Context, clientID string, topics []string) error {
+	if m.cfg.OpenApi == nil {
+		return errors.System.AddMsg("未开启登录检查")
+	}
+	oa := m.cfg.OpenApi
+	greq := gorequest.New().Retry(1, time.Second*2)
+	greq.SetBasicAuth(oa.ApiKey, oa.SecretKey)
+	var ret []*MutSubReq
+	var req []*MutSubReq
+	for _, v := range topics {
+		req = append(req, &MutSubReq{
+			Topic: v,
+			Qos:   0,
+		})
+	}
+	var errs []error
+	var tryTime = 5
+	for i := tryTime; i > 0; i-- {
+		_, _, errs = greq.Post(fmt.Sprintf("%s/api/v5/clients/%s/unsubscribe/bulk", oa.Host,
+			url.QueryEscape(clientID))).Send(&req).EndStruct(&ret)
+		if errs != nil {
+			time.Sleep(time.Second / 2 * time.Duration(tryTime) / time.Duration(i))
+			continue
+		}
+		break
+	}
+	if errs != nil {
+		return errors.System.AddDetail(errs)
+	}
+	return nil
+}
+
 // https://www.emqx.io/docs/zh/v5.5/admin/api-docs.html#tag/Clients/paths/~1clients~1%7Bclientid%7D/get
 func (m MqttClient) CheckIsOnline(ctx context.Context, clientID string) (bool, error) {
 	if m.cfg.OpenApi == nil {
