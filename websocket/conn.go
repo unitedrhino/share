@@ -72,6 +72,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 		dp = newDp(s2cGzip)
 		event.Subscribe(fmt.Sprintf(eventBus.CoreApiUserPublish, NodeID), func(ctx context.Context, t time.Time, body []byte) error {
 			var pbs = WsPublishes{}
+			logx.Infof("StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
 			err := json.Unmarshal(body, &pbs)
 			if err != nil {
 				return err
