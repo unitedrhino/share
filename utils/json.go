@@ -70,3 +70,24 @@ func Fmt(v any) string {
 		return string(js)
 	}
 }
+
+func Fmt2(v any) string {
+	switch v.(type) {
+	case string:
+		return v.(string)
+	case []byte:
+		return string(v.([]byte))
+	case error:
+		return v.(error).Error()
+	default:
+		val, err := cast.ToStringE(v)
+		if err == nil {
+			return val
+		}
+		js, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprintf("%#v", js)
+		}
+		return string(js)
+	}
+}
