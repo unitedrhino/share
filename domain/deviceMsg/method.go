@@ -11,6 +11,9 @@ const (
 	Report      Method = "report"      //表示设备属性上报
 	ReportReply Method = "reportReply" // 表示云端接收设备上报后的响应报文
 
+	PackReport      Method = "packReport"      //表示设备属性上报
+	PackReportReply Method = "packReportReply" // 表示云端接收设备上报后的响应报文
+
 	/*
 		需要主动请求设备上报的时候需要用以下方式上报 Topic：
 		设备属性下行请求 Topic： $thing/up/property/{ProductID}/{DeviceNames}

@@ -14,6 +14,12 @@ const (
 	validateDataRange = true
 )
 
+type TimeParam struct {
+	Timestamp int64            `json:"timestamp,omitempty"` //毫秒时间戳
+	EventID   string           `json:"eventID,omitempty"`   //事件的 Id，在数据模板事件中定义。
+	Params    map[string]Param `json:"params"`
+}
+
 type Param struct {
 	Identifier string              `json:"identifier"` //标识符
 	Name       string              `json:"name"`       //功能名称

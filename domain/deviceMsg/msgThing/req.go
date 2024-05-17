@@ -18,7 +18,12 @@ type (
 		EventID     string         `json:"eventID,omitempty"`     //事件的 Id，在数据模板事件中定义。
 		ActionID    string         `json:"actionID,omitempty"`    //数据模板中的行为标识符，由开发者自行根据设备的应用场景定义
 		Type        string         `json:"type,omitempty"`        //表示获取什么类型的信息（report:表示设备上报的信息 info:信息 alert:告警 fault:故障）
+		//批量上报用到
+		Properties []*deviceMsg.TimeParams `json:"properties,omitempty"`
+		Events     []*deviceMsg.TimeParams `json:"events,omitempty"`
+		SubDevices []*SubDevice            `json:"subDevices,omitempty"`
 	}
+
 	//设备基础信息
 	DeviceBasicInfo struct {
 		devices.Core
@@ -31,6 +36,15 @@ type (
 		Tags     map[string]string `json:"tags,omitempty"`     //设备标签信息
 		Rssi     *int64            `json:"rssi,omitempty"`
 		Iccid    *string           `json:"iccid"`
+	}
+	PackReport struct {
+		*deviceMsg.CommonMsg
+	}
+	SubDevice struct {
+		ProductID  string                  `json:"productID"`  //产品id
+		DeviceName string                  `json:"deviceName"` //设备名称
+		Properties []*deviceMsg.TimeParams `json:"properties"`
+		Events     []*deviceMsg.TimeParams `json:"events"`
 	}
 )
 
@@ -72,7 +86,6 @@ func (d *Req) VerifyReqParam(t *schema.Model, tt schema.ParamType) (map[string]P
 			if ok == false {
 				continue
 			}
-
 			tp := Param{
 				Identifier: p.Identifier,
 				Name:       p.Name,
@@ -163,4 +176,9 @@ func (d *Req) VerifyReqParam(t *schema.Model, tt schema.ParamType) (map[string]P
 		}
 	}
 	return getParam, nil
+}
+
+func VerifyProperties(Properties []*deviceMsg.TimeParams, t *schema.Model) (properties []*TimeParam, err error) {
+
+	return nil, err
 }
