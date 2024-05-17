@@ -94,7 +94,7 @@ func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics
 	for _, v := range topics {
 		req = append(req, &MutSubReq{
 			Topic: v,
-			Qos:   1,
+			Qos:   0,
 		})
 	}
 	var errs []error
