@@ -17,6 +17,7 @@ const (
 type TimeParam struct {
 	Timestamp int64            `json:"timestamp,omitempty"` //毫秒时间戳
 	EventID   string           `json:"eventID,omitempty"`   //事件的 Id，在数据模板事件中定义。
+	Type      schema.EventType `json:"type,omitempty"`      //事件类型: 信息:info  告警alert  故障:fault
 	Params    map[string]Param `json:"params"`
 }
 
@@ -78,6 +79,11 @@ func (tp *Param) ToVal() (any, error) {
 	}
 	var err error
 	switch tp.Value.Type {
+	case schema.DataTypeBool:
+		if tp.Value.Value == true {
+			return 1, nil
+		}
+		return 0, nil
 	case schema.DataTypeStruct:
 		v, ok := tp.Value.Value.(map[string]Param)
 		if ok == false {

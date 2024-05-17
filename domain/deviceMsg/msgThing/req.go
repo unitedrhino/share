@@ -106,7 +106,10 @@ func (d *Req) VerifyReqParam(t *schema.Model, tt schema.ParamType) (map[string]P
 		if ok == false {
 			return nil, errors.Parameter.AddDetail("need right eventId")
 		}
-		if d.Type != string(p.Type) {
+		if d.Type == "" {
+			d.Type = p.Type
+		}
+		if d.Type != p.Type {
 			return nil, errors.Parameter.AddDetailf("err type:%v", d.Type)
 		}
 
@@ -178,7 +181,41 @@ func (d *Req) VerifyReqParam(t *schema.Model, tt schema.ParamType) (map[string]P
 	return getParam, nil
 }
 
-func VerifyProperties(Properties []*deviceMsg.TimeParams, t *schema.Model) (properties []*TimeParam, err error) {
+func VerifyProperties(t *schema.Model, properties []*deviceMsg.TimeParams) ([]*TimeParam, error) {
+	var ret []*TimeParam
+	for _, p := range properties {
+		req := Req{
+			Params: p.Params,
+		}
+		param, err := req.VerifyReqParam(t, schema.ParamProperty)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, &TimeParam{
+			Timestamp: p.Timestamp,
+			Params:    param,
+		})
+	}
+	return ret, nil
+}
 
-	return nil, err
+func VerifyEvents(t *schema.Model, events []*deviceMsg.TimeParams) ([]*TimeParam, error) {
+	var ret []*TimeParam
+	for _, p := range events {
+		req := Req{
+			EventID: p.EventID,
+			Params:  p.Params,
+		}
+		param, err := req.VerifyReqParam(t, schema.ParamEvent)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, &TimeParam{
+			Timestamp: p.Timestamp,
+			EventID:   p.EventID,
+			Type:      req.Type,
+			Params:    param,
+		})
+	}
+	return ret, nil
 }

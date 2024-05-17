@@ -115,6 +115,8 @@ func GetRespMethod(method Method) Method {
 		return ReportReply
 	case GetNtp:
 		return GetNtpReply
+	case PackReport:
+		return PackReportReply
 	default: //不在里面的方法直接返回方法名即可
 		return method
 	}

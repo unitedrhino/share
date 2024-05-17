@@ -14,3 +14,6 @@ var (
 func InitStore(c cache.ClusterConf) {
 	once.Do(func() { store = kv.NewStore(c) })
 }
+func GetStore() kv.Store {
+	return store
+}

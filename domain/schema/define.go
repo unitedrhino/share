@@ -45,7 +45,7 @@ const (
 )
 
 // 事件类型: 信息:info  告警alert  故障:fault
-type EventType string
+type EventType = string
 
 const (
 	EventTypeInfo  EventType = "info"

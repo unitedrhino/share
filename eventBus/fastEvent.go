@@ -142,6 +142,6 @@ func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) error {
 // Publish 发布
 // 这里异步执行，并且不会等待返回结果
 func (bus *FastEvent) Publish(ctx context.Context, topic string, arg any) error {
-	err := bus.natsCli.Publish(ctx, topic, []byte(utils.Fmt(arg)))
+	err := bus.natsCli.Publish(ctx, topic, []byte(utils.MarshalNoErr(arg)))
 	return err
 }
