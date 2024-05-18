@@ -125,8 +125,9 @@ func RegisterSubscribeCheck(f func(ctx context.Context, in *SubscribeInfo) error
 // 创建ws调度器
 func newDp(s2cGzip bool) *dispatcher {
 	d := &dispatcher{
-		s2cGzip:  s2cGzip,
-		connPool: make(map[int64]map[int64]*connection),
+		s2cGzip:       s2cGzip,
+		connPool:      make(map[int64]map[int64]*connection),
+		userSubscribe: map[[16]byte]map[int64]*connection{},
 	}
 	return d
 }
