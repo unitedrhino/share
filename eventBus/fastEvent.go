@@ -55,8 +55,9 @@ func (bus *FastEvent) subscribe(topic string) error {
 		bus.handlerMutex.RLock()
 		defer bus.handlerMutex.RUnlock()
 		for _, f := range bus.handlers[topic] {
+			ff := f
 			utils.Go(ctx, func() {
-				err := f(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
+				err := ff(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
 				if err != nil {
 					logx.WithContext(ctx).Error(err)
 				}
