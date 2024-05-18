@@ -7,8 +7,8 @@ import (
 
 const (
 	TypeReport   = "report"
-	TypeUpgrade  = "upgrade" //固件升级消息下行  返回升级信息，版本、固件地址
-	TypeProgress = "progress"
+	TypeUpgrade  = "upgrade"  //固件升级消息下行  返回升级信息，版本、固件地址
+	TypeProgress = "progress" //设备端上报升级进度
 )
 
 type (

@@ -49,11 +49,10 @@ type connection struct {
 	userID        int64           //ws连接实例唯一标识
 	connectID     int64
 	userSubscribe map[[md5.Size]byte]any
-	closed        bool              //ws连接已关闭
-	send          chan []byte       //发送信息管道
-	topics        map[string]string //订阅信息
-	pingErrs      []int64           //发送的心跳失败次数
-	pongErrs      []int64           //收到的心跳失败次数
+	closed        bool        //ws连接已关闭
+	send          chan []byte //发送信息管道
+	pingErrs      []int64     //发送的心跳失败次数
+	pongErrs      []int64     //收到的心跳失败次数
 }
 
 // ws调度器
@@ -204,14 +203,14 @@ func AddConnPool(userID int64, conn *connection) {
 // 创建ws连接
 func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request, wsConn *websocket.Conn) *connection {
 	conn := &connection{
-		server:    server,
-		ws:        wsConn,
-		uc:        ctxs.GetUserCtx(ctx),
-		r:         r,
-		userID:    userID,
-		connectID: connectID.Add(1),
-		send:      make(chan []byte, 10000),
-		topics:    make(map[string]string),
+		server:        server,
+		ws:            wsConn,
+		uc:            ctxs.GetUserCtx(ctx),
+		r:             r,
+		userID:        userID,
+		userSubscribe: map[[16]byte]any{},
+		connectID:     connectID.Add(1),
+		send:          make(chan []byte, 10000),
 	}
 	AddConnPool(userID, conn)
 	logx.Infof("%s.[ws]创建连接成功 RemoteAddr::%s userID:%v", utils.FuncName(), wsConn.RemoteAddr().String(), userID)
