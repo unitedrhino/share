@@ -3,6 +3,7 @@ package websocket
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -21,6 +22,7 @@ import (
 	"net/url"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -30,6 +32,7 @@ var (
 	store          kv.Store
 	nodeID         int64
 	checkSubscribe func(ctx context.Context, in *SubscribeInfo) error
+	connectID      atomic.Int64
 )
 
 const (
@@ -39,28 +42,32 @@ const (
 )
 
 type connection struct {
-	r        *http.Request
-	uc       *ctxs.UserCtx
-	server   *Server
-	ws       *websocket.Conn   //ws连接实例
-	userID   int64             //ws连接实例唯一标识
-	closed   bool              //ws连接已关闭
-	send     chan []byte       //发送信息管道
-	topics   map[string]string //订阅信息
-	pingErrs []int64           //发送的心跳失败次数
-	pongErrs []int64           //收到的心跳失败次数
+	r             *http.Request
+	uc            *ctxs.UserCtx
+	server        *Server
+	ws            *websocket.Conn //ws连接实例
+	userID        int64           //ws连接实例唯一标识
+	connectID     int64
+	userSubscribe map[[md5.Size]byte]any
+	closed        bool              //ws连接已关闭
+	send          chan []byte       //发送信息管道
+	topics        map[string]string //订阅信息
+	pingErrs      []int64           //发送的心跳失败次数
+	pongErrs      []int64           //收到的心跳失败次数
 }
 
 // ws调度器
 type dispatcher struct {
-	s2cGzip  bool                  //发送的信息是否gzip压缩
-	connPool map[int64]*connection //ws连接池 map[clientId]*connection
-	mu       sync.RWMutex          // 互斥锁
+	s2cGzip            bool                            //发送的信息是否gzip压缩
+	connPool           map[int64]map[int64]*connection //ws连接池 一个用户会有多个端接入,也就会有多个ws连接 第一个key是userID 第二个key是ConnectID
+	mu                 sync.RWMutex                    // 互斥锁
+	userSubscribeMutex sync.RWMutex
+	userSubscribe      map[[md5.Size]byte]map[int64]*connection //第一个key是订阅参数的md5,第二个key是连接的id
 }
 type WsPublish struct {
-	UserID int64
 	Code   string
 	Data   any
+	Params [][md5.Size]byte
 }
 type WsPublishes []WsPublish
 
@@ -70,7 +77,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 	once.Do(func() {
 		store = kv.NewStore(c)
 		dp = newDp(s2cGzip)
-		event.Subscribe(fmt.Sprintf(eventBus.CoreApiUserPublish, NodeID), func(ctx context.Context, t time.Time, body []byte) error {
+		event.Subscribe(fmt.Sprintf(eventBus.CoreApiUserPublish, ">"), func(ctx context.Context, t time.Time, body []byte) error {
 			var pbs = WsPublishes{}
 			logx.Infof("StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
 			err := json.Unmarshal(body, &pbs)
@@ -79,19 +86,27 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 			}
 			for _, pb := range pbs {
 				err := func() error {
-					dp.mu.RLock()
-					defer dp.mu.RUnlock()
-					conn := dp.connPool[pb.UserID]
-					if conn == nil {
-						return err
+					dp.userSubscribeMutex.RLock()
+					defer dp.userSubscribeMutex.RUnlock()
+					var sub map[int64]*connection
+					for _, param := range pb.Params {
+						sub := dp.userSubscribe[param]
+						if sub != nil {
+							break
+						}
 					}
-					conn.sendMessage(WsResp{
-						WsBody: WsBody{
-							Type: Pub,
-							Path: pb.Code,
-							Body: pb.Data,
-						},
-					})
+					if sub == nil { //没有订阅的
+						return nil
+					}
+					for _, c := range sub { //所有订阅者都需要发
+						c.sendMessage(WsResp{
+							WsBody: WsBody{
+								Type: Pub,
+								Path: pb.Code,
+								Body: pb.Data,
+							},
+						})
+					}
 					return nil
 				}()
 				if err != nil {
@@ -112,7 +127,7 @@ func RegisterSubscribeCheck(f func(ctx context.Context, in *SubscribeInfo) error
 func newDp(s2cGzip bool) *dispatcher {
 	d := &dispatcher{
 		s2cGzip:  s2cGzip,
-		connPool: make(map[int64]*connection),
+		connPool: make(map[int64]map[int64]*connection),
 	}
 	return d
 }
@@ -177,18 +192,28 @@ func SendSub(ctx context.Context, body WsResp) {
 	body.Handler = map[string]string{"Traceparent": clientToken}
 }
 
+func AddConnPool(userID int64, conn *connection) {
+	dp.mu.Lock()
+	defer dp.mu.Unlock()
+	if dp.connPool[userID] == nil {
+		dp.connPool[userID] = map[int64]*connection{}
+	}
+	dp.connPool[userID] = map[int64]*connection{userID: conn}
+}
+
 // 创建ws连接
 func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request, wsConn *websocket.Conn) *connection {
 	conn := &connection{
-		server: server,
-		ws:     wsConn,
-		uc:     ctxs.GetUserCtx(ctx),
-		r:      r,
-		userID: userID,
-		send:   make(chan []byte, 10000),
-		topics: make(map[string]string),
+		server:    server,
+		ws:        wsConn,
+		uc:        ctxs.GetUserCtx(ctx),
+		r:         r,
+		userID:    userID,
+		connectID: connectID.Add(1),
+		send:      make(chan []byte, 10000),
+		topics:    make(map[string]string),
 	}
-	dp.connPool[userID] = conn
+	AddConnPool(userID, conn)
 	logx.Infof("%s.[ws]创建连接成功 RemoteAddr::%s userID:%v", utils.FuncName(), wsConn.RemoteAddr().String(), userID)
 	resp := WsResp{}
 	clientToken := trace.TraceIDFromContext(ctx)
@@ -377,7 +402,10 @@ func (c *connection) Close(msg string) {
 	if ok || !c.closed {
 		c.closed = true
 		close(c.send)
-		delete(dp.connPool, c.userID)
+		delete(dp.connPool[c.userID], c.connectID)
+		if len(dp.connPool[c.userID]) == 0 {
+			delete(dp.connPool, c.userID)
+		}
 		NewUserSubscribe(store).Clear(context.Background(), c.userID)
 		c.ws.Close()
 		logx.Infof("%s.[ws]关闭连接  userID:%v", utils.FuncName(), c.userID)

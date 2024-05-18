@@ -42,6 +42,7 @@ func (u *UserSubscribe) Add(ctx context.Context, userID int64, info *SubscribeIn
 	_, err = u.store.HsetnxCtx(ctx, u.genUserKey(userID), utils.MarshalNoErr(info), nodeStr)
 	return err
 }
+
 func (u *UserSubscribe) Del(ctx context.Context, userID int64, info *SubscribeInfo) error {
 	u.store.HdelCtx(ctx, u.genInfoKey(info), cast.ToString(userID))
 	_, err := u.store.HdelCtx(ctx, u.genUserKey(userID), utils.MarshalNoErr(info))

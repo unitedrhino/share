@@ -16,7 +16,7 @@ const (
 
 	ServerCacheSync = "server.cache.sync.%s"
 
-	CoreApiUserPublish = "server.core.api.user.publish.%d"
+	CoreApiUserPublish = "server.core.api.user.publish.%v"
 )
 
 const (
