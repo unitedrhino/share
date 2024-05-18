@@ -10,7 +10,7 @@ import (
 type (
 	//Msg 请求和回复结构体
 	Msg struct {
-		*deviceMsg.CommonMsg
+		deviceMsg.CommonMsg
 		Payload *GatewayPayload `json:"payload,omitempty"`
 	}
 	Devices []*Device
