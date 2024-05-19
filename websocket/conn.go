@@ -3,7 +3,6 @@ package websocket
 import (
 	"bytes"
 	"context"
-	"crypto/md5"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -48,7 +47,7 @@ type connection struct {
 	ws            *websocket.Conn //ws连接实例
 	userID        int64           //ws连接实例唯一标识
 	connectID     int64
-	userSubscribe map[[md5.Size]byte]any
+	userSubscribe map[string]any
 	closed        bool        //ws连接已关闭
 	send          chan []byte //发送信息管道
 	pingErrs      []int64     //发送的心跳失败次数
@@ -61,12 +60,12 @@ type dispatcher struct {
 	connPool           map[int64]map[int64]*connection //ws连接池 一个用户会有多个端接入,也就会有多个ws连接 第一个key是userID 第二个key是ConnectID
 	mu                 sync.RWMutex                    // 互斥锁
 	userSubscribeMutex sync.RWMutex
-	userSubscribe      map[[md5.Size]byte]map[int64]*connection //第一个key是订阅参数的md5,第二个key是连接的id
+	userSubscribe      map[string]map[int64]*connection //第一个key是订阅参数的md5,第二个key是连接的id
 }
 type WsPublish struct {
 	Code   string
 	Data   any
-	Params [][md5.Size]byte
+	Params []string
 }
 type WsPublishes []WsPublish
 
@@ -128,7 +127,7 @@ func newDp(s2cGzip bool) *dispatcher {
 	d := &dispatcher{
 		s2cGzip:       s2cGzip,
 		connPool:      make(map[int64]map[int64]*connection),
-		userSubscribe: map[[16]byte]map[int64]*connection{},
+		userSubscribe: map[string]map[int64]*connection{},
 	}
 	return d
 }
@@ -210,7 +209,7 @@ func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request,
 		uc:            ctxs.GetUserCtx(ctx),
 		r:             r,
 		userID:        userID,
-		userSubscribe: map[[16]byte]any{},
+		userSubscribe: map[string]any{},
 		connectID:     connectID.Add(1),
 		send:          make(chan []byte, 10000),
 	}

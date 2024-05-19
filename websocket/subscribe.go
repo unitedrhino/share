@@ -2,7 +2,6 @@ package websocket
 
 import (
 	"context"
-	"crypto/md5"
 	"gitee.com/i-Things/share/utils"
 	"github.com/mitchellh/mapstructure"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -60,7 +59,7 @@ func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
 		c.errorSend(err)
 		return
 	}
-	md := md5.Sum([]byte(utils.MarshalNoErr(info.Params)))
+	md := utils.Md5Map(info.Params)
 	delete(c.userSubscribe, md)
 	func() {
 		dp.userSubscribeMutex.Lock()

@@ -88,7 +88,7 @@ func AesCbcBase64(src, productSecret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(cryptData), nil
 }
 
-func Md5Map(params map[string]any) [md5.Size]byte {
+func Md5Map(params map[string]any) string {
 	// 排序
 	keys := make([]string, len(params))
 	i := 0
@@ -101,5 +101,6 @@ func Md5Map(params map[string]any) [md5.Size]byte {
 	for _, k := range keys {
 		stringBuf.WriteString(fmt.Sprintf("%s%v", k, params[k]))
 	}
-	return md5.Sum(stringBuf.Bytes())
+	md := md5.Sum(stringBuf.Bytes())
+	return hex.EncodeToString(md[:])
 }
