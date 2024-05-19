@@ -10,7 +10,9 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"gitee.com/i-Things/share/errors"
+	"sort"
 	"strings"
 )
 
@@ -84,4 +86,20 @@ func AesCbcBase64(src, productSecret string) (string, error) {
 
 	// 进行 base64 编码
 	return base64.StdEncoding.EncodeToString(cryptData), nil
+}
+
+func Md5Map(params map[string]any) [md5.Size]byte {
+	// 排序
+	keys := make([]string, len(params))
+	i := 0
+	for k, _ := range params {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	stringBuf := bytes.Buffer{}
+	for _, k := range keys {
+		stringBuf.WriteString(fmt.Sprintf("%s%v", k, params[k]))
+	}
+	return md5.Sum(stringBuf.Bytes())
 }
