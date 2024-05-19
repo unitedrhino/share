@@ -95,6 +95,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 						}
 					}
 					if sub == nil { //没有订阅的
+						logx.Infof("no sub:%v", utils.Fmt(pb))
 						return nil
 					}
 					for _, c := range sub { //所有订阅者都需要发
@@ -386,7 +387,7 @@ func (c *connection) StartWrite() {
 			if c.closed {
 				return
 			}
-			logx.Infof("writeMessage:%v", string(message))
+			logx.Infof("userID:%v,connectID:%v writeMessage:%v", c.userID, c.connectID, string(message))
 			if err := c.writeMessage(websocket.TextMessage, message); err != nil {
 				c.Close("send message error")
 				return
