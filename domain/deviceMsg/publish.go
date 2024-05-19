@@ -80,6 +80,9 @@ func (c *CommonMsg) GetTimeStamp() time.Time {
 	return time.Now()
 }
 func (c *CommonMsg) AddStatus(err error) *CommonMsg {
+	if err == nil {
+		err = errors.OK
+	}
 	e := errors.Fmt(err)
 	c.Code = e.GetCode()
 	c.Msg = e.GetI18nMsg("en")

@@ -386,6 +386,7 @@ func (c *connection) StartWrite() {
 			if c.closed {
 				return
 			}
+			logx.Infof("writeMessage:%v", string(message))
 			if err := c.writeMessage(websocket.TextMessage, message); err != nil {
 				c.Close("send message error")
 				return
