@@ -53,7 +53,7 @@ func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
 		c.errorSend(err)
 		return
 	}
-	err = NewUserSubscribe(store).Del(ctx, c.userID, &info)
+	//err = NewUserSubscribe(store).Del(ctx, c.userID, &info)
 	if err != nil {
 		logx.Error(err)
 		c.errorSend(err)

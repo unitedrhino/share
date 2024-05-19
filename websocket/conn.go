@@ -407,7 +407,18 @@ func (c *connection) Close(msg string) {
 		if len(dp.connPool[c.userID]) == 0 {
 			delete(dp.connPool, c.userID)
 		}
-		NewUserSubscribe(store).Clear(context.Background(), c.userID)
+		for key := range c.userSubscribe {
+			func() {
+				dp.userSubscribeMutex.Lock()
+				defer dp.userSubscribeMutex.Unlock()
+				sub, ok := dp.userSubscribe[key]
+				if !ok {
+					return
+				}
+				delete(sub, c.connectID)
+			}()
+		}
+		//NewUserSubscribe(store).Clear(context.Background(), c.userID)
 		c.ws.Close()
 		logx.Infof("%s.[ws]关闭连接  userID:%v", utils.FuncName(), c.userID)
 	}
@@ -420,7 +431,6 @@ func (c *connection) sendMessage(body WsResp) {
 		body.Msg = errors.OK.GetMsg()
 	}
 	message, _ := json.Marshal(body)
-	logx.Infof("userID:%v,connectID:%v,closed:%v writeMessage:%v ", c.userID, c.connectID, c.closed, string(message))
 	if !c.closed {
 		c.send <- message
 	}
