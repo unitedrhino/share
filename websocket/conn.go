@@ -421,6 +421,7 @@ func (c *connection) sendMessage(body WsResp) {
 		body.Msg = errors.OK.GetMsg()
 	}
 	message, _ := json.Marshal(body)
+	logx.Infof("userID:%v,connectID:%v,closed:%v writeMessage:%v ", c.userID, c.connectID, c.closed, string(message))
 	if !c.closed {
 		c.send <- message
 	}
