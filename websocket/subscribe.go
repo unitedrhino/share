@@ -24,13 +24,14 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 			return
 		}
 	}
-	err = NewUserSubscribe(store).Add(ctx, c.userID, &info)
-	if err != nil {
-		logx.Error(err)
-		c.errorSend(err)
-		return
-	}
+	//err = NewUserSubscribe(store).Add(ctx, c.userID, &info)
+	//if err != nil {
+	//	logx.Error(err)
+	//	c.errorSend(err)
+	//	return
+	//}
 	md := md5.Sum([]byte(utils.MarshalNoErr(info.Params)))
+	logx.Infof("userSubscribe info:%v md5sum:%v", info, md)
 	c.userSubscribe[md] = info.Params
 	func() {
 		dp.userSubscribeMutex.Lock()
