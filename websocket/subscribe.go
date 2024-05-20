@@ -30,15 +30,16 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	//	return
 	//}
 	md := utils.Md5Map(info.Params)
-	logx.Infof("userSubscribe info:%v md5sum:%v", info, md)
-	c.userSubscribe[md] = info.Params
+	key := info.Code + ":" + md
+	logx.Infof("userSubscribe info:%v key:%v", info, key)
+	c.userSubscribe[key] = info.Params
 	func() {
 		dp.userSubscribeMutex.Lock()
 		defer dp.userSubscribeMutex.Unlock()
-		if _, ok := dp.userSubscribe[md]; !ok {
-			dp.userSubscribe[md] = map[int64]*connection{}
+		if _, ok := dp.userSubscribe[key]; !ok {
+			dp.userSubscribe[key] = map[int64]*connection{}
 		}
-		dp.userSubscribe[md][c.connectID] = c
+		dp.userSubscribe[key][c.connectID] = c
 	}()
 	var resp WsResp
 	resp.WsBody.Type = SubRet
@@ -60,12 +61,13 @@ func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
 		return
 	}
 	md := utils.Md5Map(info.Params)
-	delete(c.userSubscribe, md)
+	key := info.Code + ":" + md
+	delete(c.userSubscribe, key)
 	func() {
 		dp.userSubscribeMutex.Lock()
 		defer dp.userSubscribeMutex.Unlock()
-		if _, ok := dp.userSubscribe[md]; ok {
-			delete(dp.userSubscribe[md], c.connectID)
+		if _, ok := dp.userSubscribe[key]; ok {
+			delete(dp.userSubscribe[key], c.connectID)
 		}
 	}()
 	var resp WsResp

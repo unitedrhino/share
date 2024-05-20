@@ -88,7 +88,8 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 					defer dp.userSubscribeMutex.RUnlock()
 					var sub map[int64]*connection
 					for _, param := range pb.Params {
-						sub = dp.userSubscribe[param]
+						key := pb.Code + ":" + param
+						sub = dp.userSubscribe[key]
 						if sub != nil {
 							break
 						}
