@@ -1,5 +1,7 @@
 {
 	"权限不足": "insufficient privileges",
 	"成功": "success",
-	"超级管理员不允许删除": "The super administrator cannot delete it"
+	"超级管理员不允许删除": "The super administrator cannot delete it",
+	"有产品id不正确,请查验": "Some product id is incorrect, please check",
+	"参数错误": "parameter error"
 }
