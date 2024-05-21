@@ -9,9 +9,11 @@ import (
 	"github.com/zeromicro/go-zero/core/trace"
 )
 
+type Action = string
+
 const (
-	ActionConnected    = "connected"
-	ActionDisconnected = "disconnected"
+	ActionConnected    Action = "connected"
+	ActionDisconnected Action = "disconnected"
 )
 
 type (

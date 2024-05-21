@@ -57,6 +57,10 @@ func GetLoginDevice(userName string) (*LoginDevice, error) {
 	return lg, nil
 }
 
+func GenClientID(productID string, deviceName string) string {
+	return fmt.Sprintf("%s&%s", productID, deviceName)
+}
+
 func GetClientIDInfo(ClientID string) (*LoginDevice, error) {
 	clientIDs := strings.Split(ClientID, "&")
 	switch len(clientIDs) {
