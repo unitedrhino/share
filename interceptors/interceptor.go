@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/errors"
+	"gitee.com/i-Things/share/utils"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -15,7 +16,11 @@ func Error(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grp
 	if err != nil {
 		logx.WithContext(ctx).Errorf("err=%s", errors.Fmt(err).Error())
 	} else {
-		logx.WithContext(ctx).Infof("resp=%+v", resp)
+		body := utils.MarshalNoErr(resp)
+		if len(body) > 1024 {
+			body = body[:1024]
+		}
+		logx.WithContext(ctx).Infof("resp=%v", body)
 	}
 	var acceptLanguage string
 	if uc := ctxs.GetUserCtx(ctx); uc != nil {
