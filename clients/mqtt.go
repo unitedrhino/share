@@ -83,6 +83,7 @@ type MutSubReq struct {
 }
 
 func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics []string) error {
+	logx.Infof("clientID:%v,topics:%v", clientID, topics)
 	if m.cfg.OpenApi == nil {
 		return errors.System.AddMsg("未开启登录检查")
 	}
