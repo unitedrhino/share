@@ -11,7 +11,7 @@ type MqttConf struct {
 
 // https://www.emqx.io/docs/zh/latest/admin/api.html#go
 type DevOpenApi struct {
-	Host      string
-	ApiKey    string
-	SecretKey string
+	Host      string `json:",env=devOpenApiHost"`
+	ApiKey    string `json:",env=devOpenApiApiKey"`
+	SecretKey string `json:",env=devOpenApiSecretKey"`
 }

@@ -19,21 +19,21 @@ type CacheSyncStu struct {
 	KeyType string `json:"keyType"`
 }
 
-type Cache[dataT any] struct {
+type Cache[dataT any, keyType comparable] struct {
 	keyType    string
 	cache      otter.Cache[string, *dataT]
 	fastEvent  *eventBus.FastEvent
-	getData    func(ctx context.Context, key string) (*dataT, error)
-	fmt        func(ctx context.Context, key string, data *dataT)
+	getData    func(ctx context.Context, key keyType) (*dataT, error)
+	fmt        func(ctx context.Context, key keyType, data *dataT)
 	expireTime time.Duration
 	sf         syncx.SingleFlight
 }
 
-type CacheConfig[dataT any] struct {
+type CacheConfig[dataT any, keyType comparable] struct {
 	KeyType    string
 	FastEvent  *eventBus.FastEvent
-	Fmt        func(ctx context.Context, key string, data *dataT)
-	GetData    func(ctx context.Context, key string) (*dataT, error)
+	Fmt        func(ctx context.Context, key keyType, data *dataT)
+	GetData    func(ctx context.Context, key keyType) (*dataT, error)
 	ExpireTime time.Duration
 }
 
@@ -42,11 +42,11 @@ var (
 	cacheMutex sync.Mutex
 )
 
-func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
+func NewCache[dataT any, keyType comparable](cfg CacheConfig[dataT, keyType]) (*Cache[dataT, keyType], error) {
 	cacheMutex.Lock() //单例模式
 	defer cacheMutex.Unlock()
 	if v, ok := cacheMap[cfg.KeyType]; ok {
-		return v.(*Cache[dataT]), nil
+		return v.(*Cache[dataT, keyType]), nil
 	}
 	cache, err := otter.MustBuilder[string, *dataT](10_000).
 		CollectStats().
@@ -63,7 +63,7 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 	//	MaxCost:     1 << 30, // maximum cost of cache (1GB).
 	//	BufferItems: 64,      // number of keys per Get buffer.
 	//})
-	ret := Cache[dataT]{
+	ret := Cache[dataT, keyType]{
 		sf:         syncx.NewSingleFlight(),
 		keyType:    cfg.KeyType,
 		cache:      cache,
@@ -90,16 +90,16 @@ func NewCache[dataT any](cfg CacheConfig[dataT]) (*Cache[dataT], error) {
 	return &ret, nil
 }
 
-func (c *Cache[dataT]) genTopic() string {
+func (c *Cache[dataT, keyType]) genTopic() string {
 	return fmt.Sprintf(eventBus.ServerCacheSync, c.keyType)
 }
 
-func (c *Cache[dataT]) genCacheKey(key string) string {
-	return fmt.Sprintf("cache:%s:%s", c.keyType, key)
+func (c *Cache[dataT, keyType]) genCacheKey(key keyType) string {
+	return fmt.Sprintf("cache:%s:%v", c.keyType, key)
 }
 
 // 删除数据的时候设置为空即可
-func (c *Cache[dataT]) SetData(ctx context.Context, key string, data *dataT) error {
+func (c *Cache[dataT, keyType]) SetData(ctx context.Context, key keyType, data *dataT) error {
 	cacheKey := c.genCacheKey(key)
 	if data != nil { //如果是
 		dataStr, err := json.Marshal(data)
@@ -128,7 +128,7 @@ func (c *Cache[dataT]) SetData(ctx context.Context, key string, data *dataT) err
 	return nil
 }
 
-func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) {
+func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*dataT, error) {
 	cacheKey := c.genCacheKey(key)
 	temp, ok := c.cache.Get(cacheKey)
 	if ok {
@@ -138,7 +138,7 @@ func (c *Cache[dataT]) GetData(ctx context.Context, key string) (*dataT, error) 
 		return temp, nil
 	}
 	//并发获取的情况下避免击穿
-	ret, err := c.sf.Do(key, func() (any, error) {
+	ret, err := c.sf.Do(cacheKey, func() (any, error) {
 		{ //内存中没有就从redis上获取
 			val, err := store.GetCtx(ctx, cacheKey)
 			if err != nil {
