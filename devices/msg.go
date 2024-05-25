@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gitee.com/i-Things/share/utils"
-	"github.com/google/uuid"
-	"github.com/zeromicro/go-zero/core/trace"
+	"sync/atomic"
 )
 
 type Action = string
@@ -97,11 +96,10 @@ func GetPublish(data []byte) *InnerPublish {
 	return &pub
 }
 
-func GenMsgToken(ctx context.Context) string {
-	tid := trace.TraceIDFromContext(ctx)
-	span := trace.SpanIDFromContext(ctx)
-	if tid == "" || span == "" {
-		return uuid.NewString()
-	}
-	return fmt.Sprintf("%s-%s", tid, span)
+var randID atomic.Uint32
+
+func GenMsgToken(ctx context.Context, nodeID int64) string {
+	var token = uint32(nodeID) & 0xff
+	token += randID.Add(1) << 8 & 0xfff00
+	return fmt.Sprintf("%x", token)
 }
