@@ -28,15 +28,23 @@ type IDPathFilter struct {
 	ID     int64
 }
 
-func (i *IDPathFilter) Filter(prefix string, db *gorm.DB) *gorm.DB {
+func (i *IDPathFilter) Filter(db *gorm.DB, prefix string) *gorm.DB {
 	if i == nil {
 		return db
 	}
 	if i.ID != 0 {
-		db = db.Where(fmt.Sprintf("%s = ?", Col(prefix+"_id")), i.ID)
+		col := "id"
+		if prefix != "" {
+			col = Col(prefix + "_id")
+		}
+		db = db.Where(fmt.Sprintf("%s = ?", col), i.ID)
 	}
 	if i.IDPath != "" {
-		db = db.Where(fmt.Sprintf("%s like ?", Col(prefix+"_id_path")), i.IDPath+"%")
+		col := "id_path"
+		if prefix != "" {
+			col = Col(prefix + "_id_path")
+		}
+		db = db.Where(fmt.Sprintf("%s like ?", col), i.IDPath+"%")
 	}
 	return db
 }
