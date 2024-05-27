@@ -32,6 +32,7 @@ const (
 )
 
 const (
+	BUsinessArea       = "area"       //区域
 	BusinessUserManage = "userManage" //产品管理
 	SceneHeadIng       = "headImg"    //产品图片
 )
