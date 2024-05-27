@@ -133,6 +133,18 @@ func Copy[toT any](fromValue any) *toT {
 	return &toValue
 }
 
+func Copy2[toT any](fromValue any) toT {
+	var toValue toT
+	if fromValue == nil {
+		return toValue
+	}
+	err := CopyE(&toValue, fromValue)
+	if err != nil {
+		return toValue
+	}
+	return toValue
+}
+
 func CopySlice[toT any, fromT any](fromValue []*fromT) []*toT {
 	if fromValue == nil {
 		return nil
