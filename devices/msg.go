@@ -67,7 +67,7 @@ func (i InnerPublish) String() string {
 	m := map[string]any{
 		"handle":       i.Handle,
 		"type":         i.Type,
-		"payload":      i.Payload,
+		"payload":      string(i.Payload),
 		"productID":    i.ProductID,
 		"deviceName":   i.DeviceName,
 		"protocolCode": i.ProtocolCode,
