@@ -24,8 +24,9 @@ type IDPath struct {
 }
 
 type IDPathFilter struct {
-	IDPath string
-	ID     int64
+	IDPath     string
+	ID         int64
+	NoParentID int64
 }
 
 func (i *IDPathFilter) Filter(db *gorm.DB, prefix string) *gorm.DB {
@@ -38,6 +39,13 @@ func (i *IDPathFilter) Filter(db *gorm.DB, prefix string) *gorm.DB {
 			col = Col(prefix + "_id")
 		}
 		db = db.Where(fmt.Sprintf("%s = ?", col), i.ID)
+	}
+	if i.NoParentID != 0 {
+		col := "id"
+		if prefix != "" {
+			col = Col(prefix + "_id")
+		}
+		db = db.Where(fmt.Sprintf("%s != ?", col), i.NoParentID)
 	}
 	if i.IDPath != "" {
 		col := "id_path"
