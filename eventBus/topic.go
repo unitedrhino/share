@@ -16,15 +16,18 @@ const (
 
 	ServerCacheSync = "server.cache.sync.%s"
 
+	CoreUserDelete    = "server.core.user.delete"
+	CoreProjectDelete = "server.core.project.delete"
+
 	CoreApiUserPublish = "server.core.api.user.publish.%v"
 )
 
 const (
-	ServerCacheKeySysUserInfo          = "sys:user:info"
-	ServerCacheKeySysProjectInfo       = "sys:project:info"
-	ServerCacheKeySysTenantInfo        = "sys:tenant:info"
-	ServerCacheKeySysTenantOpenWebhook = "sys:tenant:open:webhook"
-	ServerCacheKeyDmProduct            = "dm:product"
-	ServerCacheKeyDmDevice             = "dm:device"
-	ServerCacheKeyDmSchema             = "dm:schema"
+	ServerCacheKeySysUserInfo          = "cache:sys:user:info"
+	ServerCacheKeySysProjectInfo       = "cache:sys:project:info"
+	ServerCacheKeySysTenantInfo        = "cache:sys:tenant:info"
+	ServerCacheKeySysTenantOpenWebhook = "cache:sys:tenant:open:webhook"
+	ServerCacheKeyDmProduct            = "cache:dm:product"
+	ServerCacheKeyDmDevice             = "cache:dm:device"
+	ServerCacheKeyDmSchema             = "cache:dm:schema"
 )
