@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"strconv"
 	"strings"
 	"time"
@@ -31,6 +32,19 @@ func ToNullTime(in int64) sql.NullTime {
 		return sql.NullTime{}
 	}
 	return sql.NullTime{Valid: true, Time: time.Unix(in, 0)}
+}
+func ToNullTime2(in *wrapperspb.Int64Value) sql.NullTime {
+	if in == nil {
+		return sql.NullTime{}
+	}
+	return sql.NullTime{Valid: true, Time: time.Unix(in.GetValue(), 0)}
+}
+
+func TimeToNullInt(in sql.NullTime) *wrapperspb.Int64Value {
+	if !in.Valid {
+		return nil
+	}
+	return &wrapperspb.Int64Value{Value: in.Time.Unix()}
 }
 
 // position 格式: POINT(100.101 50.894)

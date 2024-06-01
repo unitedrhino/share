@@ -105,6 +105,12 @@ func init() {
 		copier.TypeConverter{SrcType: int2, DstType: time2, Fn: func(src interface{}) (dst interface{}, err error) {
 			return Int64ToTimex(src.(int64)), nil
 		}},
+		copier.TypeConverter{SrcType: int1, DstType: time3, Fn: func(src interface{}) (dst interface{}, err error) {
+			return ToNullTime2(src.(*wrappers.Int64Value)), nil
+		}},
+		copier.TypeConverter{SrcType: time3, DstType: int1, Fn: func(src interface{}) (dst interface{}, err error) {
+			return TimeToNullInt(src.(sql.NullTime)), nil
+		}},
 		copier.TypeConverter{SrcType: int2, DstType: time3, Fn: func(src interface{}) (dst interface{}, err error) {
 			return Int64ToSqlTime(src.(int64)), nil
 		}})
