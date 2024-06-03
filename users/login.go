@@ -11,13 +11,14 @@ type LoginClaims struct {
 	UserID     int64  `json:",string"`
 	Account    string //账号
 	RoleIDs    []int64
+	RoleCodes  []string
 	TenantCode string `json:",string"`
 	IsAdmin    int64
 	IsAllData  int64
 	jwt.RegisteredClaims
 }
 
-func GetLoginJwtToken(secretKey string, t time.Time, seconds, userID int64, account string, tenantCode string, roleIDs []int64, isAllData int64, isAdmin int64) (string, error) {
+func GetLoginJwtToken(secretKey string, t time.Time, seconds, userID int64, account string, tenantCode string, roleIDs []int64, roleCodes []string, isAllData int64, isAdmin int64) (string, error) {
 	IssuedAt := jwt.NewNumericDate(t)
 	claims := LoginClaims{
 		UserID:     userID,
@@ -26,6 +27,7 @@ func GetLoginJwtToken(secretKey string, t time.Time, seconds, userID int64, acco
 		IsAdmin:    isAdmin,
 		Account:    account,
 		IsAllData:  isAllData,
+		RoleCodes:  roleCodes,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(t.Add(time.Duration(seconds) * time.Second)),
 			IssuedAt:  IssuedAt,

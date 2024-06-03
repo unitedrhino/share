@@ -21,7 +21,7 @@ type (
 	}
 	CommonParam struct {
 		Identifier        string `json:"identifier"`        //标识符 (统一)
-		Tag               int64  `json:"tag"`               //物模型标签 1:自定义 2:可选 3:必选  必选不可删除
+		Tag               Tag    `json:"tag"`               //物模型标签 1:自定义 2:可选 3:必选  必选不可删除
 		Name              string `json:"name"`              //功能名称
 		Desc              string `json:"desc"`              //描述
 		Required          bool   `json:"required"`          //是否必须
