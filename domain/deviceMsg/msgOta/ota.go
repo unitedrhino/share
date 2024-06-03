@@ -31,9 +31,9 @@ type (
 	//ota下行消息
 	Upgrade struct {
 		deviceMsg.CommonMsg
-		Params UpgradeParams
+		Data *UpgradeData `json:"data,omitempty"`
 	}
-	UpgradeParams struct {
+	UpgradeData struct {
 		Version    string  `json:"version"`
 		IsDiff     int64   `json:"isDiff"`
 		SignMethod string  `json:"signMethod"`
