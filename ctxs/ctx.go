@@ -39,6 +39,18 @@ func (u *UserCtx) ClearInner() *UserCtx {
 	return &newCtx
 }
 
+func (u *UserCtx) HasRole(roleCodes ...string) bool {
+	if u == nil {
+		return false
+	}
+	for _, v := range roleCodes {
+		if !utils.SliceIn(v, u.RoleCodes...) {
+			return false
+		}
+	}
+	return true
+}
+
 type InnerCtx struct {
 	AllProject       bool
 	AllArea          bool //内部使用,不限制区域

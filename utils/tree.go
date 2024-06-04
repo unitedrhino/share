@@ -1,9 +1,21 @@
 package utils
 
 import (
+	"gitee.com/i-Things/share/def"
 	"github.com/spf13/cast"
 	"strings"
 )
+
+func IDPathHasAcess(idPath string, id int64) bool {
+	if id == def.RootNode {
+		return true
+	}
+	path := GetIDPath(idPath)
+	if SliceIn(id, path...) {
+		return true
+	}
+	return false
+}
 
 func GetIDPath(idPath string) (ret []int64) {
 	ids := strings.Split(idPath, "-")
