@@ -84,7 +84,7 @@ func (i Infos) Request(ctx context.Context, in any, retV any) error {
 		switch v.AuthType {
 		case AuthTypeCore:
 			greq.Set(ctxs.UserTokenKey, uc.Token).Set(ctxs.UserProjectID, cast.ToString(uc.ProjectID)).
-				Set(ctxs.UserAppCodeKey, uc.AppCode).Set(ctxs.UserRoleKey, cast.ToString(uc.RoleID))
+				Set(ctxs.UserAppCodeKey, uc.AppCode)
 		}
 		var ret result.ResponseSuccessBean
 		if retV != nil {

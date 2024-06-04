@@ -17,10 +17,11 @@ type UserCtx struct {
 	Token          string
 	TenantCode     string //租户Code
 	AcceptLanguage string
-	ProjectID      int64  `json:",string"`
-	IsAdmin        bool   //是否是超级管理员
-	UserID         int64  `json:",string"` //用户id（开放认证用户值为0）
-	RoleID         int64  //用户使用的角色（开放认证用户值为0）
+	ProjectID      int64   `json:",string"`
+	IsAdmin        bool    //是否是超级管理员
+	UserID         int64   `json:",string"` //用户id（开放认证用户值为0）
+	RoleIDs        []int64 //用户使用的角色（开放认证用户值为0）
+	RoleCodes      []string
 	IsAllData      bool   //是否所有数据权限（开放认证用户值为true）
 	IP             string //用户的ip地址
 	Os             string //操作系统
