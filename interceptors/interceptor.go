@@ -31,7 +31,7 @@ func Error(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grp
 }
 
 func Ctxs(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-	ctx = func() context.Context {
+	ctx2 := func() context.Context {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return ctx
@@ -46,6 +46,6 @@ func Ctxs(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc
 		}
 		return ctxs.SetUserCtx(ctx, &val)
 	}()
-	resp, err := handler(ctx, req)
+	resp, err := handler(ctx2, req)
 	return resp, err
 }

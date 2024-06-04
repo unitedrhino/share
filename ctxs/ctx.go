@@ -76,6 +76,8 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		uc.Os = r.Header.Get("User-Agent")
 		uc.AcceptLanguage = r.Header.Get("Accept-Language")
 		uc.Token = r.Header.Get(UserTokenKey)
+		ctx := SetUserCtx(r.Context(), uc)
+		r = r.WithContext(ctx)
 		next(w, r)
 	}
 }
