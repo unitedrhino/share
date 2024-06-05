@@ -13,4 +13,5 @@ type Info struct {
 	CreatedTime      int64  `json:"createdTime,string"`
 	ProjectLimit     int64  `json:"projectLimit"` //项目数量限制: 1: 单项目 2: 多项目
 	DefaultProjectID int64  `json:"defaultProjectID"`
+	DefaultAreaID    int64  `json:"defaultAreaID"`
 }
