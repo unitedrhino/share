@@ -72,16 +72,16 @@ func (l *Log) Trace(ctx context.Context, begin time.Time, fc func() (sql string,
 	switch {
 	case err != nil && l.LogLevel >= logger.Error && (!errors.Is(err, logger.ErrRecordNotFound) || !IgnoreRecordNotFoundError):
 		sql, rows := fc()
-		logx.WithContext(ctx).Errorw("ERROR SQL", logx.Field("call", utils.FileWithLineNum()), logx.Field("sql", sql),
+		logx.WithContext(ctx).Errorw("errorSql", logx.Field("call", utils.FileWithLineNum()), logx.Field("sql", sql),
 			logx.Field("useTime", useTime), logx.Field("rows", rows), logx.Field("err", err))
 	case elapsed > SlowThreshold && SlowThreshold != 0 && l.LogLevel >= logger.Warn:
 		sql, rows := fc()
-		slowLog := fmt.Sprintf("SLOW SQL >= %v", SlowThreshold)
+		slowLog := fmt.Sprintf("slowSql >= %v", SlowThreshold)
 		logx.WithContext(ctx).Sloww(slowLog, logx.Field("call", utils.FileWithLineNum()), logx.Field("sql", sql),
 			logx.Field("useTime", useTime), logx.Field("rows", rows))
 	case l.LogLevel == logger.Info:
 		sql, rows := fc()
-		logx.WithContext(ctx).Infow("TRACE SQL", logx.Field("call", utils.FileWithLineNum()), logx.Field("sql", sql),
+		logx.WithContext(ctx).Infow("traceSql", logx.Field("call", utils.FileWithLineNum()), logx.Field("sql", sql),
 			logx.Field("useTime", useTime), logx.Field("rows", rows))
 	}
 }
