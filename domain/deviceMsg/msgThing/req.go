@@ -27,15 +27,16 @@ type (
 	//设备基础信息
 	DeviceBasicInfo struct {
 		devices.Core
-		Imei     string            `json:"imei,omitempty"`     //设备的 IMEI 号信息，非必填项
-		Mac      string            `json:"mac,omitempty"`      //设备的 MAC 信息，非必填项
-		Version  string            `json:"version,omitempty"`  //固件版本
-		HardInfo string            `json:"hardInfo,omitempty"` //模组具体硬件型号
-		SoftInfo string            `json:"softInfo,omitempty"` //模组软件版本
-		Position *def.Point        `json:"position,omitempty"` //设备基础信息-坐标信息
-		Tags     map[string]string `json:"tags,omitempty"`     //设备标签信息
-		Rssi     *int64            `json:"rssi,omitempty"`
-		Iccid    *string           `json:"iccid"`
+		Imei           string            `json:"imei,omitempty"`           //设备的 IMEI 号信息，非必填项
+		Mac            string            `json:"mac,omitempty"`            //设备的 MAC 信息，非必填项
+		Version        string            `json:"version,omitempty"`        //固件版本
+		HardInfo       string            `json:"hardInfo,omitempty"`       //模组具体硬件型号
+		SoftInfo       string            `json:"softInfo,omitempty"`       //模组软件版本
+		Position       *def.Point        `json:"position,omitempty"`       //设备基础信息-坐标信息
+		Tags           map[string]string `json:"tags,omitempty"`           //设备标签信息
+		MobileOperator int64             `json:"mobileOperator,omitempty"` //移动运营商:1)移动 2)联通 3)电信 4)广电
+		Rssi           *int64            `json:"rssi,omitempty"`
+		Iccid          *string           `json:"iccid"`
 	}
 	PackReport struct {
 		*deviceMsg.CommonMsg
