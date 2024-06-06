@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"github.com/spf13/cast"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"time"
 )
 
@@ -66,6 +67,14 @@ func ToFloat64(i any) float64 {
 
 // ToFloat32 casts an interface to a float32 type.
 func ToFloat32(i any) float32 {
+	switch i.(type) {
+	case *wrapperspb.FloatValue:
+		v := i.(*wrapperspb.FloatValue)
+		if v == nil {
+			return 0
+		}
+		return v.GetValue()
+	}
 	return cast.ToFloat32(i)
 }
 

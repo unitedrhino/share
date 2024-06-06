@@ -106,6 +106,7 @@ func ToNullString(val *wrappers.StringValue) *string {
 	}
 	return &val.Value
 }
+
 func ToRpcNullString(val any) *wrappers.StringValue {
 	if val == nil {
 		return nil
@@ -133,6 +134,55 @@ func ToRpcNullString(val any) *wrappers.StringValue {
 		}
 	}
 	return nil
+}
+
+func ToRpcNullFloat32(val any) *wrappers.FloatValue {
+	if val == nil {
+		return nil
+	}
+	switch val.(type) {
+	case float32:
+		v := val.(float32)
+		if v == 0 {
+			return nil
+		}
+		return &wrappers.FloatValue{
+			Value: v,
+		}
+	case *float32:
+		v := val.(*float32)
+		if v != nil {
+			return &wrappers.FloatValue{
+				Value: *v,
+			}
+		}
+	case sql.NullFloat64:
+		v := val.(sql.NullFloat64)
+		if v.Valid == true {
+			return &wrappers.FloatValue{Value: float32(v.Float64)}
+		}
+	}
+	return nil
+}
+
+func SqlToFloat32(val sql.NullFloat64) float32 {
+	if !val.Valid {
+		return 0
+	}
+	return float32(val.Float64)
+}
+
+func ToEmptyFloat32(val *wrappers.FloatValue) float32 {
+	if val == nil {
+		return 0
+	}
+	return val.Value
+}
+func ToNullFloat32(val *wrappers.FloatValue) *float32 {
+	if val == nil {
+		return nil
+	}
+	return &val.Value
 }
 
 func ToRpcNullDouble(val *float64) *wrappers.DoubleValue {

@@ -114,6 +114,35 @@ func init() {
 		copier.TypeConverter{SrcType: int2, DstType: time3, Fn: func(src interface{}) (dst interface{}, err error) {
 			return Int64ToSqlTime(src.(int64)), nil
 		}})
+
+	var (
+		float1    *float32
+		float2    *wrappers.FloatValue
+		float3    sql.NullFloat64
+		float4    float32
+		floatCopy = []copier.TypeConverter{
+			{SrcType: float1, DstType: float2, Fn: func(src interface{}) (dst interface{}, err error) {
+				return ToRpcNullFloat32(src), nil
+			}},
+			{SrcType: float4, DstType: float2, Fn: func(src interface{}) (dst interface{}, err error) {
+				return ToRpcNullFloat32(src), nil
+			}},
+			{SrcType: float3, DstType: float2, Fn: func(src interface{}) (dst interface{}, err error) {
+				return ToRpcNullFloat32(src), nil
+			}},
+			{SrcType: float2, DstType: float1, Fn: func(src interface{}) (dst interface{}, err error) {
+				return ToNullFloat32(src.(*wrappers.FloatValue)), nil
+			}},
+			{SrcType: float2, DstType: float4, Fn: func(src interface{}) (dst interface{}, err error) {
+				return ToEmptyFloat32(src.(*wrappers.FloatValue)), nil
+			}},
+			{SrcType: float3, DstType: float4, Fn: func(src interface{}) (dst interface{}, err error) {
+				return SqlToFloat32(src.(sql.NullFloat64)), nil
+			}},
+		}
+	)
+	converters = append(converters, floatCopy...)
+
 }
 
 func AddConverter(in ...copier.TypeConverter) {
