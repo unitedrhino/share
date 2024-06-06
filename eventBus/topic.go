@@ -11,8 +11,8 @@ const (
 	// DmProtocolInfoUpdate 中间的是协议code
 	DmProtocolInfoUpdate = "server.things.dm.protocol.%s.update" //自定义协议配置有更新
 	UdRuleTimer          = "server.things.ud.rule.timer"
-
-	PAliTimer = "server.things.pali.data.timer"
+	SaleStaticTimer      = "server.sale.static.timer"
+	PAliTimer            = "server.things.pali.data.timer"
 
 	ServerCacheSync = "server.cache.sync.%s"
 
