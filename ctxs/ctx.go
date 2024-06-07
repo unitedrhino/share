@@ -17,8 +17,9 @@ type UserCtx struct {
 	Token          string
 	TenantCode     string //租户Code
 	AcceptLanguage string
-	ProjectID      int64   `json:",string"`
-	IsAdmin        bool    //是否是超级管理员
+	ProjectID      int64 `json:",string"`
+	IsAdmin        bool  //是否是超级管理员
+	IsSuperAdmin   bool
 	UserID         int64   `json:",string"` //用户id（开放认证用户值为0）
 	RoleIDs        []int64 //用户使用的角色（开放认证用户值为0）
 	RoleCodes      []string
@@ -175,10 +176,18 @@ func WithRoot(ctx context.Context) context.Context {
 // 如果是default租户直接给root权限
 func WithDefaultRoot(ctx context.Context) context.Context {
 	uc := GetUserCtxNoNil(ctx)
-	if uc.TenantCode != def.TenantCodeDefault || uc.ProjectID > 3 { //传了项目ID则不是root权限
+	if uc.TenantCode != def.TenantCodeDefault || !uc.IsSuperAdmin || uc.ProjectID > 3 { //传了项目ID则不是root权限
 		return ctx
 	}
 	return WithRoot(ctx)
+}
+
+func IsAdmin(ctx context.Context) error {
+	uc := GetUserCtxNoNil(ctx)
+	if uc.IsAdmin || uc.IsSuperAdmin {
+		return nil
+	}
+	return errors.Permissions.AddMsg("只允许管理员操作")
 }
 
 func WithAllProject(ctx context.Context) context.Context {
