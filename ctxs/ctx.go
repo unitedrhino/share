@@ -170,6 +170,7 @@ func WithRoot(ctx context.Context) context.Context {
 	uc.AllTenant = true
 	uc.AllProject = true
 	uc.AllArea = true
+	uc.IsSuperAdmin = true
 	return SetUserCtx(ctx, &uc)
 }
 
@@ -214,7 +215,7 @@ func NewUserCtx(ctx context.Context) context.Context {
 
 func IsRoot(ctx context.Context) error {
 	uc := GetUserCtx(ctx)
-	if uc == nil || uc.TenantCode != def.TenantCodeDefault {
+	if uc == nil || uc.TenantCode != def.TenantCodeDefault || !uc.IsSuperAdmin {
 		return errors.Permissions.AddDetailf("需要主租户才能操作")
 	}
 	return nil
