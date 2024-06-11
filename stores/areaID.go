@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql/driver"
 	"fmt"
-	"gitee.com/i-Things/share/caches"
+	"gitee.com/i-Things/share/ctxs"
+	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/utils"
 	"gorm.io/gorm"
@@ -16,14 +17,11 @@ type AreaID int64
 
 func (t AreaID) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr) { //更新的时候会调用此接口
 	stmt := db.Statement
-	authIDs, err := caches.GatherUserAuthAreaIDs(ctx)
-	if err != nil {
-		stmt.Error = err
-		return
-	}
+	uc := ctxs.GetUserCtxOrNil(ctx)
 	expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
-	return
-	if !utils.SliceIn(int64(t), authIDs...) { //如果没有权限
+
+	authType, areas := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
+	if !(uc.IsAdmin || uc.AllArea || authType == def.AuthAdmin || utils.SliceIn(int64(t), areas...)) { //如果没有权限
 		stmt.Error = errors.Permissions.WithMsg("区域权限不足")
 	}
 	return
@@ -67,17 +65,14 @@ func (sd AreaClause) GenAuthKey() string { //查询的时候会调用此接口
 }
 
 func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候会调用此接口
-	ids, err := caches.GatherUserAuthAreaIDs(stmt.Context)
-	if err != nil {
-		stmt.Error = err
+	uc := ctxs.GetUserCtxOrNil(stmt.Context)
+	authType, areas := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
+	if uc.IsAdmin || uc.AllArea || authType == def.AuthAdmin {
 		return
 	}
 	switch sd.Opt {
 	case Create:
 	case Update, Delete, Select:
-		if len(ids) == 0 { //root 权限不用管
-			return
-		}
 		if _, ok := stmt.Clauses[sd.GenAuthKey()]; !ok {
 			if c, ok := stmt.Clauses["WHERE"]; ok {
 				if where, ok := c.Expression.(clause.Where); ok && len(where.Exprs) > 1 {
@@ -91,8 +86,12 @@ func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候�
 					}
 				}
 			}
+			if len(areas) == 0 { //如果没有权限
+				stmt.Error = errors.Permissions.WithMsg("区域权限不足")
+				return
+			}
 			var values []any
-			for _, v := range ids {
+			for _, v := range areas {
 				values = append(values, v)
 			}
 			stmt.AddClause(clause.Where{Exprs: []clause.Expression{

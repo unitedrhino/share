@@ -6,8 +6,8 @@ type AuthType = int64
 
 const (
 	AuthAdmin     AuthType = 1 //管理权限,可以修改别人的权限,及读写权限
-	AuthRead      AuthType = 2 //读权限,只能读,不能修改
-	AuthReadWrite AuthType = 3 //读写权限,可以读写该权限
+	AuthReadWrite AuthType = 2 //读写权限,可以读写该权限
+	AuthRead      AuthType = 3 //读权限,只能读,不能修改
 )
 
 type TargetType = string

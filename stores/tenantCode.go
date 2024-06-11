@@ -88,16 +88,12 @@ func (sd TenantCodeClause) GenAuthKey() string { //查询的时候会调用此�
 
 func (sd TenantCodeClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候会调用此接口
 	var (
-		isRoot     bool
 		tenantCode = def.TenantCodeDefault
 		allTenant  bool
 	)
 
 	uc := ctxs.GetUserCtxNoNil(stmt.Context)
 	allTenant = uc.AllTenant
-	if uc.TenantCode == def.TenantCodeDefault { //只有core租户的可以修改其他租户的租户号
-		isRoot = true
-	}
 	if uc.TenantCode != "" {
 		tenantCode = uc.TenantCode
 	}
@@ -131,7 +127,7 @@ func (sd TenantCodeClause) ModifyStatement(stmt *gorm.Statement) { //查询的�
 			field.Set(reflect.ValueOf(v))
 		}
 	case Update, Delete, Select:
-		if isRoot && allTenant {
+		if uc.IsSuperAdmin && allTenant { //只有超管能修改其他租户
 			return
 		}
 		if _, ok := stmt.Clauses[sd.GenAuthKey()]; !ok {

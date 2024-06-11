@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/domain/userDataAuth"
 	"gitee.com/i-Things/share/errors"
-	"gitee.com/i-Things/share/utils"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"strconv"
 )
@@ -50,30 +48,30 @@ func GetUserAuthArea(ctx context.Context, userID int64, projectID int64) ([]*use
 }
 
 // 聚合用户数据权限情况
-func GatherUserAuthAreaIDs(ctx context.Context) ([]int64, error) {
-	return nil, nil
-	//检查是否有所有数据权限
-	uc := ctxs.GetUserCtxOrNil(ctx)
-	if uc == nil || uc.IsAllData {
-		return nil, nil
-	}
-
-	projectID := ctxs.GetUserCtx(ctx).ProjectID
-	//读取权限项目ID入参
-	var authIDs []int64
-
-	//读取用户数据权限ID
-	ccAuthIDs, err := GetUserAuthArea(ctx, uc.UserID, projectID)
-	if err != nil {
-		return nil, err
-	}
-	if len(ccAuthIDs) == 0 {
-		errMsg := "区域权限不足"
-		return nil, errors.Permissions.WithMsg(errMsg)
-	}
-	for _, c := range ccAuthIDs {
-		authIDs = append(authIDs, utils.ToInt64(c.AreaID))
-	}
-
-	return authIDs, nil
-}
+//func GatherUserAuthAreaIDs(ctx context.Context) ([]int64, error) {
+//	return nil, nil
+//	//检查是否有所有数据权限
+//	uc := ctxs.GetUserCtxOrNil(ctx)
+//	if uc == nil || uc.IsAllData {
+//		return nil, nil
+//	}
+//
+//	projectID := ctxs.GetUserCtx(ctx).ProjectID
+//	//读取权限项目ID入参
+//	var authIDs []int64
+//
+//	//读取用户数据权限ID
+//	ccAuthIDs, err := GetUserAuthArea(ctx, uc.UserID, projectID)
+//	if err != nil {
+//		return nil, err
+//	}
+//	if len(ccAuthIDs) == 0 {
+//		errMsg := "区域权限不足"
+//		return nil, errors.Permissions.WithMsg(errMsg)
+//	}
+//	for _, c := range ccAuthIDs {
+//		authIDs = append(authIDs, utils.ToInt64(c.AreaID))
+//	}
+//
+//	return authIDs, nil
+//}

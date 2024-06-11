@@ -58,10 +58,10 @@ func (u *UserSubscribe) publish() {
 		if len(execCache) == 0 {
 			return
 		}
-		logx.Infof("UserSubscribe.publish publishs:%v", utils.Fmt(execCache))
-		err := u.ServerMsg.Publish(context.Background(), fmt.Sprintf(eventBus.CoreApiUserPublish, 1), execCache)
+		logx.WithContext(execCache[0].ctx).Infof("UserSubscribe.publish publishs:%v", utils.Fmt(execCache))
+		err := u.ServerMsg.Publish(execCache[0].ctx, fmt.Sprintf(eventBus.CoreApiUserPublish, 1), execCache)
 		if err != nil {
-			logx.Error(err)
+			logx.WithContext(execCache[0].ctx).Error(err)
 		}
 		execCache = execCache[0:0] //清空切片
 	}

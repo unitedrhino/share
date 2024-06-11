@@ -224,7 +224,7 @@ func Time2ToInt64(t *time.Time) int64 {
 	}
 	return TimeToInt64(*t)
 }
-func SetToSlice[t constraints.Ordered](in map[t]struct{}) (ret []t) {
+func SetToSlice[t constraints.Ordered, vT any](in map[t]vT) (ret []t) {
 	for k := range in {
 		ret = append(ret, k)
 	}

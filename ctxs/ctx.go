@@ -28,7 +28,28 @@ type UserCtx struct {
 	Os             string //操作系统
 	UserName       string
 	Account        string
+	ProjectAuth    map[int64]*ProjectAuth
 	InnerCtx
+}
+
+type ProjectAuth struct {
+	Area map[int64]int64 //key是区域ID,value是授权类型
+	// 1 //管理权限,可以修改别人的权限,及读写权限 管理权限不限制区域权限
+	// 2 //读权限,只能读,不能修改
+	// 3 //读写权限,可以读写该权限
+	AuthType def.AuthType //项目的授权类型
+}
+
+func GetAreaIDs(projectID int64, in map[int64]*ProjectAuth) (authType def.AuthType, areas []int64) {
+	v := in[projectID]
+	if v == nil {
+		return
+	}
+	authType = v.AuthType
+	for area := range v.Area {
+		areas = append(areas, area)
+	}
+	return
 }
 
 func (u *UserCtx) ClearInner() *UserCtx {

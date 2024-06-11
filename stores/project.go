@@ -19,20 +19,23 @@ type ProjectID int64
 
 func (t ProjectID) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr) { //更新的时候会调用此接口
 	stmt := db.Statement
-	authIDs, err := caches.GatherUserAuthProjectIDs(ctx)
-	if err != nil {
-		stmt.Error = err
-		return
-	}
+	//authIDs, err := caches.GatherUserAuthProjectIDs(ctx)
+	//if err != nil {
+	//	stmt.Error = err
+	//	return
+	//}
 	uc := ctxs.GetUserCtx(ctx)
-	if t != 0 && (uc == nil || authIDs == nil || uc.AllProject) { //root 权限不用管
+	if t != 0 && (uc == nil || uc.IsAdmin || uc.AllProject) { //如果项目ID不为空,则需要判断是否是root
 		expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
 	} else {
 		t = ProjectID(uc.ProjectID)
 		expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
 	}
-	if !(uc == nil || authIDs == nil || uc.AllProject) && !utils.SliceIn(int64(t), authIDs...) { //如果没有权限
-		stmt.Error = errors.Permissions.WithMsg("项目权限不足")
+	if !(uc == nil || uc.IsAdmin || uc.AllProject) { //如果没有权限
+		pa := uc.ProjectAuth[int64(t)]
+		if !(pa != nil && pa.AuthType < def.AuthRead) { //要有写权限
+			stmt.Error = errors.Permissions.WithMsg("项目权限不足")
+		}
 	}
 
 	return
@@ -75,11 +78,6 @@ func (sd ProjectClause) GenAuthKey() string { //查询的时候会调用此接�
 }
 
 func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候会调用此接口
-	ids, err := caches.GatherUserAuthProjectIDs(stmt.Context)
-	if err != nil {
-		stmt.Error = err
-		return
-	}
 	uc := ctxs.GetUserCtxNoNil(stmt.Context)
 	if uc.ProjectID == 0 || uc.ProjectID == def.NotClassified {
 		ti, err := caches.GetTenant(stmt.Context, uc.TenantCode)
@@ -100,7 +98,7 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 			for i := 0; i < destV.Len(); i++ {
 				dest := destV.Index(i)
 				field := GetField(dest, f.BindNames...)
-				if !field.IsValid() || (len(ids) == 0 && !field.IsZero()) { //只有root权限的租户可以设置为其他租户
+				if !field.IsValid() || !field.IsZero() { //如果不是零值
 					continue
 				}
 				var v ProjectID
@@ -110,7 +108,7 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 			return
 		}
 		field := GetField(destV, f.BindNames...)
-		if len(ids) == 0 && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+		if !field.IsZero() { //只有root权限的租户可以设置为其他租户
 			return
 		}
 		var v ProjectID
@@ -118,8 +116,15 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 		field.Set(reflect.ValueOf(v))
 
 	case Update, Delete, Select:
-		if uc == nil || (len(ids) == 0 && uc.AllProject) { //root 权限不用管
+		if uc == nil || uc.AllProject || (uc.IsAdmin && uc.ProjectID <= def.NotClassified) { //root 权限不用管
 			return
+		}
+		if uc.ProjectID > def.NotClassified && !(uc.IsAdmin || uc.AllProject) {
+			pa := uc.ProjectAuth[uc.ProjectID]
+			if pa == nil {
+				stmt.Error = errors.Permissions.WithMsg("项目权限不足")
+				return
+			}
 		}
 		if _, ok := stmt.Clauses[sd.GenAuthKey()]; !ok {
 			if c, ok := stmt.Clauses["WHERE"]; ok {
@@ -135,6 +140,11 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 				}
 			}
 			var values = []any{uc.ProjectID}
+			if uc.ProjectID < def.NotClassified { //如果没有传项目ID,那么就是需要获取所有项目的参数
+				for k := range uc.ProjectAuth {
+					values = append(values, k)
+				}
+			}
 			stmt.AddClause(clause.Where{Exprs: []clause.Expression{
 				clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: values},
 			}})
