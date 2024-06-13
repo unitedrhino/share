@@ -117,7 +117,7 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func BindTenantCode(ctx context.Context, tenantCode string) context.Context {
+func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) context.Context {
 	uc := GetUserCtx(ctx)
 	if uc == nil {
 		if tenantCode == "" {
@@ -125,11 +125,15 @@ func BindTenantCode(ctx context.Context, tenantCode string) context.Context {
 		}
 		uc = &UserCtx{
 			TenantCode: tenantCode,
+			ProjectID:  projectID,
 		}
 		ctx = context.WithValue(ctx, UserInfoKey, uc)
 
 	} else {
 		uc.TenantCode = tenantCode
+		if projectID != 0 {
+			uc.ProjectID = projectID
+		}
 	}
 	return ctx
 }

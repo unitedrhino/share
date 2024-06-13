@@ -25,12 +25,11 @@ func (t ProjectID) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr
 	//	return
 	//}
 	uc := ctxs.GetUserCtx(ctx)
-	if t != 0 && (uc == nil || uc.IsAdmin || uc.AllProject) { //如果项目ID不为空,则需要判断是否是root
-		expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
-	} else {
+	if t == 0 && uc != nil && uc.ProjectID != 0 {
 		t = ProjectID(uc.ProjectID)
-		expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
 	}
+	expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
+
 	if !(uc == nil || uc.IsAdmin || uc.AllProject) { //如果没有权限
 		pa := uc.ProjectAuth[int64(t)]
 		if !(pa != nil && pa.AuthType < def.AuthRead) { //要有写权限
