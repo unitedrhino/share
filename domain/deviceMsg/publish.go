@@ -55,6 +55,13 @@ func (p *PublishMsg) String() string {
 	return utils.Fmt(msgMap)
 }
 
+func (p *PublishMsg) GetPayload() string {
+	if p == nil || len(p.Payload) == 0 {
+		return ""
+	}
+	return string(p.Payload)
+}
+
 // 如果MsgToken为空,会使用uuid生成一个
 func NewRespCommonMsg(ctx context.Context, method, MsgToken string) *CommonMsg {
 	return &CommonMsg{
