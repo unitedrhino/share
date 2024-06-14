@@ -21,7 +21,7 @@ func (t AreaID) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr) {
 	expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
 
 	authType, areas := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
-	if !(uc.IsAdmin || uc.AllArea || authType == def.AuthAdmin || utils.SliceIn(int64(t), areas...)) { //如果没有权限
+	if t != def.NotClassified && !(uc.IsAdmin || uc.AllArea || authType == def.AuthAdmin || utils.SliceIn(int64(t), areas...)) { //如果没有权限
 		stmt.Error = errors.Permissions.WithMsg("区域权限不足")
 	}
 	return
@@ -90,7 +90,7 @@ func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候�
 				stmt.Error = errors.Permissions.WithMsg("区域权限不足")
 				return
 			}
-			var values []any
+			var values = []any{def.NotClassified}
 			for _, v := range areas {
 				values = append(values, v)
 			}
