@@ -50,8 +50,8 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 		return nil, err
 	}
 	db, _ := conn.DB()
-	db.SetMaxIdleConns(200)
-	db.SetMaxOpenConns(200)
+	db.SetMaxIdleConns(50)
+	db.SetMaxOpenConns(50)
 	db.SetConnMaxIdleTime(time.Hour)
 	db.SetConnMaxLifetime(time.Hour)
 	return
