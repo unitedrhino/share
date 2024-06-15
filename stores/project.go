@@ -30,7 +30,7 @@ func (t ProjectID) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr
 	}
 	expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
 
-	if !(uc == nil || uc.IsAdmin || uc.AllProject) { //如果没有权限
+	if !(uc == nil || uc.IsSuperAdmin || uc.AllProject) { //如果没有权限
 		pa := uc.ProjectAuth[int64(t)]
 		if !(pa != nil && pa.AuthType < def.AuthRead) { //要有写权限
 			stmt.Error = errors.Permissions.WithMsg("项目权限不足")
@@ -115,10 +115,10 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 		field.Set(reflect.ValueOf(v))
 
 	case Update, Delete, Select:
-		if uc == nil || uc.AllProject || (uc.IsAdmin && uc.ProjectID <= def.NotClassified) { //root 权限不用管
+		if uc == nil || uc.AllProject || (uc.IsSuperAdmin && uc.ProjectID <= def.NotClassified) { //root 权限不用管
 			return
 		}
-		if uc.ProjectID > def.NotClassified && !(uc.IsAdmin || uc.AllProject) {
+		if uc.ProjectID > def.NotClassified && !(uc.IsSuperAdmin || uc.AllProject) {
 			pa := uc.ProjectAuth[uc.ProjectID]
 			if pa == nil {
 				stmt.Error = errors.Permissions.WithMsg("项目权限不足")
@@ -140,6 +140,7 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 			}
 			var values = []any{uc.ProjectID}
 			if uc.ProjectID < def.NotClassified { //如果没有传项目ID,那么就是需要获取所有项目的参数
+				values = nil
 				for k := range uc.ProjectAuth {
 					values = append(values, k)
 				}
