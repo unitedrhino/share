@@ -18,11 +18,6 @@ var orderMap = map[int64]string{
 	OrderDesc: "desc",
 }
 
-type ExecArgs struct {
-	Query string
-	Args  []any
-}
-
 type PageInfo struct {
 	Page   int64     `json:"page" form:"page"`         // 页码
 	Size   int64     `json:"pageSize" form:"pageSize"` // 每页大小
@@ -69,7 +64,7 @@ func (p *PageInfo) GetOffset() int64 {
 func (p *PageInfo) GetOrders() (arr []string) {
 	if p != nil && len(p.Orders) > 0 {
 		for _, o := range p.Orders {
-			arr = append(arr, fmt.Sprintf("%s %s", o.Filed, orderMap[o.Sort]))
+			arr = append(arr, fmt.Sprintf("`%s` %s", o.Filed, orderMap[o.Sort]))
 		}
 	}
 	return
@@ -78,7 +73,13 @@ func (p *PageInfo) ToGorm(db *gorm.DB) *gorm.DB {
 	if p == nil {
 		return db.Order("created_time desc")
 	}
-	db = db.Offset(int(p.GetOffset())).Limit(int(p.GetLimit()))
+	if p.Size != 0 {
+		db = db.Limit(int(p.GetLimit()))
+		if p.Page != 0 {
+			db = db.Offset(int(p.GetOffset()))
+		}
+	}
+
 	if len(p.Orders) != 0 {
 		orders := p.GetOrders()
 		for _, o := range orders {

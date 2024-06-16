@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"gitee.com/i-Things/share/conf"
-	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/utils"
 	_ "github.com/taosdata/driver-go/v3/taosRestful"
 	"math/rand"
@@ -23,10 +22,15 @@ type Td struct {
 	*sql.DB
 }
 
+type ExecArgs struct {
+	Query string
+	Args  []any
+}
+
 var (
 	td         = Td{}
 	once       = sync.Once{}
-	insertChan = make(chan def.ExecArgs, 1000)
+	insertChan = make(chan ExecArgs, 1000)
 )
 
 const (
@@ -66,7 +70,7 @@ func NewTDengine(DataSource conf.TSDB) (TD *Td, err error) {
 func (t *Td) asyncInsertRuntime() {
 	r := rand.Intn(1000)
 	tick := time.Tick(time.Second/2 + time.Millisecond*time.Duration(r))
-	execCache := make([]def.ExecArgs, 0, asyncExecMax*2)
+	execCache := make([]ExecArgs, 0, asyncExecMax*2)
 	exec := func() {
 		if len(execCache) == 0 {
 			return
@@ -99,12 +103,12 @@ func (t *Td) asyncInsertRuntime() {
 }
 
 func (t *Td) AsyncInsert(query string, args ...any) {
-	insertChan <- def.ExecArgs{
+	insertChan <- ExecArgs{
 		Query: query,
 		Args:  args,
 	}
 }
-func (t *Td) genInsertSql(eas ...def.ExecArgs) (query string, args []any) {
+func (t *Td) genInsertSql(eas ...ExecArgs) (query string, args []any) {
 	qs := make([]string, 0, len(eas))
 	as := make([]any, 0, len(eas))
 	for _, e := range eas {
