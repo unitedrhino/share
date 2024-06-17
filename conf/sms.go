@@ -1,8 +1,10 @@
 package conf
 
+type SmsType = string
+
 const (
-	SmsAli     = "ali"
-	SmsTencent = "tencent"
+	SmsAli     SmsType = "ali"
+	SmsTencent SmsType = "tencent"
 )
 
 type Sms struct {
