@@ -3,6 +3,7 @@ package stores
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"time"
 )
 
 type Tree struct {
@@ -21,6 +22,11 @@ type TreeWithName struct {
 type IDPath struct {
 	IDPath string `gorm:"column:id_path;type:varchar(1024);index"` // 1-2-3-的格式记录顶级到当前的路径
 	ID     int64  `gorm:"column:id;type:bigint(20);index"`         //2是未分类,未使用的,1是根节点
+}
+type IDPathWithUpdate struct {
+	IDPath      string    `gorm:"column:id_path;type:varchar(1024);index"` // 1-2-3-的格式记录顶级到当前的路径
+	ID          int64     `gorm:"column:id;type:bigint(20);index"`         //2是未分类,未使用的,1是根节点
+	UpdatedTime time.Time `gorm:"column:updated_time;default:CURRENT_TIMESTAMP;NOT NULL"`
 }
 
 type IDPathFilter struct {
