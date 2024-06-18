@@ -13,7 +13,7 @@ const (
 	IDLen            = 128  //标识符的长度
 	NameLen          = 128  //参数名称的长度
 	DescLen          = 80   //描述的最大长度
-	DefineMappingLen = 20
+	DefineMappingLen = 50
 	DefineUnitLen    = 12
 	DefineIntMax     = 9999999999999
 	DefineIntMin     = -9999999999999
