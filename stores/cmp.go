@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type CmpType string
+type CmpType = string
 
 const (
 	CmpTypeEq    CmpType = "="      //相等
@@ -31,6 +31,24 @@ func defaultToSql(c CmpType) toSqlFunc {
 	return func(column string) string {
 		return fmt.Sprintf("%s %s ?", column, string(c))
 	}
+}
+
+func GetCmp(cmpType CmpType, value any) *Cmp {
+	switch cmpType {
+	case CmpTypeEq:
+		return CmpEq(value)
+	case CmpTypeNot:
+		return CmpNot(value)
+	case CmpTypeGt:
+		return CmpGt(value)
+	case CmpTypeGte:
+		return CmpGte(value)
+	case CmpTypeLt:
+		return CmpLt(value)
+	case CmpTypeLte:
+		return CmpLte(value)
+	}
+	return nil
 }
 
 func CmpEq(value any) *Cmp {
