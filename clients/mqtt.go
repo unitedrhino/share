@@ -10,6 +10,7 @@ import (
 	"github.com/parnurzeal/gorequest"
 	"github.com/spf13/cast"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"sync"
@@ -160,7 +161,13 @@ func (m MqttClient) CheckIsOnline(ctx context.Context, clientID string) (bool, e
 	greq := gorequest.New().Retry(1, time.Second*2)
 	greq.SetBasicAuth(oa.ApiKey, oa.SecretKey)
 	var ret EmqResp
-	_, _, errs := greq.Get(fmt.Sprintf("%s/api/v5/clients/%s", oa.Host, url.QueryEscape(clientID))).EndStruct(&ret)
+	resp, rets, errs := greq.Get(fmt.Sprintf("%s/api/v5/clients/%s", oa.Host, url.QueryEscape(clientID))).EndStruct(&ret)
+	if errs != nil {
+		return false, errors.System.AddDetail(errs)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return false, errors.System.AddDetail(string(rets))
+	}
 	if errs != nil {
 		return false, errors.System.AddDetail(errs)
 	}
@@ -257,9 +264,12 @@ func (m MqttClient) GetOnlineClients(ctx context.Context, f GetOnlineClientsFilt
 		greq.Query(fmt.Sprintf("limit=%v", page.Size))
 	}
 	var ret EmqGetClientsResp
-	_, _, errs := greq.EndStruct(&ret)
+	resp, rets, errs := greq.EndStruct(&ret)
 	if errs != nil {
 		return nil, 0, errors.System.AddDetail(errs)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, 0, errors.System.AddDetail(string(rets))
 	}
 	var infos []*devices.DevConn
 	for _, v := range ret.Data {
