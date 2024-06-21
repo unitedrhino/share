@@ -27,6 +27,7 @@ const (
 const (
 	ServerCacheKeySysUserInfo          = "cache:sys:user:info"
 	ServerCacheKeySysProjectInfo       = "cache:sys:project:info"
+	ServerCacheKeySysAreaInfo          = "cache:sys:area:info"
 	ServerCacheKeySysTenantInfo        = "cache:sys:tenant:info"
 	ServerCacheKeySysTenantOpenWebhook = "cache:sys:tenant:open:webhook"
 	ServerCacheKeyDmProduct            = "cache:dm:product"
