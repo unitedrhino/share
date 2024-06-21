@@ -66,6 +66,9 @@ func (sd AreaClause) GenAuthKey() string { //查询的时候会调用此接口
 
 func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候会调用此接口
 	uc := ctxs.GetUserCtxOrNil(stmt.Context)
+	if uc == nil {
+		return
+	}
 	authType, areas := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
 	if uc.IsAdmin || uc.AllArea || authType == def.AuthAdmin {
 		return
