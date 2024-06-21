@@ -14,18 +14,18 @@ func genUserAuthProjectKey(userID int64) string {
 	return fmt.Sprintf("user:data:auth:project:userID:%v", userID)
 }
 
-// 设置用户数据权限缓存（通用，ctx不限，但需uid传参）
-func SetUserAuthProject(ctx context.Context, userID int64, dataIDs []*userDataAuth.Project) error {
-	ccJson, err := json.Marshal(dataIDs)
-	if err != nil {
-		return err
-	}
-	err = store.SetCtx(ctx, genUserAuthProjectKey(userID), string(ccJson))
-	if err != nil {
-		return err
-	}
-	return nil
-}
+//// 设置用户数据权限缓存（通用，ctx不限，但需uid传参）
+//func SetUserAuthProject(ctx context.Context, userID int64, dataIDs []*userDataAuth.Project) error {
+//	ccJson, err := json.Marshal(dataIDs)
+//	if err != nil {
+//		return err
+//	}
+//	err = store.SetCtx(ctx, genUserAuthProjectKey(userID), string(ccJson))
+//	if err != nil {
+//		return err
+//	}
+//	return nil
+//}
 
 // 读取用户数据权限缓存（通用，ctx不限，但需uid传参）
 func GetUserAuthProject(ctx context.Context, userID int64) ([]*userDataAuth.Project, error) {
