@@ -282,5 +282,8 @@ func (m *Minio) CopyFromTempBucket(tempPath, dstPath string) (string, error) {
 
 // 获取完整链接
 func (m *Minio) GetUrl(path string) (string, error) {
+	if path[0] == '/' {
+		path = path[1:]
+	}
 	return m.setting.CustomHost + "/" + m.currentBucketName + "/" + path, nil
 }
