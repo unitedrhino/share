@@ -145,3 +145,16 @@ func (t TimeRange) FmtSql(sql sq.SelectBuilder) sq.SelectBuilder {
 	}
 	return sql
 }
+
+func (t *TimeRange) ToGorm(db *gorm.DB, column string) *gorm.DB {
+	if t == nil {
+		return db
+	}
+	if t.Start != 0 {
+		db = db.Where(column+">=?", time.Unix(t.Start, 0))
+	}
+	if t.End != 0 {
+		db = db.Where(column+"<=?", time.Unix(t.End, 0))
+	}
+	return db
+}

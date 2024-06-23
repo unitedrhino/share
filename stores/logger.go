@@ -19,7 +19,7 @@ import (
 //}
 
 var (
-	SlowThreshold             time.Duration = 200 * time.Millisecond
+	SlowThreshold             time.Duration = 500 * time.Millisecond
 	ParameterizedQueries      bool          = false
 	IgnoreRecordNotFoundError bool          = false
 )
