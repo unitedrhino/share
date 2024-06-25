@@ -40,6 +40,15 @@ type ProjectAuth struct {
 	AuthType def.AuthType //项目的授权类型
 }
 
+func GetAllAreaIDs(in map[int64]*ProjectAuth) (areas []int64) {
+	for _, v := range in {
+		for area := range v.Area {
+			areas = append(areas, area)
+		}
+	}
+	return
+}
+
 func GetAreaIDs(projectID int64, in map[int64]*ProjectAuth) (authType def.AuthType, areas []int64) {
 	v := in[projectID]
 	if v == nil {
