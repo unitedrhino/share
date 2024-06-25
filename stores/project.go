@@ -115,7 +115,7 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 		field.Set(reflect.ValueOf(v))
 
 	case Update, Delete, Select:
-		if uc == nil || uc.AllProject || (uc.IsSuperAdmin && uc.ProjectID <= def.NotClassified) { //root 权限不用管
+		if uc == nil || uc.AllProject { //root 权限不用管
 			return
 		}
 		if uc.ProjectID > def.NotClassified && !(uc.IsSuperAdmin || uc.AllProject) {
