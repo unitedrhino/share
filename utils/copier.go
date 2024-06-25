@@ -79,7 +79,11 @@ func init() {
 	)
 	converters = append(converters,
 		copier.TypeConverter{SrcType: time1, DstType: int2, Fn: func(src interface{}) (dst interface{}, err error) {
-			return src.(time.Time).Unix(), nil
+			t := src.(time.Time)
+			if t.IsZero() {
+				return int64(0), nil
+			}
+			return t.Unix(), nil
 		}},
 		copier.TypeConverter{SrcType: time2, DstType: int2, Fn: func(src interface{}) (dst interface{}, err error) {
 			t := src.(*time.Time)
