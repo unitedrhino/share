@@ -70,6 +70,11 @@ func GenFilePath(ctx context.Context, svrName, business, scene, filePath string)
 	return fmt.Sprintf("%s/%s/%s/%s/%s/%s", svrName, uc.TenantCode, uc.AppCode, business, scene, filePath)
 }
 
+func IsCommonFile(svrName, business, scene string, filePath string) bool {
+	part := fmt.Sprintf("%s/common/%s/%s", svrName, business, scene)
+	return strings.Contains(filePath, part)
+}
+
 func GetFileNameWithPath(path string) string {
 	fs := strings.Split(path, "/")
 	return fs[len(fs)-1]
