@@ -18,10 +18,21 @@ const (
 type (
 	// DevConn ddsvr 发布设备 连接和断连 的结构体
 	DevConn struct {
-		UserName   string `json:"username"`
-		Timestamp  int64  `json:"timestamp"` //毫秒时间戳
-		Address    string `json:"addr"`
-		ClientID   string `json:"clientID"`
+		UserName  string `json:"username"`
+		Timestamp int64  `json:"timestamp"` //毫秒时间戳
+		Address   string `json:"addr"`
+		ClientID  string `json:"clientID"`
+		/*
+			https://www.emqx.com/en/blog/emqx-mqtt-broker-connection-troubleshooting
+				normal：客户端主动断开连接；
+				kicked：被服务器踢出，通过 REST API；
+				keepalive_timeout：保持活动超时；
+				not_authorized：认证失败，或者acl_nomatch=disconnect时，没有权限的Pub/Sub会主动断开客户端连接；
+				tcp_closed：对端关闭了网络连接；
+				discard：因为相同ClientID的客户端上线了，并且设置了clean_start=true；
+				takeovered：因为相同ClientID的客户端上线，并且设置了clean_start=false；
+				internal_error：格式错误的消息或其他未知错误。
+		*/
 		Reason     string `json:"reason"`
 		Action     string `json:"action"` //登录 onLogin 登出 onLogout
 		ProductID  string `json:"productID"`
