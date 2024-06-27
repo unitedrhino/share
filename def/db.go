@@ -71,7 +71,7 @@ func (p *PageInfo) GetOrders() (arr []string) {
 }
 func (p *PageInfo) ToGorm(db *gorm.DB) *gorm.DB {
 	if p == nil {
-		return db.Order("created_time desc")
+		return db
 	}
 	if p.Size != 0 {
 		db = db.Limit(int(p.GetLimit()))
@@ -85,8 +85,6 @@ func (p *PageInfo) ToGorm(db *gorm.DB) *gorm.DB {
 		for _, o := range orders {
 			db = db.Order(o)
 		}
-	} else {
-		db.Order("created_time desc")
 	}
 	return db
 }
