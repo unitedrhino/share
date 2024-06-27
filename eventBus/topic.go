@@ -4,6 +4,7 @@ package eventBus
 const (
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"
 	DmDeviceOnlineStatusChange = "server.things.dm.device.onlineStatus.change"
+	DmDeviceStaticHalfHour     = "server.things.dm.device.static.halfHour" //半小时统计
 	DmProductInfoDelete        = "server.things.dm.product.info.delete"
 	DmProductCustomUpdate      = "server.things.dm.product.custom.update"   //产品脚本有更新
 	DmOtaDeviceUpgradePush     = "server.things.dm.ota.device.upgrade.push" //ota设备推送
