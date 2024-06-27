@@ -95,7 +95,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 						}
 					}
 					if sub == nil { //没有订阅的
-						logx.Infof("no sub:%v", utils.Fmt(pb))
+						logx.Debugf("no sub:%v", utils.Fmt(pb))
 						return nil
 					}
 					for _, c := range sub { //所有订阅者都需要发

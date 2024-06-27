@@ -37,6 +37,12 @@ const (
 	Female = 2 //女鞋
 )
 
+const (
+	FilterTrue    = 1 //是
+	FilterFalse   = 2 //否
+	FilterNoAdmin = 3 // admin不过滤
+)
+
 func ToBool[boolType constraints.Integer](in boolType) bool {
 	if in == True {
 		return true
