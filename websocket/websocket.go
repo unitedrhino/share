@@ -15,6 +15,7 @@ const (
 	ControlRet WsType = "down.controlRet" //控制回复
 	UnSub      WsType = "up.unSub"        //取消订阅
 	UnSubRet   WsType = "down.unSubRet"   //取消订阅回复
+	SetHandle  WsType = "up.setHandle"    //设置http头
 )
 
 type SubscribeInfo struct {

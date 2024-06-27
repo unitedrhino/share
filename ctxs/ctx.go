@@ -89,13 +89,28 @@ type InnerCtx struct {
 	WithCommonTenant bool //同时获取公共租户
 }
 
+func GetHandle(r *http.Request, keys ...string) string {
+	var val string
+	for _, v := range keys {
+		val = r.Header.Get(v)
+		if val != "" {
+			return val
+		}
+		val = r.URL.Query().Get(v)
+		if val != "" {
+			return val
+		}
+	}
+	return val
+}
+
 func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		uc := GetUserCtx(r.Context())
 		if uc == nil {
 			strIP, _ := utils.GetIP(r)
-			appCode := r.Header.Get(UserAppCodeKey)
-			tenantCode := r.Header.Get(UserTenantCodeKey)
+			appCode := GetHandle(r, UserAppCodeKey)
+			tenantCode := GetHandle(r, UserTenantCodeKey)
 			uc = &UserCtx{
 				AppCode:    appCode,
 				TenantCode: tenantCode,
@@ -104,12 +119,12 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			c := context.WithValue(r.Context(), UserInfoKey, uc)
 			r = r.WithContext(c)
 		}
-		strProjectID := r.Header.Get(UserProjectID)
+		strProjectID := GetHandle(r, UserProjectID)
 		projectID := cast.ToInt64(strProjectID)
 		if projectID == 0 {
 			projectID = def.NotClassified
 		}
-		uc.AppCode = r.Header.Get(UserAppCodeKey)
+		uc.AppCode = GetHandle(r, UserAppCodeKey)
 		if uc.AppCode == "" {
 			uc.AppCode = def.AppCore
 		}
@@ -117,9 +132,9 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			uc.TenantCode = def.TenantCodeDefault
 		}
 		uc.ProjectID = projectID
-		uc.Os = r.Header.Get("User-Agent")
-		uc.AcceptLanguage = r.Header.Get("Accept-Language")
-		uc.Token = r.Header.Get(UserTokenKey)
+		uc.Os = GetHandle(r, "User-Agent")
+		uc.AcceptLanguage = GetHandle(r, "Accept-Language")
+		uc.Token = GetHandle(r, UserTokenKey)
 		ctx := SetUserCtx(r.Context(), uc)
 		r = r.WithContext(ctx)
 		next(w, r)
