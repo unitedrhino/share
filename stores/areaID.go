@@ -104,3 +104,23 @@ func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候�
 		}
 	}
 }
+func GenAreaAuthScope(ctx context.Context, db *gorm.DB) *gorm.DB {
+	uc := ctxs.GetUserCtxOrNil(ctx)
+	if uc == nil {
+		return db
+	}
+	authType, areas := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
+	if uc.IsAdmin || uc.AllArea || authType <= def.AuthReadWrite {
+		return db
+	}
+	if len(areas) == 0 { //如果没有权限
+		db.AddError(errors.Permissions.WithMsg("区域权限不足"))
+		return db
+	}
+	var values = []any{def.NotClassified}
+	for _, v := range areas {
+		values = append(values, v)
+	}
+	db = db.Where("area_id in ?", values)
+	return db
+}
