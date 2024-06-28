@@ -14,13 +14,13 @@ const (
 type (
 	Req struct {
 		deviceMsg.CommonMsg
-		Params params `json:"params,optional"`
+		Params Params `json:"params,optional"`
 	}
 	Process struct {
 		deviceMsg.CommonMsg
 		Params ProcessParams `json:"params,optional"`
 	}
-	params struct {
+	Params struct {
 		Version string `json:"version"`
 	}
 	ProcessParams struct {
