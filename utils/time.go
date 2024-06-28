@@ -84,11 +84,14 @@ func FmtDateStr(t string) time.Time {
 	if t == "" {
 		return time.Now()
 	}
-	ret, err := time.ParseInLocation("2006-01-02", t, time.Local)
+	ret, err := time.ParseInLocation("2006-01-02 15:04:05", t, time.Local)
 	if err != nil {
-		ret, err = time.ParseInLocation("2006-01", t, time.Local)
+		ret, err = time.ParseInLocation("2006-01-02", t, time.Local)
 		if err != nil {
-			return time.Now()
+			ret, err = time.ParseInLocation("2006-01", t, time.Local)
+			if err != nil {
+				return time.Now()
+			}
 		}
 	}
 	return ret
