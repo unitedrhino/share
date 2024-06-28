@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/devices"
 	"gitee.com/i-Things/share/errors"
 	"github.com/parnurzeal/gorequest"
@@ -248,7 +247,12 @@ type GetOnlineClientsFilter struct {
 	UserName string
 }
 
-func (m MqttClient) GetOnlineClients(ctx context.Context, f GetOnlineClientsFilter, page *def.PageInfo) ([]*devices.DevConn, int64, error) {
+type PageInfo struct {
+	Page int64 `json:"page" form:"page"`         // 页码
+	Size int64 `json:"pageSize" form:"pageSize"` // 每页大小
+}
+
+func (m MqttClient) GetOnlineClients(ctx context.Context, f GetOnlineClientsFilter, page *PageInfo) ([]*devices.DevConn, int64, error) {
 	if m.cfg.OpenApi == nil {
 		return nil, 0, errors.System.AddMsg("未开启登录检查")
 	}
