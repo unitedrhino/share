@@ -61,7 +61,7 @@ func (p *PageInfo) GetOffset() int64 {
 }
 
 // 获取排序参数
-func (p *PageInfo) GetOrders() (arr []string) {
+func (p *PageInfo) getOrders() (arr []string) {
 	if p != nil && len(p.Orders) > 0 {
 		for _, o := range p.Orders {
 			arr = append(arr, fmt.Sprintf("%s %s", o.Filed, orderMap[o.Sort]))
@@ -69,6 +69,14 @@ func (p *PageInfo) GetOrders() (arr []string) {
 	}
 	return
 }
+func (p *PageInfo) WithOrder(in ...OrderBy) *PageInfo {
+	if p == nil {
+		p = &PageInfo{}
+	}
+	p.Orders = in
+	return p
+}
+
 func (p *PageInfo) ToGorm(db *gorm.DB) *gorm.DB {
 	if p == nil {
 		return db
@@ -81,7 +89,7 @@ func (p *PageInfo) ToGorm(db *gorm.DB) *gorm.DB {
 	}
 
 	if len(p.Orders) != 0 {
-		orders := p.GetOrders()
+		orders := p.getOrders()
 		for _, o := range orders {
 			db = db.Order(o)
 		}
