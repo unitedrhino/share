@@ -85,7 +85,16 @@ func (d *Req) VerifyReqParam(t *schema.Model, tt schema.ParamType) (map[string]P
 		for k, v := range d.Params {
 			p, ok := t.Property[k]
 			if ok == false {
-				continue
+				b, _, ok := schema.GetArray(k)
+				if !ok {
+					continue
+				}
+				if p, ok = t.Property[b]; !ok {
+					continue
+				}
+				if p.Define.Type != schema.DataTypeArray { //只有数组类型可以
+					continue
+				}
 			}
 			tp := Param{
 				Identifier: p.Identifier,

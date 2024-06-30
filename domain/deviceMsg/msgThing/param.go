@@ -28,36 +28,13 @@ type Param struct {
 	Mode       schema.PropertyMode `json:"mode"`       //读写乐行:rw(可读可写) r(只读)
 	Required   bool                `json:"required"`   //是否必须
 	Type       schema.EventType    `json:"type"`       //事件类型: 信息:info  告警alert  故障:fault
-	Value      struct {
-		Type    schema.DataType   `json:"type"`              //参数类型:bool int string struct float timestamp array enum
-		Mapping map[string]string `json:"mapping,omitempty"` //枚举及bool类型:bool enum
-		Min     string            `json:"min,omitempty"`     //数值最小值:int string float
-		Max     string            `json:"max,omitempty"`     //数值最大值:int string float
-		Start   string            `json:"start,omitempty"`   //初始值:int float
-		Step    string            `json:"step,omitempty"`    //步长:int float
-		Unit    string            `json:"unit,omitempty"`    //单位:int float
-		Value   any               `json:"value"`
-		/*
-			读到的数据  如果是是数组则类型为[]interface{}  如果是结构体类型则为map[id]Param
-				interface 为数据内容  					string为结构体的key value 为数据内容
-		*/
-	} `json:"value"` //数据定义
+	Define     *schema.Define
+	Value      any `json:"value"` //数据定义
 }
 
 func (tp *Param) SetByDefine(d *schema.Define, val any) (err error) {
-	tp.Value.Type = d.Type
-	tp.Value.Type = d.Type
-	tp.Value.Mapping = make(map[string]string)
-	for k, v := range d.Mapping {
-		tp.Value.Mapping[k] = v
-	}
-	tp.Value.Mapping = d.Mapping
-	tp.Value.Min = d.Min
-	tp.Value.Max = d.Max
-	tp.Value.Start = d.Start
-	tp.Value.Step = d.Step
-	tp.Value.Unit = d.Unit
-	tp.Value.Value, err = GetVal(d, val)
+	tp.Define = d
+	tp.Value, err = GetVal(d, val)
 	return err
 }
 
@@ -73,19 +50,16 @@ func ToVal(tp map[string]Param) (map[string]any, error) {
 	return ret, nil
 }
 
-func (tp *Param) ToVal() (any, error) {
-	if tp == nil {
-		return nil, errors.Parameter.AddMsgf("Param is nil")
-	}
+func getParamVal(def *schema.Define, value any) (any, error) {
 	var err error
-	switch tp.Value.Type {
+	switch def.Type {
 	case schema.DataTypeBool:
-		if tp.Value.Value == true {
+		if cast.ToBool(value) {
 			return 1, nil
 		}
 		return 0, nil
 	case schema.DataTypeStruct:
-		v, ok := tp.Value.Value.(map[string]Param)
+		v, ok := value.(map[string]Param)
 		if ok == false {
 			return nil, errors.Parameter.AddMsgf("struct Param is not find")
 		}
@@ -98,9 +72,9 @@ func (tp *Param) ToVal() (any, error) {
 		}
 		return val, nil
 	case schema.DataTypeArray:
-		array, ok := tp.Value.Value.([]any)
+		array, ok := value.([]any)
 		if ok == false {
-			return nil, errors.Parameter.AddMsgf("array Param is not find")
+			return getParamVal(def.ArrayInfo, value)
 		}
 		val := make([]any, 0, len(array)+1)
 		for _, value := range array {
@@ -120,10 +94,18 @@ func (tp *Param) ToVal() (any, error) {
 		}
 		return val, nil
 	default:
-		return tp.Value.Value, nil
+		return value, nil
 	}
 }
 
+func (tp *Param) ToVal() (any, error) {
+	if tp == nil {
+		return nil, errors.Parameter.AddMsgf("Param is nil")
+	}
+	return getParamVal(tp.Define, tp.Value)
+}
+
+// 从设备参数中获取值
 func GetVal(d *schema.Define, val any) (any, error) {
 	switch d.Type {
 	case schema.DataTypeBool:
@@ -213,11 +195,14 @@ func GetVal(d *schema.Define, val any) (any, error) {
 			return getParam, nil
 		}
 	case schema.DataTypeArray:
-		if arr, ok := val.([]any); !ok {
-			return nil, errors.Parameter.AddDetail(fmt.Sprint(val))
+		if arr, ok := val.([]any); !ok { //如果是指定id的方式
+			return GetVal(d.ArrayInfo, val)
 		} else {
 			if len(arr) == 0 {
 				return d, errors.NotFind
+			}
+			if len(arr) > cast.ToInt(d.Max) {
+				errors.Parameter.AddDetailf("数组的长度超过物模型定义的:%v,上传了:%v", d.Max, len(arr))
 			}
 			getParam := make([]any, 0, len(arr)+1)
 			for _, v := range arr {
@@ -238,55 +223,10 @@ func ToParamValues(tp map[string]Param) (map[string]any, error) {
 	ret := make(map[string]any, len(tp))
 	var err error
 	for k, v := range tp {
-		ret[k], err = ToParamValue(v)
+		ret[k], err = v.ToVal()
 		if err != nil {
 			return nil, err
 		}
 	}
 	return ret, nil
-}
-
-func ToParamValue(p Param) (any, error) {
-	var ret any
-	var err error
-	switch p.Value.Type {
-	case schema.DataTypeStruct:
-		v, ok := p.Value.Value.(map[string]Param)
-		if ok == false {
-			return ret, errors.Parameter.AddMsgf("struct Param is not find")
-		}
-		val := make(map[string]any, len(v)+1)
-		for _, tp := range v {
-			val[tp.Identifier], err = ToParamValue(tp)
-			if err != nil {
-				return ret, err
-			}
-		}
-		ret = val
-		return ret, nil
-	case schema.DataTypeArray:
-		array, ok := p.Value.Value.([]any)
-		if ok == false {
-			return ret, errors.Parameter.AddMsgf("array Param is not find")
-		}
-		val := make([]any, 0, len(array)+1)
-		for _, value := range array {
-			switch value.(type) {
-			case map[string]Param:
-				valMap := make(map[string]any, len(array)+1)
-				for _, tp := range value.(map[string]Param) {
-					valMap[tp.Identifier], err = ToParamValue(tp)
-					return ret, err
-				}
-				val = append(val, valMap)
-			default:
-				val = append(val, value)
-			}
-		}
-		ret = val
-		return ret, nil
-	default:
-		ret = p.Value.Value
-		return ret, nil
-	}
 }

@@ -18,6 +18,7 @@ const (
 	DefineIntMax     = 9999999999999
 	DefineIntMin     = -9999999999999
 	DefineStringMax  = 2048
+	DefineArrayMax   = 256
 	DefineSpecsLen   = 10
 	ParamsLen        = 20
 )
@@ -328,7 +329,17 @@ func (d *Define) ValidateWithFmtTimeStamp() error {
 	return nil
 }
 func (d *Define) ValidateWithFmtArray() error {
-	d.Max = ""
+	max, err := cast.ToInt64E(d.Max)
+	if err != nil {
+		return errors.Parameter.WithMsgf("数组类型的个数定义不是数字类型:%v", d.Max)
+	}
+	if max > DefineArrayMax {
+		max = DefineArrayMax
+		d.Max = cast.ToString(max)
+	}
+	if d.Max == "0" {
+		return errors.Parameter.WithMsg("数组类型的个数定义不能小于0")
+	}
 	d.Min = ""
 	d.Start = ""
 	d.Step = ""

@@ -94,7 +94,7 @@ type (
 		Type      DataType          `json:"type"`                //参数类型:bool int string struct float timestamp array enum
 		Mapping   map[string]string `json:"mapping,omitempty"`   //枚举及bool类型:bool enum
 		Min       string            `json:"min,omitempty"`       //数值最小值:int  float
-		Max       string            `json:"max,omitempty"`       //数值最大值:int string float
+		Max       string            `json:"max,omitempty"`       //数值最大值:int string float array
 		Start     string            `json:"start,omitempty"`     //初始值:int float
 		Step      string            `json:"step,omitempty"`      //步长:int float
 		Unit      string            `json:"unit,omitempty"`      //单位:int float
@@ -116,10 +116,57 @@ func (d *Define) String() string {
 	return string(def)
 }
 
+func (p *PropertyMap) GetMapWithIDs(datas ...string) map[string]*Property {
+	var ids = map[string]*Property{}
+	for _, data := range datas {
+		id, _, ok := GetArray(data)
+		if ok {
+			v := (*p)[id]
+			if v != nil {
+				ids[data] = v
+			}
+			continue
+		}
+		v := (*p)[data]
+		if v != nil {
+			if v.Define.Type == DataTypeArray {
+				for i := 0; i < cast.ToInt(v.Define.Max); i++ {
+					ids[GenArray(data, i)] = v
+				}
+				continue
+			}
+			ids[data] = v
+		}
+	}
+	return ids
+}
+
+func (p *PropertyMap) GetMap() map[string]*Property {
+	var ids = map[string]*Property{}
+	for _, v := range *p {
+		switch v.Define.Type {
+		case DataTypeArray:
+			for i := 0; i < cast.ToInt(v.Define.Max); i++ {
+				ids[GenArray(v.Identifier, i)] = v
+			}
+		default:
+			ids[v.Identifier] = v
+		}
+	}
+	return ids
+}
+
 func (p *PropertyMap) GetIDs() []string {
 	var ids []string
 	for _, v := range *p {
-		ids = append(ids, v.Identifier)
+		switch v.Define.Type {
+		case DataTypeArray:
+			for i := 0; i < cast.ToInt(v.Define.Max); i++ {
+				ids = append(ids, GenArray(v.Identifier, i))
+			}
+		default:
+			ids = append(ids, v.Identifier)
+		}
 	}
 	return ids
 }
