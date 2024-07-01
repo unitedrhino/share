@@ -152,6 +152,28 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 		}
 	}
 }
+
+func GetProjectAuthIDs(ctx context.Context) ([]int64, error) {
+	uc := ctxs.GetUserCtxNoNil(ctx)
+	if uc == nil || uc.AllProject { //root 权限不用管
+		return nil, nil
+	}
+	if uc.ProjectID > def.NotClassified && !(uc.IsSuperAdmin || uc.AllProject) {
+		pa := uc.ProjectAuth[uc.ProjectID]
+		if pa == nil {
+			return nil, errors.Permissions.WithMsg("项目权限不足")
+		}
+	}
+	var values = []int64{uc.ProjectID}
+	if uc.ProjectID <= def.NotClassified { //如果没有传项目ID,那么就是需要获取所有项目的参数
+		values = nil
+		for k := range uc.ProjectAuth {
+			values = append(values, k)
+		}
+	}
+	return values, nil
+}
+
 func GenProjectAuthScope(ctx context.Context, db *gorm.DB) *gorm.DB {
 	uc := ctxs.GetUserCtxNoNil(ctx)
 	//if uc.ProjectID == 0 || uc.ProjectID == def.NotClassified {
