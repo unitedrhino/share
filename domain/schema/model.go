@@ -29,6 +29,7 @@ type (
 		IsCanSceneLinkage int64  `json:"isCanSceneLinkage"` //是否支持场景联动控制 (统一)
 		IsShareAuthPerm   int64  `json:"isShareAuthPerm"`   // 分享是否需要校验权限 (统一)
 		FuncGroup         int64  `json:"funcGroup"`         // 功能分类: 1:普通功能 2:系统功能
+		ControlMode       int64  `json:"controlMode"`       //控制模式: 1: 可以群控,可以单控  2:只能单控
 		UserPerm          int64  `json:"userPerm"`          //用户权限操作: 1:r(只读) 3:rw(可读可写)
 		IsHistory         int64  `json:"isHistory"`         // 是否存储历史记录
 		Order             int64  `json:"order"`             //排序
