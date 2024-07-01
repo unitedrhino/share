@@ -220,6 +220,7 @@ func WithRoot(ctx context.Context) context.Context {
 	uc.AllProject = true
 	uc.AllArea = true
 	uc.IsSuperAdmin = true
+	uc.IsAdmin = true
 	return SetUserCtx(ctx, &uc)
 }
 
