@@ -175,7 +175,7 @@ func (p *PropertyMap) GetIDs() []string {
 func (d *Define) GetDefaultValue() (retAny any, err error) {
 	switch d.Type {
 	case DataTypeBool:
-		return false, nil
+		return 0, nil
 	case DataTypeInt:
 		return cast.ToInt64(d.Start), nil
 	case DataTypeString:

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"database/sql"
+	"encoding/json"
 	"github.com/spf13/cast"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"time"
@@ -125,8 +126,12 @@ func ToUint8(i any) uint8 {
 
 // ToString casts an interface to a string type.
 func ToString(i any) string {
-
-	return cast.ToString(i)
+	ret, err := cast.ToStringE(i)
+	if err != nil {
+		ret, _ := json.Marshal(i)
+		return string(ret)
+	}
+	return ret
 }
 
 // ToStringMapString casts an interface to a map[string]string type.
