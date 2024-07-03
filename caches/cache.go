@@ -129,6 +129,7 @@ func (c *Cache[dataT, keyType]) SetData(ctx context.Context, key keyType, data *
 }
 
 func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*dataT, error) {
+	ctx = ctxs.WithRoot(ctx)
 	cacheKey := c.genCacheKey(key)
 	temp, ok := c.cache.Get(cacheKey)
 	if ok {
