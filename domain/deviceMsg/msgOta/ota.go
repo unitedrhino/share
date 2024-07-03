@@ -168,11 +168,13 @@ var PackageTypeMap = map[int]string{
 
 const ModuleCodeDefault = "default"
 
+type DeviceStatus = int64
+
 const (
-	DeviceStatusConfirm    = iota + 1 //待确认
-	DeviceStatusQueued                //待推送
-	DeviceStatusNotified              //已推送
-	DeviceStatusInProgress            //升级中
+	DeviceStatusConfirm    DeviceStatus = iota + 1 //待确认
+	DeviceStatusQueued                             //待推送
+	DeviceStatusNotified                           //已推送
+	DeviceStatusInProgress                         //升级中
 	/*
 		设备升级完成后，建议立即重启设备，设备上线后，立即上报新的版本号。
 		设备上线请求和上报版本请求间隔不能超过2秒。

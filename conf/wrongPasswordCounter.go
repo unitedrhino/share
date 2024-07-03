@@ -5,17 +5,20 @@ import (
 )
 
 type WrongPasswordCounter struct {
-	Captcha int `json:",default=5"`
+	Captcha int `json:",default=5"` // 错误密码次数
 	Account []struct {
-		Statistics    int `json:",default=1440"`
-		TriggerTimes  int `json:",default=10"`
-		ForbiddenTime int `json:",default=10"`
+		Statistics    int `json:",default=1440"` //超时时间 单位秒
+		TriggerTimes  int `json:",default=10"`   // 错误密码次数
+		ForbiddenTime int `json:",default=10"`   //账号或ip冻结时间 单位:秒
 	}
 	Ip []struct {
-		Statistics    int `json:",default=1440"`
-		TriggerTimes  int `json:",default=200"`
-		ForbiddenTime int `json:",default=60"`
+		Timeout       int `json:",default=1440"` //超时时间
+		TriggerTimes  int `json:",default=200"`  // 错误密码次数
+		ForbiddenTime int `json:",default=60"`   //账号或ip冻结时间
 	}
+}
+type LimitCount struct {
+	Times int // 错误密码次数
 }
 
 type LoginSafeCtlInfo struct {
@@ -39,18 +42,18 @@ func (counter WrongPasswordCounter) ParseWrongPassConf(userID string, ip string)
 		res = append(res, &LoginSafeCtlInfo{
 			Prefix:    "login:wrongPassword:account:",
 			Key:       "login:wrongPassword:account:" + cast.ToString(i+1) + ":" + userID,
-			Timeout:   v.Statistics * 60,
+			Timeout:   v.Statistics,
 			Times:     v.TriggerTimes,
-			Forbidden: v.ForbiddenTime * 60,
+			Forbidden: v.ForbiddenTime,
 		})
 	}
 	for i, v := range counter.Ip {
 		res = append(res, &LoginSafeCtlInfo{
 			Prefix:    "login:wrongPassword:ip:",
 			Key:       "login:wrongPassword:ip:" + cast.ToString(i+1) + ":" + ip,
-			Timeout:   v.Statistics * 60,
+			Timeout:   v.Timeout,
 			Times:     v.TriggerTimes,
-			Forbidden: v.ForbiddenTime * 60,
+			Forbidden: v.ForbiddenTime,
 		})
 	}
 
