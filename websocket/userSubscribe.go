@@ -47,7 +47,7 @@ func (u *UserSubscribe) Publish(ctx context.Context, code string, data any, para
 		WsPublish: &pb,
 		ctx:       ctxs.CopyCtx(ctx),
 	}
-	logx.Infof("UserSubscribe.publish:%v", utils.Fmt(pb))
+	logx.Debugf("UserSubscribe.publish:%v", utils.Fmt(pb))
 
 	return nil
 }
@@ -58,7 +58,7 @@ func (u *UserSubscribe) publish() {
 		if len(execCache) == 0 {
 			return
 		}
-		logx.WithContext(execCache[0].ctx).Infof("UserSubscribe.publish publishs:%v", utils.Fmt(execCache))
+		logx.WithContext(execCache[0].ctx).Debugf("UserSubscribe.publish publishs:%v", utils.Fmt(execCache))
 		err := u.ServerMsg.Publish(execCache[0].ctx, fmt.Sprintf(eventBus.CoreApiUserPublish, 1), execCache)
 		if err != nil {
 			logx.WithContext(execCache[0].ctx).Error(err)
