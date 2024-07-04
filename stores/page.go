@@ -26,8 +26,8 @@ type PageInfo struct {
 
 // 排序结构体
 type OrderBy struct {
-	Filed string `json:"filed" form:"filed"` //要排序的字段名
-	Sort  Order  `json:"sort" form:"sort"`   //排序的方式：0 OrderAsc、1 OrderDesc
+	Field string `json:"field" form:"field"` //要排序的字段名
+	Sort  Order  `json:"sort" form:"sort"`   //排序的方式：1 OrderAsc、2 OrderDesc
 }
 
 func (p *PageInfo) GetLimit() int64 {
@@ -47,7 +47,7 @@ func (p *PageInfo) GetOffset() int64 {
 func (p *PageInfo) getOrders() (arr []string) {
 	if p != nil && len(p.Orders) > 0 {
 		for _, o := range p.Orders {
-			arr = append(arr, fmt.Sprintf("%s %s", Col(utils.CamelCaseToUdnderscore(o.Filed)), orderMap[o.Sort]))
+			arr = append(arr, fmt.Sprintf("%s %s", Col(utils.CamelCaseToUdnderscore(o.Field)), orderMap[o.Sort]))
 		}
 	}
 	return
