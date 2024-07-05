@@ -100,3 +100,9 @@ func SliceDelete[T comparable](base []T, val T) []T {
 	}
 	return base
 }
+func SliceReversal[T comparable](base []T) (ret []T) {
+	for i := len(base) - 1; i >= 0; i-- {
+		ret = append(ret, base[i])
+	}
+	return ret
+}
