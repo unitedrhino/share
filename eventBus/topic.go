@@ -34,4 +34,5 @@ const (
 	ServerCacheKeyDmProduct            = "cache:dm:product"
 	ServerCacheKeyDmDevice             = "cache:dm:device"
 	ServerCacheKeyDmSchema             = "cache:dm:schema"
+	ServerCacheKeyDmUserShareDevice    = "cache:dm:user:share:device"
 )

@@ -5,7 +5,7 @@ const DeviceGroupLevel = 3
 type AuthType = int64
 
 const (
-	AuthAdmin     AuthType = 1 //管理权限,可以修改别人的权限,及读写权限
+	AuthAdmin     AuthType = 1 //管理权限(所有权限),可以修改别人的权限,及读写权限
 	AuthReadWrite AuthType = 2 //读写权限,可以读写该权限
 	AuthRead      AuthType = 3 //读权限,只能读,不能修改
 )
