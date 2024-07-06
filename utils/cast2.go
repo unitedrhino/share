@@ -134,6 +134,16 @@ func ToString(i any) string {
 	return ret
 }
 
+func BoolToInt(in any) any {
+	if v, ok := in.(bool); ok {
+		if v {
+			return 1
+		}
+		return 0
+	}
+	return in
+}
+
 // ToStringMapString casts an interface to a map[string]string type.
 func ToStringMapString(i any) map[string]string {
 	return cast.ToStringMapString(i)

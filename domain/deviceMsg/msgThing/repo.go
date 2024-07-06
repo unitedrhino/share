@@ -7,6 +7,7 @@ import (
 	"gitee.com/i-Things/share/domain/schema"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/stores"
+	"gitee.com/i-Things/share/utils"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"time"
 )
@@ -81,9 +82,23 @@ type (
 	}
 )
 
-func (p PropertyData) String() string {
+func (p *PropertyData) String() string {
+
 	v, _ := jsonx.Marshal(p)
 	return string(v)
+}
+
+func (p *PropertyData) Fmt() *PropertyData {
+	switch param := p.Param.(type) {
+	case map[string]any:
+		for k, v := range param {
+			param[k] = utils.BoolToInt(v)
+		}
+		p.Param = param
+	default:
+		p.Param = utils.BoolToInt(p.Param)
+	}
+	return p
 }
 
 func (f FilterOpt) Check() error {
