@@ -1,7 +1,6 @@
 package msgThing
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"gitee.com/i-Things/share/domain/schema"
@@ -74,15 +73,23 @@ func IsParamValEq(d *schema.Define, v1 any, v2 any) bool {
 	case schema.DataTypeString:
 		return cast.ToString(v1) == cast.ToString(v2)
 	case schema.DataTypeStruct:
-		v1B, err := json.Marshal(v1)
-		if err != nil {
+		v1m, ok := v1.(map[string]any)
+		if !ok {
 			return false
 		}
-		v2B, err := json.Marshal(v2)
-		if err != nil {
+		v2m, ok := v2.(map[string]any)
+		if !ok {
 			return false
 		}
-		return bytes.Equal(v1B, v2B)
+		if len(v1m) != len(v2m) {
+			return false
+		}
+		for k, v := range v1m {
+			if !IsParamValEq(&d.Spec[k].DataType, v, v2m[k]) {
+				return false
+			}
+		}
+		return true
 	}
 	return false
 }
