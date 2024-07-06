@@ -3,11 +3,11 @@ package msgThing
 
 import (
 	"context"
-	"encoding/json"
 	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/domain/schema"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/stores"
+	"github.com/zeromicro/go-zero/core/jsonx"
 	"time"
 )
 
@@ -82,7 +82,7 @@ type (
 )
 
 func (p PropertyData) String() string {
-	v, _ := json.Marshal(p)
+	v, _ := jsonx.Marshal(p)
 	return string(v)
 }
 

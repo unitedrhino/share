@@ -1,6 +1,7 @@
 package msgThing
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"gitee.com/i-Things/share/domain/schema"
@@ -48,6 +49,42 @@ func ToVal(tp map[string]Param) (map[string]any, error) {
 		}
 	}
 	return ret, nil
+}
+
+func IsParamValEq(d *schema.Define, v1 any, v2 any) bool {
+	if d.Type == schema.DataTypeArray {
+		return IsParamValEq(d.ArrayInfo, v1, v2)
+	}
+	var err error
+	v1, err = GetVal(d, v1)
+	if err != nil {
+		return false
+	}
+	v2, err = GetVal(d, v2)
+	if err != nil {
+		return false
+	}
+	switch d.Type {
+	case schema.DataTypeBool:
+		return cast.ToBool(v1) == cast.ToBool(v2)
+	case schema.DataTypeInt, schema.DataTypeEnum, schema.DataTypeTimestamp:
+		return cast.ToInt64(v1) == cast.ToInt64(v2)
+	case schema.DataTypeFloat:
+		return cast.ToFloat64(v1) == cast.ToFloat64(v2)
+	case schema.DataTypeString:
+		return cast.ToString(v1) == cast.ToString(v2)
+	case schema.DataTypeStruct:
+		v1B, err := json.Marshal(v1)
+		if err != nil {
+			return false
+		}
+		v2B, err := json.Marshal(v2)
+		if err != nil {
+			return false
+		}
+		return bytes.Equal(v1B, v2B)
+	}
+	return false
 }
 
 func getParamVal(def *schema.Define, value any) (any, error) {

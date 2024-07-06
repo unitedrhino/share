@@ -10,6 +10,9 @@ func ErrFmt(err error) error {
 	if err == nil {
 		return nil
 	}
+	if err.Error() == "redis: nil" {
+		return errors.NotFind
+	}
 	if _, ok := err.(*errors.CodeError); ok {
 		return err
 	}
