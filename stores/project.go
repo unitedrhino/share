@@ -176,16 +176,7 @@ func GetProjectAuthIDs(ctx context.Context) ([]int64, error) {
 
 func GenProjectAuthScope(ctx context.Context, db *gorm.DB) *gorm.DB {
 	uc := ctxs.GetUserCtxNoNil(ctx)
-	//if uc.ProjectID == 0 || uc.ProjectID == def.NotClassified {
-	//	ti, err := caches.GetTenant(ctx, uc.TenantCode)
-	//	if err != nil {
-	//		uc.ProjectID = def.NotClassified
-	//	} else {
-	//		uc.ProjectID = ti.DefaultProjectID
-	//	}
-	//}
-
-	if uc == nil || uc.AllProject { //root 权限不用管
+	if uc == nil || uc.AllProject || (uc.ProjectID <= def.NotClassified && uc.IsAdmin) { //root 权限不用管
 		return db
 	}
 	if uc.ProjectID > def.NotClassified && !(uc.IsSuperAdmin || uc.AllProject) {
