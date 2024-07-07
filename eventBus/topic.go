@@ -14,8 +14,10 @@ const (
 	UdRuleTimer          = "server.things.ud.rule.timer"
 	DgOnlineTimer        = "server.things.dg.online.timer"
 
-	SaleStaticTimer = "server.sale.static.timer"
-	PAliTimer       = "server.things.pali.data.timer"
+	SaleStaticTimer   = "server.sale.static.timer"
+	SalePayCheckTimer = "server.sale.pay.check.timer"
+
+	PAliTimer = "server.things.pali.data.timer"
 
 	ServerCacheSync = "server.cache.sync.%s"
 
