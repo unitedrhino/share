@@ -2,6 +2,9 @@ package eventBus
 
 // 服务自己的消息
 const (
+	SysProjectInfoDelete = "server.core.sys.project.info.delete"
+	SysAreaInfoDelete    = "server.core.sys.area.info.delete"
+
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"
 	DmDeviceOnlineStatusChange = "server.things.dm.device.onlineStatus.change"
 	DmDeviceStaticHalfHour     = "server.things.dm.device.static.halfHour" //半小时统计

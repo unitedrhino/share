@@ -5,4 +5,5 @@ type UserSubscribe = string
 var (
 	UserSubscribeDevicePropertyReport = "devicePropertyReport"
 	UserSubscribeDeviceConn           = "deviceConn"
+	UserSubscribeUserOrderPay         = "userOrderPay"
 )
