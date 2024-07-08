@@ -34,7 +34,7 @@ func ToNullTime(in int64) sql.NullTime {
 	return sql.NullTime{Valid: true, Time: time.Unix(in, 0)}
 }
 func ToNullTime2(in *wrapperspb.Int64Value) sql.NullTime {
-	if in == nil {
+	if in == nil || in.Value == 0 {
 		return sql.NullTime{}
 	}
 	return sql.NullTime{Valid: true, Time: time.Unix(in.GetValue(), 0)}
