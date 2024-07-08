@@ -191,7 +191,7 @@ func (d *Define) GetDefaultValue() (retAny any, err error) {
 	case DataTypeTimestamp:
 		return int64(0), nil
 	case DataTypeArray:
-		return []any{}, nil
+		return d.ArrayInfo.GetDefaultValue()
 	case DataTypeEnum:
 		var keys []int64
 		for k := range d.Mapping {
