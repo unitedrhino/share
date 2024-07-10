@@ -18,6 +18,6 @@ type Handle interface {
 	PublicBucket() Handle
 	TemporaryBucket() Handle
 	CopyFromTempBucket(tempPath, dstPath string) (string, error)
-	GetUrl(path string) (string, error)
+	GetUrl(path string, withHost bool) (string, error)
 	//List(ctx context.Context)
 }

@@ -69,7 +69,7 @@ func (m *Minio) SignedPutUrl(ctx context.Context, fileDir string, expiredSec int
 	if err != nil {
 		return "", err
 	}
-	return m.setting.CustomHost + url.RequestURI(), err
+	return m.setting.CustomPath + url.RequestURI(), err
 }
 
 // 获取get下载url
@@ -78,7 +78,7 @@ func (m *Minio) SignedGetUrl(ctx context.Context, filePath string, expiredSec in
 	if err != nil {
 		return "", err
 	}
-	return m.setting.CustomHost + url.RequestURI(), err
+	return m.setting.CustomPath + url.RequestURI(), err
 }
 
 // 删除
@@ -116,7 +116,7 @@ func (m *Minio) IsObjectExist(ctx context.Context, filePath string, opKv common.
 func (m *Minio) Upload(ctx context.Context, filePath string, reader io.Reader, opKv common.OptionKv) (string, error) {
 	uploadInfo, err := m.client.PutObject(ctx, m.currentBucketName, filePath, reader, -1, minio.PutObjectOptions{ContentType: common.GetFilePathMineType(filePath)})
 	uri, _ := url.Parse(uploadInfo.Location)
-	return m.setting.CustomHost + uri.RequestURI(), err
+	return m.setting.CustomPath + uri.RequestURI(), err
 }
 
 func (m *Minio) GetObjectInfo(ctx context.Context, filePath string) (*common.StorageObjectInfo, error) {
@@ -281,9 +281,12 @@ func (m *Minio) CopyFromTempBucket(tempPath, dstPath string) (string, error) {
 }
 
 // 获取完整链接
-func (m *Minio) GetUrl(path string) (string, error) {
+func (m *Minio) GetUrl(path string, withHost bool) (string, error) {
 	if path[0] == '/' {
 		path = path[1:]
 	}
-	return m.setting.CustomHost + "/" + m.currentBucketName + "/" + path, nil
+	if withHost {
+		return m.setting.CustomHost + "/" + m.currentBucketName + "/" + path, nil
+	}
+	return m.setting.CustomPath + "/" + m.currentBucketName + "/" + path, nil
 }
