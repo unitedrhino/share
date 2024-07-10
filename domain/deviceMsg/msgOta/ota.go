@@ -22,6 +22,7 @@ type (
 	}
 	Params struct {
 		Version string `json:"version"`
+		Module  string `json:"module"`
 	}
 	ProcessParams struct {
 		Step int64  `json:"step"`
