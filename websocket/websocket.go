@@ -16,6 +16,9 @@ const (
 	UnSub      WsType = "up.unSub"        //取消订阅
 	UnSubRet   WsType = "down.unSubRet"   //取消订阅回复
 	SetHandle  WsType = "up.setHandle"    //设置http头
+	UpPing     WsType = "up.ping"         //测试ws连接,发啥返回啥
+	DownPong   WsType = "down.pong"       //测试ws连接,发啥返回啥
+
 )
 
 type SubscribeInfo struct {

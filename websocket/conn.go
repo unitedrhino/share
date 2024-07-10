@@ -284,6 +284,10 @@ func (c *connection) handleRequest(message []byte) {
 		subscribeHandle(ctx, c, body)
 	case UnSub:
 		unSubscribeHandle(ctx, c, body)
+	case UpPing:
+		var resp WsResp
+		resp.WsBody.Type = DownPong
+		c.sendMessage(resp)
 	default:
 	}
 }
