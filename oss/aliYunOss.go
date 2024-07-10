@@ -79,6 +79,6 @@ func (a *AliYunOss) Upload(ctx context.Context, filePath string, content io.Read
 func (a *AliYunOss) CopyFromTempBucket(tempPath, dstPath string) (string, error) {
 	return "", nil //TODO
 }
-func (a *AliYunOss) GetUrl(filePath string) (string, error) {
+func (a *AliYunOss) GetUrl(filePath string, withHost bool) (string, error) {
 	return "", nil //TODO
 }
