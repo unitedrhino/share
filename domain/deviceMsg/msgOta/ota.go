@@ -38,8 +38,8 @@ type (
 		Version    string  `json:"version"`
 		IsDiff     int64   `json:"isDiff"`
 		SignMethod string  `json:"signMethod"`
-		Files      []*File `json:"files,omitempty"`
 		Extra      string  `json:"extra"`
+		Files      []*File `json:"files,omitempty"`
 		*File
 	}
 	File struct {
