@@ -84,6 +84,23 @@ type MutSubReq struct {
 
 func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics []string) error {
 	logx.WithContext(ctx).Infof("SetClientMut clientID:%v,topics:%v", clientID, topics)
+	ts, err := m.GetClientSub(ctx, clientID)
+	if err != nil {
+		return err
+	}
+	var topicSet = map[string]struct{}{}
+	for _, topic := range topics {
+		topicSet[topic] = struct{}{}
+	}
+	for _, t := range ts {
+		if _, ok := topicSet[t]; ok {
+			delete(topicSet, t)
+		}
+	}
+	topics = utils.SetToSlice(topicSet)
+	if len(topics) == 0 {
+		return nil
+	}
 	if m.cfg.OpenApi == nil {
 		return errors.System.AddMsg("未开启登录检查")
 	}
@@ -115,6 +132,36 @@ func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics
 	}
 
 	return nil
+}
+func (m MqttClient) GetClientSub(ctx context.Context, clientID string) ([]string, error) {
+	logx.WithContext(ctx).Infof("GetClientSub clientID:%v", clientID)
+	if m.cfg.OpenApi == nil {
+		return nil, errors.System.AddMsg("未开启登录检查")
+	}
+	oa := m.cfg.OpenApi
+	greq := gorequest.New().Retry(1, time.Second*2)
+	greq.SetBasicAuth(oa.ApiKey, oa.SecretKey)
+	var ret []*MutSubReq
+	var errs []error
+	var body []byte
+	var tryTime = 5
+	for i := tryTime; i > 0; i-- {
+		_, body, errs = greq.Get(fmt.Sprintf("%s/api/v5/clients/%s/subscriptions", oa.Host,
+			url.QueryEscape(clientID))).EndStruct(&ret)
+		if errs != nil {
+			time.Sleep(time.Second / 2 * time.Duration(tryTime) / time.Duration(i))
+			continue
+		}
+		break
+	}
+	if errs != nil {
+		return nil, errors.System.AddDetail(errs, string(body))
+	}
+	var topics []string
+	for _, v := range ret {
+		topics = append(topics, v.Topic)
+	}
+	return topics, nil
 }
 
 func (m MqttClient) SetClientMutUnSub(ctx context.Context, clientID string, topics []string) error {
