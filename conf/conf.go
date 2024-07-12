@@ -2,6 +2,7 @@ package conf
 
 // 文件反向代理
 type FileProxyConf struct {
+	IsEnable bool   `json:",default=true"`
 	FrontDir string `json:",default=./dist"` //前端文件路径
 	CoreDir  string `json:",default=app/core/"`
 }
