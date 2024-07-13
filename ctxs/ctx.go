@@ -2,6 +2,7 @@ package ctxs
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"gitee.com/i-Things/share/def"
 	"gitee.com/i-Things/share/errors"
@@ -176,7 +177,7 @@ func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
 	}
 	info, _ := json.Marshal(userCtx)
 	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs(
-		UserInfoKey, string(info),
+		UserInfoKey, base64.StdEncoding.EncodeToString(info),
 	))
 	return context.WithValue(ctx, UserInfoKey, userCtx)
 }

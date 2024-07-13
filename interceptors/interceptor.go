@@ -2,6 +2,7 @@ package interceptors
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/errors"
@@ -41,7 +42,11 @@ func Ctxs(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc
 			return ctx
 		}
 		var val ctxs.UserCtx
-		if err := json.Unmarshal([]byte(info[0]), &val); err != nil {
+		str, err := base64.StdEncoding.DecodeString(info[0])
+		if err != nil {
+			return ctx
+		}
+		if err := json.Unmarshal(str, &val); err != nil {
 			return ctx
 		}
 		return ctxs.SetUserCtx(ctx, &val)
