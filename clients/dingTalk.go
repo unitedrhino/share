@@ -7,6 +7,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/zhaoyunxing92/dingtalk/v2"
+	"net/url"
 )
 
 type DingTalk = dingtalk.DingTalk
@@ -25,6 +26,18 @@ func NewDingTalkClient(c *conf.ThirdConf) (*DingTalk, error) {
 type DingRobot = dingtalk.Robot
 
 func NewDingRobotClient(token string) DingRobot {
+	u, err := url.Parse(token)
+	if err != nil {
+		return dingtalk.NewRobot(token)
+	}
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return dingtalk.NewRobot(token)
+	}
+	at := params.Get("access_token")
+	if at != "" {
+		return dingtalk.NewRobot(at)
+	}
 	return dingtalk.NewRobot(token)
 }
 
