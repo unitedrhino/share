@@ -28,10 +28,11 @@ const (
 type DeviceStatus = int64
 
 const (
-	DeviceStatusInactive DeviceStatus = 1 // 未激活
-	DeviceStatusOnline   DeviceStatus = 2 //在线
-	DeviceStatusOffline  DeviceStatus = 3 //离线
-	DeviceStatusAbnormal DeviceStatus = 4 //异常
+	DeviceStatusInactive  DeviceStatus = 1 // 未激活
+	DeviceStatusOnline    DeviceStatus = 2 //在线
+	DeviceStatusOffline   DeviceStatus = 3 //离线
+	DeviceStatusAbnormal  DeviceStatus = 4 //异常
+	DeviceStatusArrearage DeviceStatus = 5 //欠费
 )
 
 const (
