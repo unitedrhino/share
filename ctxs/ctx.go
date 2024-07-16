@@ -234,6 +234,15 @@ func WithDefaultRoot(ctx context.Context) context.Context {
 	return WithRoot(ctx)
 }
 
+// 如果是管理员,且没有传项目id,则直接给所有项目权限
+func WithDefaultAllProject(ctx context.Context) context.Context {
+	uc := GetUserCtxNoNil(ctx)
+	if !uc.IsAdmin || uc.ProjectID > 3 { //传了项目ID则不是root权限
+		return ctx
+	}
+	return WithAllProject(ctx)
+}
+
 func IsAdmin(ctx context.Context) error {
 	uc := GetUserCtxNoNil(ctx)
 	if uc.IsAdmin || uc.IsSuperAdmin {

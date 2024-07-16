@@ -371,8 +371,8 @@ func initMqtt(conf *conf.MqttConf) (mc mqtt.Client, err error) {
 		}
 	})
 
-	opts.SetAutoReconnect(true).SetMaxReconnectInterval(5 * time.Second) //意外离线的重连参数
-	opts.SetConnectRetry(true).SetConnectRetryInterval(1 * time.Second)  //首次连接的重连参数
+	opts.SetAutoReconnect(true).SetMaxReconnectInterval(30 * time.Second) //意外离线的重连参数
+	opts.SetConnectRetry(true).SetConnectRetryInterval(5 * time.Second)   //首次连接的重连参数
 
 	opts.SetConnectionAttemptHandler(func(broker *url.URL, tlsCfg *tls.Config) *tls.Config {
 		logx.Infof("mqtt 正在尝试连接 broker:%v", utils.Fmt(broker))
