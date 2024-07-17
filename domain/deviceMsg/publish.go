@@ -45,12 +45,13 @@ type (
 
 func (p *PublishMsg) String() string {
 	msgMap := map[string]any{
-		"Handle":      p.Handle,
-		"Type":        p.Type,
-		"Payload":     string(p.Payload),
-		"Timestamp":   p.Timestamp,
-		"ProductID":   p.ProductID,
-		"DeviceNames": p.DeviceName,
+		"Handle":       p.Handle,
+		"Type":         p.Type,
+		"Payload":      string(p.Payload),
+		"Timestamp":    p.Timestamp,
+		"ProductID":    p.ProductID,
+		"DeviceName":   p.DeviceName,
+		"protocolCode": p.ProtocolCode,
 	}
 	return utils.Fmt(msgMap)
 }
