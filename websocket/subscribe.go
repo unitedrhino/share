@@ -11,14 +11,16 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	var info SubscribeInfo
 	err := mapstructure.Decode(body.Body, &info)
 	if err != nil {
-		logx.Errorf("userSubscribe Decode body:%v err:%v", utils.Fmt(body), err)
+		logx.Errorf("userSubscribe Decode userID:%v connectID:%v body:%v err:%v",
+			c.userID, c.connectID, utils.Fmt(body), err)
 		c.errorSend(err)
 		return
 	}
 	if checkSubscribe != nil {
 		err = checkSubscribe(ctx, &info)
 		if err != nil {
-			logx.Errorf("userSubscribe checkSubscribe body:%v err:%v", utils.Fmt(body), err)
+			logx.Errorf("userSubscribe checkSubscribe userID:%v connectID:%v body:%v err:%v",
+				c.userID, c.connectID, utils.Fmt(body), err)
 			c.errorSend(err)
 			return
 		}
@@ -31,7 +33,8 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	//}
 	md := utils.Md5Map(info.Params)
 	key := info.Code + ":" + md
-	logx.Infof("userSubscribe info:%v key:%v", info, key)
+	logx.Infof("userSubscribe userID:%v connectID:%v info:%v key:%v",
+		c.userID, c.connectID, utils.Fmt(info), key)
 	c.userSubscribe[key] = info.Params
 	func() {
 		dp.userSubscribeMutex.Lock()
