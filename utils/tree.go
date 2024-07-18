@@ -30,6 +30,7 @@ func GetIDPath(idPath string) (ret []int64) {
 	}
 	return ret
 }
+
 func GetNamePath(namePath string) (ret []string) {
 	ids := strings.Split(namePath, "-")
 	for _, v := range ids {
