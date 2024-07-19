@@ -60,9 +60,9 @@ func GetZeroTime(d time.Time) time.Time {
 	return time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 }
 
-// GetEndTime 获取某一天的结束点时间
+// GetEndTime 获取某一天的结束点时间(第二天0点)
 func GetEndTime(d time.Time) time.Time {
-	return time.Date(d.Year(), d.Month(), d.Day(), 23, 59, 59, 0, d.Location())
+	return time.Date(d.Year(), d.Month(), d.Day()+1, 0, 0, 0, 0, d.Location())
 }
 
 // UnixSecondToTime 秒级时间戳转time
