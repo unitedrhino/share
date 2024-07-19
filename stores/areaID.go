@@ -90,7 +90,11 @@ func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候�
 				}
 			}
 			if len(areas) == 0 { //如果没有权限
-				stmt.Error = errors.Permissions.WithMsg("区域权限不足")
+				//stmt.Error = errors.Permissions.WithMsg("区域权限不足")
+				stmt.AddClause(clause.Where{Exprs: []clause.Expression{
+					clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: nil},
+				}})
+				stmt.Clauses[sd.GenAuthKey()] = clause.Clause{}
 				return
 			}
 			var values = []any{def.NotClassified}
