@@ -17,6 +17,10 @@ func IDPathHasAcess(idPath string, id int64) bool {
 	return false
 }
 
+func GenIDPath(in []int64) string {
+	return strings.Join(cast.ToStringSlice(in), "-") + "-"
+}
+
 func GetIDPath(idPath string) (ret []int64) {
 	ids := strings.Split(idPath, "-")
 	for _, v := range ids {
@@ -26,6 +30,7 @@ func GetIDPath(idPath string) (ret []int64) {
 	}
 	return ret
 }
+
 func GetNamePath(namePath string) (ret []string) {
 	ids := strings.Split(namePath, "-")
 	for _, v := range ids {

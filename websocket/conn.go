@@ -98,7 +98,12 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 						logx.Debugf("no sub:%v", utils.Fmt(pb))
 						return nil
 					}
+					var connectIDSet = map[int64]struct{}{}
 					for _, c := range sub { //所有订阅者都需要发
+						if _, ok := connectIDSet[c.connectID]; ok { //去重,一个连接只发一次
+							continue
+						}
+						connectIDSet[c.connectID] = struct{}{}
 						c.sendMessage(WsResp{
 							WsBody: WsBody{
 								Type: Pub,
