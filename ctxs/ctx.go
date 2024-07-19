@@ -251,6 +251,12 @@ func IsAdmin(ctx context.Context) error {
 	return errors.Permissions.AddMsg("只允许管理员操作")
 }
 
+func WithAllArea(ctx context.Context) context.Context {
+	uc := *GetUserCtxNoNil(ctx)
+	uc.AllArea = true
+	return SetUserCtx(ctx, &uc)
+}
+
 func WithAllProject(ctx context.Context) context.Context {
 	uc := *GetUserCtxNoNil(ctx)
 	uc.AllProject = true
