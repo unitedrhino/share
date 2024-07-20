@@ -416,7 +416,10 @@ func (c *connection) Close(msg string) {
 	_, ok := dp.connPool[c.userID]
 	if ok || !c.closed {
 		c.closed = true
-		close(c.send)
+		_, ok := <-c.send
+		if ok {
+			close(c.send)
+		}
 		delete(dp.connPool[c.userID], c.connectID)
 		if len(dp.connPool[c.userID]) == 0 {
 			delete(dp.connPool, c.userID)
@@ -433,7 +436,7 @@ func (c *connection) Close(msg string) {
 			}()
 		}
 		err := c.ws.Close()
-		logx.Infof("websocket 关闭连接  userID:%v connectID:%v err:%v", c.userID, c.connectID, err)
+		logx.Infof("websocket 关闭连接 msg:%v  userID:%v connectID:%v err:%v", msg, c.userID, c.connectID, err)
 	}
 }
 
