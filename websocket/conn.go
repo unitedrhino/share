@@ -205,7 +205,7 @@ func AddConnPool(userID int64, conn *connection) {
 	if dp.connPool[userID] == nil {
 		dp.connPool[userID] = map[int64]*connection{}
 	}
-	dp.connPool[userID] = map[int64]*connection{userID: conn}
+	dp.connPool[userID] = map[int64]*connection{conn.connectID: conn}
 }
 
 // 创建ws连接
