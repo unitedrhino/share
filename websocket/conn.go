@@ -12,6 +12,7 @@ import (
 	"gitee.com/i-Things/share/eventBus"
 	"gitee.com/i-Things/share/utils"
 	"github.com/gorilla/websocket"
+	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/kv"
@@ -77,7 +78,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 		dp = newDp(s2cGzip)
 		event.Subscribe(fmt.Sprintf(eventBus.CoreApiUserPublish, ">"), func(ctx context.Context, t time.Time, body []byte) error {
 			var pbs = WsPublishes{}
-			logx.Debugf("StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
+			logx.Debugf("websocket StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
 			err := json.Unmarshal(body, &pbs)
 			if err != nil {
 				return err
@@ -140,7 +141,7 @@ func newDp(s2cGzip bool) *dispatcher {
 
 // 读ping心跳
 func (c *connection) pingRead(message []byte) error {
-	logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
+	logx.Infof("websocket message:%s userID:%v", string(message), c.userID)
 	if aslice.ContainInt64(c.pingErrs, int64(binary.BigEndian.Uint64(message))) {
 		c.pingErrs = []int64{}
 	} else {
@@ -220,10 +221,13 @@ func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request,
 		send:          make(chan []byte, 10000),
 	}
 	AddConnPool(userID, conn)
-	logx.Infof("%s.[ws]创建连接成功 RemoteAddr::%s userID:%v", utils.FuncName(), wsConn.RemoteAddr().String(), userID)
+	logx.Infof("websocket 创建连接成功 RemoteAddr::%s userID:%v connectID:%v", wsConn.RemoteAddr().String(), userID, conn.connectID)
 	resp := WsResp{}
 	clientToken := trace.TraceIDFromContext(ctx)
-	resp.Handler = map[string]string{"Traceparent": clientToken}
+	resp.Handler = map[string]string{
+		"Traceparent": clientToken,
+		"connectID":   cast.ToString(conn.connectID),
+	}
 	conn.sendMessage(resp)
 	return conn
 }
@@ -246,7 +250,7 @@ func (c *connection) StartRead() {
 		if err != nil {
 			break
 		}
-		logx.Infof("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
+		logx.Infof("%s.websocket message:%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
 		var data map[string]interface{}
 		err = json.Unmarshal(message, &data)
 		if err != nil {
@@ -396,7 +400,7 @@ func (c *connection) StartWrite() {
 			if c.closed {
 				return
 			}
-			logx.Infof("userID:%v,connectID:%v writeMessage:%v", c.userID, c.connectID, string(message))
+			logx.Infof("websocket userID:%v,connectID:%v writeMessage:%v", c.userID, c.connectID, string(message))
 			if err := c.writeMessage(websocket.TextMessage, message); err != nil {
 				c.Close("send message error")
 				return
@@ -428,9 +432,8 @@ func (c *connection) Close(msg string) {
 				delete(sub, c.connectID)
 			}()
 		}
-		//NewUserSubscribe(store).Clear(context.Background(), c.userID)
-		c.ws.Close()
-		logx.Infof("%s.[ws]关闭连接  userID:%v", utils.FuncName(), c.userID)
+		err := c.ws.Close()
+		logx.Infof("websocket 关闭连接  userID:%v connectID:%v err:%v", c.userID, c.connectID, err)
 	}
 }
 
@@ -449,20 +452,20 @@ func (c *connection) sendMessage(body WsResp) {
 // 写消息
 func (c *connection) writeMessage(messageType int, message []byte) error {
 	if message == nil {
-		logx.Infof("%s.[ws]error message: is  null ")
+		logx.Infof("websocket error message: is  null ")
 	}
 	switch messageType {
 	case websocket.PingMessage, websocket.PongMessage:
 		err := c.ws.WriteControl(messageType, message, time.Time{})
 		if err != nil {
-			logx.Infof("%s.[ws]error message::%s userID:%v", utils.FuncName(), string(message), c.userID)
+			logx.Infof("%s.websocket  error message::%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
 		}
 	case websocket.TextMessage:
 		err := c.ws.WriteMessage(messageType, message)
 		if err != nil {
-			logx.Infof("%s.[ws]error message::%s userID:%v", utils.FuncName(), string(message), c.userID)
+			logx.Infof("%s.websocket error message::%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
 		}
 	}
-	logx.Debugf("%s.[ws] message:%s userID:%v", utils.FuncName(), string(message), c.userID)
+	logx.Debugf("%s.websocket message:%s userID:%v", utils.FuncName(), string(message), c.userID)
 	return nil
 }

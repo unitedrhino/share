@@ -337,7 +337,14 @@ func BStrToInt64(binStr string) int64 {
 	}
 	return decimal
 }
-func Int64ToBStr(num int64) string {
+func Int64ToBStr(num int64, bit int) string {
+	str := strconv.FormatInt(num, 2)
+	if len(str) > bit {
+		return str
+	}
+	for len(str) < bit {
+		str = "0" + str
+	}
 	return strconv.FormatInt(num, 2)
 }
 
