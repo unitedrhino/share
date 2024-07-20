@@ -402,6 +402,7 @@ func (c *connection) StartWrite() {
 			}
 			logx.Infof("websocket userID:%v,connectID:%v writeMessage:%v", c.userID, c.connectID, string(message))
 			if err := c.writeMessage(websocket.TextMessage, message); err != nil {
+				logx.Infof("websocket userID:%v,connectID:%v writeMessage:%v err:%v", c.userID, c.connectID, string(message), err)
 				c.Close("send message error")
 				return
 			}
@@ -416,10 +417,13 @@ func (c *connection) Close(msg string) {
 	_, ok := dp.connPool[c.userID]
 	if ok || !c.closed {
 		c.closed = true
-		_, ok := <-c.send
-		if ok {
+		func() {
+			defer func() {
+				recover()
+			}()
 			close(c.send)
-		}
+
+		}()
 		delete(dp.connPool[c.userID], c.connectID)
 		if len(dp.connPool[c.userID]) == 0 {
 			delete(dp.connPool, c.userID)
