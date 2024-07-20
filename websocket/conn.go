@@ -248,6 +248,8 @@ func (c *connection) StartRead() {
 	for {
 		_, message, err := c.ws.ReadMessage()
 		if err != nil {
+			logx.Errorf("%s.websocket ReadMessage message:%s userID:%v connectID:%v err:%v",
+				utils.FuncName(), string(message), c.userID, c.connectID, err)
 			break
 		}
 		logx.Infof("%s.websocket message:%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
@@ -392,6 +394,8 @@ func (c *connection) StartWrite() {
 				err = c.pongSend()
 			}
 			if err != nil {
+				logx.Errorf("websocket pingPong keepAliveType:%v  userID:%v,connectID:%v writeMessage:%v err:%v",
+					keepAliveType, c.userID, c.connectID, err)
 				c.Close("connection timeout")
 				return
 			}
@@ -402,7 +406,8 @@ func (c *connection) StartWrite() {
 			}
 			logx.Infof("websocket userID:%v,connectID:%v writeMessage:%v", c.userID, c.connectID, string(message))
 			if err := c.writeMessage(websocket.TextMessage, message); err != nil {
-				logx.Infof("websocket userID:%v,connectID:%v writeMessage:%v err:%v", c.userID, c.connectID, string(message), err)
+				logx.Errorf("websocket StartWrite  userID:%v,connectID:%v writeMessage:%v err:%v",
+					c.userID, c.connectID, string(message), err)
 				c.Close("send message error")
 				return
 			}

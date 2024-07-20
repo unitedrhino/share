@@ -58,6 +58,7 @@ func ToRpc(err error, accept string) error {
 }
 
 func (c CodeError) WithMsg(msg string) *CodeError {
+
 	c.Msg = []I18nImpl{String(msg)}
 	return &c
 }
