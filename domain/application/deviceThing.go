@@ -3,6 +3,7 @@ package application
 import (
 	"encoding/json"
 	"gitee.com/i-Things/share/devices"
+	"gitee.com/i-Things/share/domain/deviceMsg/msgOta"
 	"gitee.com/i-Things/share/domain/schema"
 	"github.com/spf13/cast"
 )
@@ -13,6 +14,15 @@ type ParamValue struct {
 }
 
 type StructValue map[string]any
+
+// 固件升级进度上报消息体
+type OtaReport struct {
+	Device    devices.Core        `json:"device"`
+	Timestamp int64               `json:"timestamp,string"` //毫秒时间戳
+	Status    msgOta.DeviceStatus `json:"status"`           //设备升级作业状态。1：待确认。 2：待推送。 3：已推送。  4：升级中。 5:升级成功 6: 升级失败. 7:已取消
+	Detail    string              `json:"detail"`           //详情
+	Step      int64               `json:"step"`             //当前的升级进度  0-100%    -1：升级失败。-2：下载失败。-3：校验失败。-4：烧写失败。
+}
 
 // 属性上报消息体
 type PropertyReport struct {
