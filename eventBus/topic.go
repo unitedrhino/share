@@ -5,6 +5,7 @@ const (
 	SysProjectInfoDelete = "server.core.sys.project.info.delete"
 	SysAreaInfoDelete    = "server.core.sys.area.info.delete"
 
+	DmDeviceInfoUnbind         = "server.things.dm.device.info.unbind"
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"
 	DmDeviceOnlineStatusChange = "server.things.dm.device.onlineStatus.change"
 	DmDeviceStaticHalfHour     = "server.things.dm.device.static.halfHour" //半小时统计
