@@ -131,12 +131,14 @@ var TaskStatusMap = map[int]string{
 满足升级条件的后续新激活设备。
 当前上报的OTA模块版本号不满足升级条件，后续满足升级条件的设备。
 */
+type UpgradeType = int64
+
 const (
-	StaticUpgrade = iota + 1
+	StaticUpgrade UpgradeType = iota + 1
 	DynamicUpgrade
 )
 
-var UpgradeTypeMap = map[int]string{
+var UpgradeTypeMap = map[int64]string{
 	StaticUpgrade:  "静态升级",
 	DynamicUpgrade: "动态升级",
 }
