@@ -179,7 +179,7 @@ func (d *Define) GetDefaultValue() (retAny any, err error) {
 	case DataTypeInt:
 		return cast.ToInt64(d.Start), nil
 	case DataTypeString:
-		return "", nil
+		return d.Start, nil
 	case DataTypeStruct:
 		var ret = map[string]any{}
 		for _, v := range d.Specs {

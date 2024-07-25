@@ -256,9 +256,12 @@ func (d *Define) ValidateWithFmtString() error {
 		max = DefineStringMax
 		d.Max = cast.ToString(max)
 	}
+	if len(d.Start) > int(max) {
+		return errors.Parameter.WithMsgf("字符串的默认值不能大于最大值:%v", d.Start)
+	}
+	d.Step = ""
 	d.Min = ""
 	d.Start = ""
-	d.Step = ""
 	d.Unit = ""
 	d.Mapping = nil
 	d.Specs = nil
