@@ -261,7 +261,6 @@ func (d *Define) ValidateWithFmtString() error {
 	}
 	d.Step = ""
 	d.Min = ""
-	d.Start = ""
 	d.Unit = ""
 	d.Mapping = nil
 	d.Specs = nil
