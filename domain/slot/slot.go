@@ -21,6 +21,7 @@ const (
 const (
 	CodeAreaInfo      = "areaInfo"      //区域
 	CodeUserSubscribe = "userSubscribe" //用户订阅
+	CodeDataFilter    = "dataFilter"    //大数据过滤
 	CodeDeviceSend    = "deviceSend"    //设备控制
 
 	SubCodeCreate              = "create" //创建
