@@ -89,7 +89,7 @@ func (i Infos) Request(ctx context.Context, in any, retV any) error {
 		}
 		var ret result.ResponseSuccessBean
 		if retV != nil {
-			ret.Data = ret
+			ret.Data = retV
 		}
 		_, _, errs := greq.EndStruct(&ret)
 		if errs != nil {
