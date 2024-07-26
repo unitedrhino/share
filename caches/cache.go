@@ -163,7 +163,7 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 			return nil, nil
 		}
 		//redis上没有就读数据库
-		data, err := c.getData(ctx, key)
+		data, err := c.getData(ctxs.WithRoot(ctx), key)
 		if err != nil && !errors.Cmp(err, errors.NotFind) { //如果是其他错误直接返回
 			return nil, err
 		}
