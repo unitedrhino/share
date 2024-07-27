@@ -33,9 +33,9 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	//}
 	md := utils.Md5Map(info.Params)
 	key := info.Code + ":" + md
-	logx.Infof("websocket userSubscribe userID:%v connectID:%v info:%v key:%v",
-		c.userID, c.connectID, utils.Fmt(info), key)
 	c.userSubscribe[key] = info.Params
+	logx.Infof("websocket userSubscribe userID:%v connectID:%v info:%v key:%v subList:%v",
+		c.userID, c.connectID, utils.Fmt(info), key, utils.Fmt(c.userSubscribe))
 	func() {
 		dp.userSubscribeMutex.Lock()
 		defer dp.userSubscribeMutex.Unlock()
