@@ -90,7 +90,7 @@ func (c *CommonMsg) AddStatus(err error) *CommonMsg {
 	}
 	e := errors.Fmt(err)
 	c.Code = e.GetCode()
-	c.Msg = e.GetI18nMsg("en")
+	//c.Msg = e.GetI18nMsg("en")
 	return c
 }
 func (c *CommonMsg) Bytes() []byte {
