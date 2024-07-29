@@ -13,6 +13,7 @@ type Handle interface {
 	Delete(ctx context.Context, filePath string, opKv common.OptionKv) error
 	Upload(ctx context.Context, filePath string, reader io.Reader, opKv common.OptionKv) (string, error)
 	GetObjectInfo(ctx context.Context, filePath string) (*common.StorageObjectInfo, error)
+	GetObjectLocal(ctx context.Context, filePath string, localPath string) error
 	ListObjects(ctx context.Context, prefix string) (ret []*common.StorageObjectInfo, err error)
 	PrivateBucket() Handle
 	PublicBucket() Handle

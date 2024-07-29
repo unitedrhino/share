@@ -119,6 +119,11 @@ func (m *Minio) Upload(ctx context.Context, filePath string, reader io.Reader, o
 	return m.setting.CustomPath + uri.RequestURI(), err
 }
 
+func (m *Minio) GetObjectLocal(ctx context.Context, filePath string, localPath string) error {
+	err := m.client.FGetObject(ctx, m.currentBucketName, filePath, localPath, minio.GetObjectOptions{})
+	return err
+}
+
 func (m *Minio) GetObjectInfo(ctx context.Context, filePath string) (*common.StorageObjectInfo, error) {
 	object, err := m.client.GetObject(ctx, m.currentBucketName, filePath, minio.StatObjectOptions{})
 	if err != nil {

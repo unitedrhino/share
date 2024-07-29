@@ -26,9 +26,11 @@ type (
 
 // 产品管理
 const (
-	BusinessProductManage = "productManage" //产品管理
-	SceneProductImg       = "productImg"    //产品图片
-	SceneCategoryImg      = "categoryImg"   //产品图片
+	BusinessProductManage = "productManage"   //产品管理
+	SceneProductImg       = "productImg"      //产品图片
+	SceneProductCustomUi  = "productCustomUi" //产品图片
+
+	SceneCategoryImg = "categoryImg" //产品图片
 )
 
 const (
@@ -68,6 +70,10 @@ func GetSceneInfo(filePath string) (*SceneInfo, error) {
 func GenFilePath(ctx context.Context, svrName, business, scene, filePath string) string {
 	uc := ctxs.GetUserCtx(ctx)
 	return fmt.Sprintf("%s/%s/%s/%s/%s/%s", svrName, uc.TenantCode, uc.AppCode, business, scene, filePath)
+}
+
+func GenCommonFilePath(svrName, business, scene, filePath string) string {
+	return fmt.Sprintf("%s/%s/%s/%s", svrName, business, scene, filePath)
 }
 
 func IsCommonFile(svrName, business, scene string, filePath string) bool {

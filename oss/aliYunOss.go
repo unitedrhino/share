@@ -17,6 +17,11 @@ type AliYunOss struct {
 	b4IsObjectExist *aliOss.Bucket
 }
 
+func (a *AliYunOss) GetObjectLocal(ctx context.Context, filePath string, localPath string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func newAliYunOss(conf conf.AliYunConf) (*AliYunOss, error) {
 	client, err := aliOss.New(conf.GetEndPoint(), conf.AccessKeyID, conf.AccessKeySecret, conf.GenClientOption()...)
 	if err != nil {

@@ -66,9 +66,9 @@ func (p *PublishMsg) GetPayload() string {
 // 如果MsgToken为空,会使用uuid生成一个
 func NewRespCommonMsg(ctx context.Context, method, MsgToken string) *CommonMsg {
 	return &CommonMsg{
-		Method:    GetRespMethod(method),
-		MsgToken:  MsgToken,
-		Timestamp: time.Now().UnixMilli(),
+		Method:   GetRespMethod(method),
+		MsgToken: MsgToken,
+		//Timestamp: time.Now().UnixMilli(),
 	}
 }
 func (c *CommonMsg) NoAsk() bool {
