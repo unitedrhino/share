@@ -30,7 +30,7 @@ func (t ProjectID) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr
 	}
 	expr = clause.Expr{SQL: "?", Vars: []interface{}{int64(t)}}
 
-	if !(uc == nil || uc.IsSuperAdmin || uc.AllProject) { //如果没有权限
+	if !(uc == nil || uc.IsAdmin || uc.AllProject) { //如果没有权限
 		pa := uc.ProjectAuth[int64(t)]
 		if pa == nil { //要有写权限
 			stmt.Error = errors.Permissions.WithMsg("项目权限不足")
@@ -118,7 +118,7 @@ func (sd ProjectClause) ModifyStatement(stmt *gorm.Statement) { //查询的时�
 		if uc == nil || uc.AllProject { //root 权限不用管
 			return
 		}
-		if uc.ProjectID > def.NotClassified && !(uc.IsSuperAdmin || uc.AllProject) {
+		if uc.ProjectID > def.NotClassified && !(uc.IsAdmin || uc.AllProject) {
 			pa := uc.ProjectAuth[uc.ProjectID]
 			if pa == nil {
 				stmt.Error = errors.Permissions.WithMsg("项目权限不足")
@@ -158,7 +158,7 @@ func GetProjectAuthIDs(ctx context.Context) ([]int64, error) {
 	if uc == nil || uc.AllProject { //root 权限不用管
 		return nil, nil
 	}
-	if uc.ProjectID > def.NotClassified && !(uc.IsSuperAdmin || uc.AllProject) {
+	if uc.ProjectID > def.NotClassified && !(uc.IsAdmin || uc.AllProject) {
 		pa := uc.ProjectAuth[uc.ProjectID]
 		if pa == nil {
 			return nil, errors.Permissions.WithMsg("项目权限不足")
