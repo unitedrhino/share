@@ -32,7 +32,7 @@ func (t ProjectID) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr
 
 	if !(uc == nil || uc.IsSuperAdmin || uc.AllProject) { //如果没有权限
 		pa := uc.ProjectAuth[int64(t)]
-		if !(pa != nil && pa.AuthType < def.AuthRead) { //要有写权限
+		if pa == nil { //要有写权限
 			stmt.Error = errors.Permissions.WithMsg("项目权限不足")
 		}
 	}
