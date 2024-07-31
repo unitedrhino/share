@@ -47,7 +47,7 @@ func (p *Point) Range(columnName string, Range int64) string {
 			columnName, p.Longitude, p.Latitude, Range)
 	default:
 		return fmt.Sprintf(
-			"round(st_distance_sphere(ST_GeomFromText(POINT(%v %v)), ST_GeomFromText(AsText(%s))),2)>%d",
+			"round(st_distance_sphere(ST_GeomFromText('POINT(%v %v)'), ST_GeomFromText(AsText(%s))),2)>%d",
 			p.Longitude, p.Latitude, columnName, Range)
 	}
 }
