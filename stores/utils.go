@@ -8,10 +8,14 @@ import (
 func GetField(val reflect.Value, bindNames ...string) (ret reflect.Value) {
 	var field interface{}
 	for _, bindName := range bindNames {
-		ele := val.Elem()
-		if !ele.IsValid() {
-			return ele
+		ele := val
+		if !(val.Kind() == reflect.Struct) {
+			ele = val.Elem()
+			if !ele.IsValid() {
+				return ele
+			}
 		}
+
 		ret = ele.FieldByName(bindName)
 		if !ret.IsValid() {
 			return
