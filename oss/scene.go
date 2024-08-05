@@ -7,7 +7,7 @@ import (
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/oss/common"
 	"gitee.com/i-Things/share/utils"
-	"github.com/hashicorp/go-uuid"
+	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/logx"
 	"mime/multipart"
 	"path"
@@ -137,11 +137,7 @@ func GetFilePath(scene *SceneInfo, rename bool) (string, error) {
 		if ext == "" {
 			return "", errors.Parameter.WithMsg("未能获取文件后缀名")
 		}
-		uuid, er := uuid.GenerateUUID()
-		if er != nil {
-			err := errors.System.AddDetail(er)
-			return "", err
-		}
+		uuid := uuid.NewString()
 		scene.FilePath = uuid + ext
 	} else {
 		spcChar := []string{`,`, `?`, `*`, `|`, `{`, `}`, `\`, `$`, `、`, `·`, "`", `'`, `"`}

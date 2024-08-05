@@ -9,7 +9,6 @@ replace (
 
 require (
 	gitee.com/asktop_golib/util v0.1.6
-	github.com/Blank-Xu/sql-adapter v0.0.0-20210714092925-0bdd0d548758
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible
 	github.com/Masterminds/squirrel v1.20.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.6
@@ -19,20 +18,14 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
 	github.com/carlmjohnson/versioninfo v0.22.4
 	github.com/casbin/casbin/v2 v2.68.0
-	github.com/casbin/redis-watcher/v2 v2.5.0
-	github.com/dgraph-io/ristretto v0.1.0
 	github.com/dop251/goja v0.0.0-20230402114112-623f9dda9079
 	github.com/dtm-labs/client v1.17.3
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/glebarez/sqlite v1.8.0
-	github.com/go-co-op/gocron v1.18.1
-	github.com/go-sql-driver/mysql v1.7.1
-	github.com/gogf/gf/v2 v2.3.3
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/hashicorp/go-uuid v1.0.3
 	github.com/hibiken/asynq v0.24.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
@@ -43,9 +36,7 @@ require (
 	github.com/nats-io/nats.go v1.27.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/parnurzeal/gorequest v0.3.0
-	github.com/redis/go-redis/v9 v9.4.0
 	github.com/silenceper/wechat/v2 v2.1.5
-	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.9.0
 	github.com/suifengtec/gocoord v0.0.0-20210116135606-a0cd8c71c959

@@ -15,7 +15,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html/charset"
 )
 
@@ -39,15 +38,6 @@ func (err *Error) Error() string {
 // NewError NewError
 func NewError(err error, params ...interface{}) error {
 	return &Error{err, params}
-}
-
-// JSONEncode JSONEncode
-func JSONEncode(data interface{}) []byte {
-	d, err := json.Marshal(data)
-	if err != nil {
-		logrus.Errorln("JSONEncode error:", err)
-	}
-	return d
 }
 
 // JSONDecode JSONDecode

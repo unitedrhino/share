@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gitee.com/i-Things/share/devices"
 	"gitee.com/i-Things/share/errors"
+	"github.com/google/uuid"
 	"github.com/parnurzeal/gorequest"
 	"github.com/spf13/cast"
 	"math/rand"
@@ -18,7 +19,6 @@ import (
 	"gitee.com/i-Things/share/conf"
 	"gitee.com/i-Things/share/utils"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/hashicorp/go-uuid"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -357,12 +357,7 @@ func initMqtt(conf *conf.MqttConf) (mc mqtt.Client, err error) {
 	for _, broker := range conf.Brokers {
 		opts.AddBroker(broker)
 	}
-	uuid, er := uuid.GenerateUUID()
-	if er != nil {
-		logx.Info("GenerateUUID failure")
-		err = er
-		return
-	}
+	uuid := uuid.NewString()
 	opts.SetClientID(conf.ClientID + "/" + uuid).SetUsername(conf.User).SetPassword(conf.Pass)
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		logx.Info("mqtt client Connected")
