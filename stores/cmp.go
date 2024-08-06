@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var Expr = gorm.Expr
+
 type CmpType = string
 
 const (
