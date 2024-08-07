@@ -37,6 +37,7 @@ const (
 	ServerCacheKeySysProjectInfo       = "cache:sys:project:info"
 	ServerCacheKeySysAreaInfo          = "cache:sys:area:info"
 	ServerCacheKeySysTenantInfo        = "cache:sys:tenant:info"
+	ServerCacheKeySysTenantConfig      = "cache:sys:tenant:config"
 	ServerCacheKeySysTenantOpenWebhook = "cache:sys:tenant:open:webhook"
 	ServerCacheKeyDmProduct            = "cache:dm:product"
 	ServerCacheKeyDmDevice             = "cache:dm:device"

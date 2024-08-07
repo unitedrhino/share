@@ -23,7 +23,7 @@ const (
 	NotifyTypeEmail       NotifyType = "email"       //邮箱
 	NotifyTypeDingTalk    NotifyType = "dingTalk"    //钉钉机器人
 	NotifyTypeDingWebhook NotifyType = "dingWebhook" //钉钉webhook
-	NotifyTypeWx          NotifyType = "wx"          //微信推送 todo
+	NotifyTypeWxMini      NotifyType = "wxMini"      //微信小程序推送
 	NotifyTypeWxEWebhook  NotifyType = "wxEWebHook"  //企业微信webhook
 	NotifyTypeMessage     NotifyType = "message"     //站内信通知
 	NotifyTypePhoneCall   NotifyType = "phoneCall"   //电话通知
