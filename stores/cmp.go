@@ -96,14 +96,14 @@ func CmpLte(value any) *Cmp {
 	return &Cmp{toSqlFunc: defaultToSql(CmpTypeLte), Value: value}
 }
 
-func CmpIn(values ...any) *Cmp {
+func CmpIn[t any](values ...t) *Cmp {
 	if len(values) == 0 {
 		return nil
 	}
 	return &Cmp{toSqlFunc: defaultToSql(CmpTypeIn), Value: values}
 }
 
-func CmpNotIn(values ...any) *Cmp {
+func CmpNotIn[t any](values ...t) *Cmp {
 	if len(values) == 0 {
 		return nil
 	}
