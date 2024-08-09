@@ -14,9 +14,10 @@ const (
 	DmOtaDeviceUpgradePush     = "server.things.dm.ota.device.upgrade.push" //ota设备推送
 	DmOtaJobDelayRun           = "server.things.dm.ota.job.delay.run"       //任务延时启动
 	// DmProtocolInfoUpdate 中间的是协议code
-	DmProtocolInfoUpdate = "server.things.dm.protocol.%s.update" //自定义协议配置有更新
-	UdRuleTimer          = "server.things.ud.rule.timer"
-	DgOnlineTimer        = "server.things.dg.online.timer"
+	DmProtocolInfoUpdate  = "server.things.dm.protocol.%s.update" //自定义协议配置有更新
+	UdRuleTimer           = "server.things.ud.rule.timer"
+	UdRuleTimerTenMinutes = "server.things.ud.rule.timer.tenMinutes"
+	DgOnlineTimer         = "server.things.dg.online.timer"
 
 	SaleStaticTimer   = "server.sale.static.timer"
 	SalePayCheckTimer = "server.sale.pay.check.timer"
