@@ -16,11 +16,21 @@ func Recover(ctx context.Context) {
 	}
 }
 
+var setPanicNotify func(in string)
+
+func SetPanicNotify(f func(string)) {
+	setPanicNotify = f
+}
+
 func HandleThrow(ctx context.Context, p any) {
 	pc := make([]uintptr, 1)
 	runtime.Callers(3, pc)
 	f := runtime.FuncForPC(pc[0])
-	logx.WithContext(ctx).Errorf("HandleThrow|func=%s|error=%#v|stack=%s\n", f, p, string(debug.Stack()))
+	msg := fmt.Sprintf("HandleThrow|func=%s|error=%#v|stack=%s\n", f, p, string(debug.Stack()))
+	logx.WithContext(ctx).Error(msg)
+	if setPanicNotify != nil {
+		setPanicNotify(msg)
+	}
 	//os.Exit(-1)
 }
 
