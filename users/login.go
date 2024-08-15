@@ -44,7 +44,7 @@ func RefreshLoginToken(tokenString string, secretKey string, AccessExpire int64)
 		return "", err
 	}
 	if claims, ok := token.Claims.(*LoginClaims); ok && token.Valid {
-		claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(1 * time.Hour))
+		claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(time.Duration(AccessExpire) * time.Second))
 		return CreateToken(secretKey, *claims)
 	}
 	return "", errors.TokenInvalid

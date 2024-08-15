@@ -42,23 +42,23 @@ func ParseToken(tokenString string, secretKey string) (*OssJwtToken, error) {
 	if err != nil {
 		switch {
 		case errors.Is(err, jwt.ErrTokenExpired):
-			return nil, errors.TokenExpired
+			return nil, errors.TokenExpired.WithMsg("登录失效,请退出重新登录")
 		case errors.Is(err, jwt.ErrTokenMalformed):
-			return nil, errors.TokenMalformed
+			return nil, errors.TokenMalformed.WithMsg("登录失效,请退出重新登录")
 		case errors.Is(err, jwt.ErrTokenNotValidYet):
-			return nil, errors.TokenNotValidYet
+			return nil, errors.TokenNotValidYet.WithMsg("登录失效,请退出重新登录")
 		default:
-			return nil, errors.TokenInvalid
+			return nil, errors.TokenInvalid.WithMsg("登录失效,请退出重新登录")
 		}
 	}
 	if token != nil {
 		if claims, ok := token.Claims.(*OssJwtToken); ok && token.Valid {
 			return claims, nil
 		}
-		return nil, errors.TokenInvalid
+		return nil, errors.TokenInvalid.WithMsg("登录失效,请退出重新登录")
 
 	} else {
-		return nil, errors.TokenInvalid
+		return nil, errors.TokenInvalid.WithMsg("登录失效,请退出重新登录")
 	}
 
 }
