@@ -16,7 +16,7 @@ func ParseTokenWithFunc(claim jwt.Claims, tokenString string, f jwt.Keyfunc) err
 	if err != nil {
 		switch {
 		case errors.Is(err, jwt.ErrTokenExpired):
-			return errors.TokenExpired.WithMsg("登录失效,请退出重新登录")
+			return errors.TokenExpired.WithMsg("登录过期,请退出重新登录")
 		case errors.Is(err, jwt.ErrTokenMalformed):
 			return errors.TokenMalformed.WithMsg("登录失效,请退出重新登录")
 		case errors.Is(err, jwt.ErrTokenNotValidYet):
