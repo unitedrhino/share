@@ -40,19 +40,19 @@ func (l *Log) LogMode(level logger.LogLevel) logger.Interface {
 
 func (l *Log) Info(ctx context.Context, s string, i ...interface{}) {
 	if l.LogLevel >= logger.Info {
-		logx.WithContext(ctx).Infow(utils.FileWithLineNum(), logx.Field("body", fmt.Sprintf(s, i...)))
+		logx.WithContext(ctx).WithCallerSkip(1).Infow(utils.FileWithLineNum(), logx.Field("body", fmt.Sprintf(s, i...)))
 	}
 }
 
 func (l *Log) Warn(ctx context.Context, s string, i ...interface{}) {
 	if l.LogLevel >= logger.Warn {
-		logx.WithContext(ctx).Errorw(utils.FileWithLineNum(), logx.Field("body", fmt.Sprintf(s, i...)))
+		logx.WithContext(ctx).WithCallerSkip(1).Errorw(utils.FileWithLineNum(), logx.Field("body", fmt.Sprintf(s, i...)))
 	}
 }
 
 func (l *Log) Error(ctx context.Context, s string, i ...interface{}) {
 	if l.LogLevel >= logger.Error {
-		logx.WithContext(ctx).Errorw(utils.FileWithLineNum(), logx.Field("body", fmt.Sprintf(s, i...)))
+		logx.WithContext(ctx).WithCallerSkip(1).Errorw(utils.FileWithLineNum(), logx.Field("body", fmt.Sprintf(s, i...)))
 	}
 }
 
