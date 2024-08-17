@@ -8,8 +8,9 @@ const (
 )
 
 const (
-	ProtocolCodeIThings     = "iThings"
-	ProtocolCodeAliyunCloud = "aliyunCloud"
-	ProtocolCodeAliyunMqtt  = "aliyunMqtt"
-	ProtocolCodeWumei       = "wumei"
+	ProtocolCodeIThings      = "iThings"
+	ProtocolCodeAliyunCloud  = "aliyunCloud"
+	ProtocolCodeAliyunMqtt   = "aliyunMqtt"
+	ProtocolCodeTencentCloud = "tencentCloud"
+	ProtocolCodeWumei        = "wumei"
 )
