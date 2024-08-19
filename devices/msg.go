@@ -34,7 +34,7 @@ type (
 				internal_error：格式错误的消息或其他未知错误。
 		*/
 		Reason     string `json:"reason"`
-		Action     string `json:"action"` //登录 onLogin 登出 onLogout
+		Action     Action `json:"action"` //登录 onLogin 登出 onLogout
 		ProductID  string `json:"productID"`
 		DeviceName string `json:"deviceName"`
 	}
