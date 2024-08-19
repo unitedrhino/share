@@ -9,6 +9,7 @@ import (
 	"gitee.com/i-Things/share/errors"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/xuri/excelize/v2"
+	"github.com/zeromicro/go-zero/core/logx"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io"
@@ -207,6 +208,8 @@ func MethodToNum(methond string) string {
 
 func PrintVersion() {
 	fmt.Printf("gitInfo: lastCommitTime:%v,lastCommitHash:%v\n",
+		versioninfo.LastCommit, versioninfo.Revision)
+	logx.Infof("gitInfo: lastCommitTime:%v,lastCommitHash:%v\n",
 		versioninfo.LastCommit, versioninfo.Revision)
 }
 

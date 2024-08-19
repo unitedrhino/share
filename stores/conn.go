@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"gitee.com/i-Things/share/clients"
 	"gitee.com/i-Things/share/conf"
-	"github.com/dtm-labs/client/dtmgrpc"
 	"github.com/glebarez/sqlite"
 	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -109,22 +108,6 @@ func GetCommonConn(in any) *gorm.DB {
 		return commonConn.WithContext(ctx)
 	}
 	return commonConn.WithContext(ctx).Debug()
-}
-
-// 屏障分布式事务
-func BarrierTransaction(ctx context.Context, fc func(tx *gorm.DB) error) error {
-	conn := GetCommonConn(ctx)
-	barrier, _ := dtmgrpc.BarrierFromGrpc(ctx)
-	if barrier == nil { //如果没有开启分布式事务,则直接走普通事务即可
-		return conn.Transaction(fc)
-	}
-	db, _ := conn.DB()
-	return barrier.CallWithDB(db, func(tx *sql.Tx) error {
-		gdb, _ := gorm.Open(mysql.New(mysql.Config{
-			Conn: tx,
-		}), &gorm.Config{})
-		return fc(gdb)
-	})
 }
 
 func SetAuthIncrement(conn *gorm.DB, table schema.Tabler) error {

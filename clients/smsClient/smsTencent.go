@@ -1,4 +1,4 @@
-package clients
+package smsClient
 
 import (
 	"gitee.com/i-Things/share/conf"

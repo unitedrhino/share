@@ -1,4 +1,4 @@
-package clients
+package dingClient
 
 import (
 	"encoding/json"
