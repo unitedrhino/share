@@ -30,6 +30,8 @@ type (
 		Imei           string            `json:"imei,omitempty"`    //设备的 IMEI 号信息，非必填项
 		Mac            string            `json:"mac,omitempty"`     //设备的 MAC 信息，非必填项
 		Version        string            `json:"version,omitempty"` //固件版本
+		Address        *string           `json:"address,omitempty"` //所在地址
+		Adcode         *string           `json:"adcode,omitempty"`  //地区编码
 		Module         string            `json:"module,omitempty"`
 		HardInfo       string            `json:"hardInfo,omitempty"`       //模组具体硬件型号
 		SoftInfo       string            `json:"softInfo,omitempty"`       //模组软件版本
