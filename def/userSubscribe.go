@@ -3,10 +3,10 @@ package def
 type UserSubscribe = string
 
 var (
-	UserSubscribeDevicePropertyReport = "devicePropertyReport"
-	UserSubscribeDevicePublish        = "devicePublish"
-	UserSubscribeDeviceActionReport   = "deviceActionReport"
-	UserSubscribeDeviceConn           = "deviceConn"
-	UserSubscribeDeviceOtaReport      = "deviceOtaReport"
-	UserSubscribeUserOrderPay         = "userOrderPay"
+	UserSubscribeDevicePropertyReport = "devicePropertyReport" //设备上报订阅
+	UserSubscribeDevicePublish        = "devicePublish"        //设备发布消息
+	UserSubscribeDeviceActionReport   = "deviceActionReport"   //设备行为消息
+	UserSubscribeDeviceConn           = "deviceConn"           //设备连接消息
+	UserSubscribeDeviceOtaReport      = "deviceOtaReport"      //设备ota消息推送
+	UserSubscribeUserOrderPay         = "userOrderPay"         //用户订单支付通知
 )
