@@ -225,6 +225,14 @@ func WithRoot(ctx context.Context) context.Context {
 	return SetUserCtx(ctx, &uc)
 }
 
+func WithAdmin(ctx context.Context) context.Context {
+	uc := *GetUserCtxNoNil(ctx)
+	uc.AllProject = true
+	uc.AllArea = true
+	uc.IsAdmin = true
+	return SetUserCtx(ctx, &uc)
+}
+
 // 如果是default租户直接给root权限
 func WithDefaultRoot(ctx context.Context) context.Context {
 	uc := GetUserCtxNoNil(ctx)
