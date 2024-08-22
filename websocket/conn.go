@@ -79,7 +79,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 		dp = newDp(s2cGzip)
 		event.Subscribe(fmt.Sprintf(eventBus.CoreApiUserPublish, ">"), func(ctx context.Context, t time.Time, body []byte) error {
 			var pbs = WsPublishes{}
-			logx.Debugf("websocket StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
+			logx.Infof("websocket StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
 			err := json.Unmarshal(body, &pbs)
 			if err != nil {
 				return err
@@ -97,7 +97,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 						}
 					}
 					if sub == nil { //没有订阅的
-						logx.Debugf("no sub:%v", utils.Fmt(pb))
+						logx.Infof("no sub:%v", utils.Fmt(pb))
 						return nil
 					}
 					var connectIDSet = map[int64]struct{}{}
