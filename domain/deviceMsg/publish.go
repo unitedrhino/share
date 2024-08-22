@@ -11,9 +11,11 @@ import (
 	"time"
 )
 
+type ReqType = string
+
 const (
-	ReqMsg  = "req"
-	RespMsg = "resp"
+	ReqMsg  ReqType = "req"
+	RespMsg ReqType = "resp"
 )
 
 type (

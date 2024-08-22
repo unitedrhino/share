@@ -3,6 +3,7 @@ package application
 import (
 	"encoding/json"
 	"gitee.com/i-Things/share/devices"
+	"gitee.com/i-Things/share/domain/deviceMsg"
 	"gitee.com/i-Things/share/domain/deviceMsg/msgOta"
 	"gitee.com/i-Things/share/domain/schema"
 	"github.com/spf13/cast"
@@ -32,17 +33,30 @@ type PropertyReport struct {
 	Param      any          `json:"param"`            //推送属性的参数
 }
 
+type Hub struct {
+	ProductID   string `json:"productID"`                  // 产品id
+	DeviceName  string `json:"deviceName"`                 // 设备名称
+	Content     string `json:"content,omitempty"`          // 具体信息
+	Topic       string `json:"topic,omitempty"`            // 主题
+	Action      string `json:"action,omitempty"`           // 操作类型
+	Timestamp   int64  `json:"timestamp,string,omitempty"` // 操作时间,
+	RequestID   string `json:"requestID,omitempty"`        // 请求ID
+	TraceID     string `json:"traceID,omitempty"`          // 服务器端事务id
+	ResultCode  int64  `json:"resultCode,omitempty"`       // 请求结果状态,200为成功
+	RespPayload string `json:"respPayload,omitempty"`      //返回的内容
+}
+
 // 行为上报消息体
 type ActionReport struct {
-	Device    devices.Core     `json:"device"`
-	MsgToken  string           `json:"msgToken,omitempty"` //调用id
-	Timestamp int64            `json:"timestamp,string"`   //毫秒时间戳
-	ActionID  string           `json:"actionID,omitempty"` //数据模板中的行为标识符，由开发者自行根据设备的应用场景定义
-	Params    map[string]any   `json:"params,omitempty"`   //参数列表
-	Code      int64            `json:"code,omitempty"`
-	Status    string           `json:"status,omitempty"`
-	Dir       schema.ActionDir `json:"dir"`
-	ReqType   string           `json:"reqType"` //req resp
+	Device    devices.Core      `json:"device"`
+	MsgToken  string            `json:"msgToken,omitempty"` //调用id
+	Timestamp int64             `json:"timestamp,string"`   //毫秒时间戳
+	ActionID  string            `json:"actionID,omitempty"` //数据模板中的行为标识符，由开发者自行根据设备的应用场景定义
+	Params    map[string]any    `json:"params,omitempty"`   //参数列表
+	Code      int64             `json:"code,omitempty"`     //200为成功
+	Msg       string            `json:"msg,omitempty"`      //消息
+	Dir       schema.ActionDir  `json:"dir"`                //请求方向 up:设备请求云端  down:云端请求设备
+	ReqType   deviceMsg.ReqType `json:"reqType"`            //请求类型 req resp
 }
 
 // 事件上报消息体
