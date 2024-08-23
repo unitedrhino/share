@@ -10,6 +10,7 @@ var (
 	Captcha              = NewCodeError(UserError+5, "验证码错误")
 	UidNotRight          = NewCodeError(UserError+6, "uid不对")
 	NotLogin             = NewCodeError(UserError+7, "尚未登录")
+	NotSupportLogin      = NewCodeError(UserError+8, "不支持的登录方式")
 	RegisterOne          = NewCodeError(UserError+22, "注册第一步未成功")
 	DuplicateRegister    = NewCodeError(UserError+23, "重复注册")
 	NeedUserName         = NewCodeError(UserError+24, "需要填入用户名")
