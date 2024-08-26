@@ -28,19 +28,18 @@ type (
 const (
 	BusinessProductManage = "productManage"   //产品管理
 	SceneProductImg       = "productImg"      //产品图片
-	SceneProductCustomUi  = "productCustomUi" //产品图片
-
-	SceneCategoryImg = "categoryImg" //产品图片
+	SceneProductCustomUi  = "productCustomUi" //产品自定义ui
+	SceneCategoryImg      = "categoryImg"     //产品品类图片
 )
 
 const (
 	BusinessProject    = "project"    //项目
 	BusinessArea       = "area"       //区域
 	BusinessUserManage = "userManage" //产品管理
-	SceneHeadIng       = "headImg"    //产品图片
+	SceneHeadIng       = "headImg"    //头像
 )
 const (
-	BusinessTenantManage = "tenantManage"  //产品管理
+	BusinessTenantManage = "tenantManage"  //租户管理
 	SceneBackgroundImg   = "backgroundImg" //
 	SceneLogoImg         = "logoImg"
 )
@@ -51,6 +50,10 @@ const (
 const (
 	SceneFirmware = "firmware"
 	BusinessOta   = "ota"
+)
+
+const (
+	BusinessApp = "app" //应用
 )
 
 func GetSceneInfo(filePath string) (*SceneInfo, error) {
