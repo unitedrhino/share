@@ -72,7 +72,7 @@ func (p *PageInfo) WithOrder(in ...OrderBy) *PageInfo {
 
 func (p *PageInfo) ToGorm(db *gorm.DB) *gorm.DB {
 	if p == nil {
-		return db
+		return db.Limit(1000)
 	}
 	if p.Size != 0 {
 		db = db.Limit(int(p.GetLimit()))

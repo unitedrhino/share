@@ -17,7 +17,7 @@ func IDPathHasAcess(idPath string, id int64) bool {
 	return false
 }
 
-func GenIDPath(in []int64) string {
+func GenIDPath(in ...int64) string {
 	return strings.Join(cast.ToStringSlice(in), "-") + "-"
 }
 
