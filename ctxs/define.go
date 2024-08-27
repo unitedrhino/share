@@ -13,6 +13,7 @@ const (
 
 	UserRoleKey     string = "ithings-user-role"
 	UserProjectID   string = "ithings-project-id"
+	UserProjectID2  string = "project-id"
 	UserSetTokenKey string = "ithings-set-token"
 	MetadataKey     string = "ithings-meta"
 )

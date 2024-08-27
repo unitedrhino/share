@@ -120,7 +120,7 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			c := context.WithValue(r.Context(), UserInfoKey, uc)
 			r = r.WithContext(c)
 		}
-		strProjectID := GetHandle(r, UserProjectID)
+		strProjectID := GetHandle(r, UserProjectID, UserProjectID2)
 		projectID := cast.ToInt64(strProjectID)
 		if projectID == 0 {
 			projectID = def.NotClassified
