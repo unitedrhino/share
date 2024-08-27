@@ -8,7 +8,8 @@ import (
 
 // Custom claims structure
 type LoginClaims struct {
-	UserID int64 `json:",string"`
+	UserID  int64 `json:",string"`
+	AppCode string
 	jwt.RegisteredClaims
 }
 
@@ -22,10 +23,11 @@ type UserInfo struct {
 	IsAllData  int64
 }
 
-func GetLoginJwtToken(secretKey string, t time.Time, seconds, userID int64) (string, error) {
+func GetLoginJwtToken(secretKey string, t time.Time, seconds, userID int64, appCode string) (string, error) {
 	IssuedAt := jwt.NewNumericDate(t)
 	claims := LoginClaims{
-		UserID: userID,
+		UserID:  userID,
+		AppCode: appCode,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(t.Add(time.Duration(seconds) * time.Second)),
 			IssuedAt:  IssuedAt,
