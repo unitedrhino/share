@@ -3,10 +3,12 @@ package ctxs
 import "strings"
 
 const (
-	UserInfoKey       string = "ithings-user"
-	UserTokenKey      string = "ithings-token"
-	UserToken2Key     string = "token"
-	UserAppCodeKey    string = "ithings-app-code"    //用户正在访问的app
+	UserInfoKey     string = "ithings-user"
+	UserTokenKey    string = "ithings-token"
+	UserToken2Key   string = "token"
+	UserAppCodeKey  string = "ithings-app-code" //用户正在访问的app
+	UserAppCodeKey2 string = "app-code"         //用户正在访问的app
+
 	UserTenantCodeKey string = "ithings-tenant-code" //用户租户号
 
 	UserRoleKey     string = "ithings-user-role"

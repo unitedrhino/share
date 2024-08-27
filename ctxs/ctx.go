@@ -110,7 +110,7 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		uc := GetUserCtx(r.Context())
 		if uc == nil {
 			strIP, _ := utils.GetIP(r)
-			appCode := GetHandle(r, UserAppCodeKey)
+			appCode := GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
 			tenantCode := GetHandle(r, UserTenantCodeKey)
 			uc = &UserCtx{
 				AppCode:    appCode,
@@ -125,7 +125,7 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		if projectID == 0 {
 			projectID = def.NotClassified
 		}
-		uc.AppCode = GetHandle(r, UserAppCodeKey)
+		uc.AppCode = GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
 		if uc.AppCode == "" {
 			uc.AppCode = def.AppCore
 		}
