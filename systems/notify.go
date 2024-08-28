@@ -17,18 +17,29 @@ func init() {
 	if token != "" {
 		c := dingClient.NewDingRobotClient(token)
 		utils.SetPanicNotify(func(s string) {
-			c.SendRobotMsg(dingClient.NewTextMessage("抓到panic:" + s))
+			_, err := c.SendRobotMsg(dingClient.NewTextMessage("程序抓到panic:" + s))
+			if err != nil {
+				logx.Error(err)
+			}
+
 		})
+		e, _ := os.Executable()
 		proc.AddShutdownListener(func() {
-			e, _ := os.Executable()
-			c.SendRobotMsg(dingClient.NewTextMessage(fmt.Sprintf("iThings程序退出:%v", e)))
+			_, err := c.SendRobotMsg(dingClient.NewTextMessage(fmt.Sprintf("程序退出:%v", e)))
+			if err != nil {
+				logx.Error(err)
+			}
 		})
+		_, err := c.SendRobotMsg(dingClient.NewTextMessage(fmt.Sprintf("程序启动:%v", e)))
+		if err != nil {
+			logx.Error(err)
+		}
 	} else {
 		proc.AddShutdownListener(func() {
 			pc := make([]uintptr, 1)
 			runtime.Callers(3, pc)
 			f := runtime.FuncForPC(pc[0])
-			msg := fmt.Sprintf("Shutdown|func=%s|stack=%s\n", f, string(debug.Stack()))
+			msg := fmt.Sprintf("程序Shutdown|func=%s|stack=%s\n", f, string(debug.Stack()))
 			logx.Error(msg)
 		})
 	}
@@ -40,7 +51,10 @@ func SysNotify(in string) {
 		ctx := context.Background()
 		utils.Go(ctx, func() {
 			c := dingClient.NewDingRobotClient(token)
-			c.SendRobotMsg(dingClient.NewTextMessage("iThings系统通知:" + in))
+			_, err := c.SendRobotMsg(dingClient.NewTextMessage("程序系统通知:" + in))
+			if err != nil {
+				logx.Error(err)
+			}
 		})
 	}
 }
