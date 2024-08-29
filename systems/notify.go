@@ -12,8 +12,9 @@ import (
 	"runtime/debug"
 )
 
+var token = os.Getenv("dingRobotToken")
+
 func init() {
-	token := os.Getenv("dingRobotToken")
 	if token != "" {
 		c := dingClient.NewDingRobotClient(token)
 		utils.SetPanicNotify(func(s string) {
@@ -46,7 +47,6 @@ func init() {
 }
 
 func SysNotify(in string) {
-	token := os.Getenv("dingRobotToken")
 	if token != "" {
 		ctx := context.Background()
 		utils.Go(ctx, func() {
