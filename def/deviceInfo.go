@@ -35,7 +35,9 @@ const (
 	DeviceStatusArrearage DeviceStatus = 5 //欠费
 )
 
+type ConnStatus = int64
+
 const (
-	ConnectedStatus    = 1
-	DisConnectedStatus = 2
+	ConnectedStatus    ConnStatus = 1
+	DisConnectedStatus ConnStatus = 2
 )
