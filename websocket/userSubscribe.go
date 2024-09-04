@@ -47,8 +47,7 @@ func (u *UserSubscribe) Publish(ctx context.Context, code string, data any, para
 		WsPublish: &pb,
 		ctx:       ctxs.CopyCtx(ctx),
 	}
-	logx.WithContext(ctx).Infof("websocket UserSubscribe.publish:%v", utils.Fmt(pb))
-
+	logx.WithContext(ctx).Debugf("websocket UserSubscribe.publish:%v", utils.Fmt(pb))
 	return nil
 }
 

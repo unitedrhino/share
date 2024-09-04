@@ -2,10 +2,7 @@ module gitee.com/i-Things/share
 
 go 1.21
 
-replace (
-	github.com/Masterminds/squirrel => github.com/i-Things/squirrel v1.20.2
-	github.com/taosdata/driver-go/v3 => github.com/i-Things/driver-go/v3 v3.10.5
-)
+replace github.com/Masterminds/squirrel => github.com/i-Things/squirrel v1.20.2
 
 require (
 	gitee.com/asktop_golib/util v0.1.6
@@ -30,6 +27,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/hibiken/asynq v0.24.1
+	github.com/i-Things/driver-go/v3 v3.25.6
 	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
@@ -45,15 +43,14 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.9.0
 	github.com/suifengtec/gocoord v0.0.0-20210116135606-a0cd8c71c959
-	github.com/taosdata/driver-go/v3 v3.0.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.898
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.898
 	github.com/twpayne/go-geom v1.5.3
 	github.com/xuri/excelize/v2 v2.8.1
-	github.com/zeromicro/go-zero v1.5.6
+	github.com/zeromicro/go-zero v1.6.3
 	github.com/zhaoyunxing92/dingtalk/v2 v2.1.0
-	go.opentelemetry.io/otel v1.18.0
-	go.opentelemetry.io/otel/trace v1.18.0
+	go.opentelemetry.io/otel v1.19.0
+	go.opentelemetry.io/otel/trace v1.19.0
 	go.uber.org/atomic v1.10.0
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	golang.org/x/net v0.24.0
@@ -135,7 +132,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/minio/md5-simd v1.1.0 // indirect
 	github.com/minio/sha256-simd v0.1.1 // indirect
@@ -159,7 +156,7 @@ require (
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
-	github.com/redis/go-redis/v9 v9.0.3 // indirect
+	github.com/redis/go-redis/v9 v9.4.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.3 // indirect
@@ -184,13 +181,13 @@ require (
 	go.etcd.io/etcd/client/v3 v3.5.12 // indirect
 	go.mongodb.org/mongo-driver v1.13.1 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.17.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.18.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.18.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.18.0 // indirect
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.18.0 // indirect
-	go.opentelemetry.io/otel/exporters/zipkin v1.18.0 // indirect
-	go.opentelemetry.io/otel/metric v1.18.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.18.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.19.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.19.0 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.19.0 // indirect
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.19.0 // indirect
+	go.opentelemetry.io/otel/exporters/zipkin v1.19.0 // indirect
+	go.opentelemetry.io/otel/metric v1.19.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.19.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/automaxprocs v1.5.3 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
