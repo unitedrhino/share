@@ -47,8 +47,8 @@ func NewTDengine(DataSource conf.TSDB) (TD *Td, err error) {
 		if err != nil {
 			return
 		}
-		td.DB.SetMaxIdleConns(200)
-		td.DB.SetMaxOpenConns(200)
+		td.DB.SetMaxIdleConns(50)
+		td.DB.SetMaxOpenConns(50)
 		td.DB.SetConnMaxIdleTime(time.Hour)
 		td.DB.SetConnMaxLifetime(time.Hour)
 		_, err = td.Exec("create database if not exists ithings;")
