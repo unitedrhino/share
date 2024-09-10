@@ -6,7 +6,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"gitee.com/asktop_golib/util/aslice"
 	"gitee.com/i-Things/share/ctxs"
 	"gitee.com/i-Things/share/errors"
 	"gitee.com/i-Things/share/eventBus"
@@ -143,7 +142,7 @@ func newDp(s2cGzip bool) *dispatcher {
 // 读ping心跳
 func (c *connection) pingRead(message []byte) error {
 	logx.Infof("websocket pingRead message:%s userID:%v", string(message), c.userID)
-	if aslice.ContainInt64(c.pingErrs, int64(binary.BigEndian.Uint64(message))) {
+	if utils.SliceIn(int64(binary.BigEndian.Uint64(message)), c.pingErrs...) {
 		func() {
 			c.pingPongMutex.Lock()
 			defer c.pingPongMutex.Unlock()
@@ -158,7 +157,7 @@ func (c *connection) pingRead(message []byte) error {
 // 读pong心跳
 func (c *connection) pongRead(message []byte) error {
 	logx.Infof("websocket pongRead message:%s userID:%v", string(message), c.userID)
-	if aslice.ContainInt64(c.pongErrs, int64(binary.BigEndian.Uint64(message))) {
+	if utils.SliceIn(int64(binary.BigEndian.Uint64(message)), c.pingErrs...) {
 		func() {
 			c.pingPongMutex.Lock()
 			defer c.pingPongMutex.Unlock()

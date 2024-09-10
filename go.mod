@@ -5,7 +5,6 @@ go 1.21
 replace github.com/Masterminds/squirrel => github.com/i-Things/squirrel v1.20.2
 
 require (
-	gitee.com/asktop_golib/util v0.1.6
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible
 	github.com/Masterminds/squirrel v1.20.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.6
@@ -163,7 +162,6 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/xid v1.2.1 // indirect
-	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/tidwall/gjson v1.14.1 // indirect

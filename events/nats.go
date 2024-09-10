@@ -52,7 +52,6 @@ func NatsSubscription(handle HandleFunc) func(msg *nats.Msg) {
 					startTime, msg.Subject, string(emsg.GetData()))
 			}
 		})
-
 	}
 }
 
