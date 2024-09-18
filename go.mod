@@ -1,12 +1,10 @@
 module gitee.com/i-Things/share
 
-go 1.21
-
-replace github.com/Masterminds/squirrel => github.com/i-Things/squirrel v1.20.2
+go 1.21.4
 
 require (
+	gitee.com/i-Things/squirrel v1.20.4
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible
-	github.com/Masterminds/squirrel v1.20.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.6
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6
 	github.com/alibabacloud-go/tea v1.2.1
