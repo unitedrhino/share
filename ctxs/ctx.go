@@ -289,7 +289,7 @@ func NewUserCtx(ctx context.Context) context.Context {
 
 func IsRoot(ctx context.Context) error {
 	uc := GetUserCtx(ctx)
-	if uc == nil || uc.TenantCode != def.TenantCodeDefault || !uc.IsSuperAdmin {
+	if uc == nil || uc.TenantCode != def.TenantCodeDefault || !uc.IsAdmin {
 		return errors.Permissions.AddDetailf("需要超管才能操作")
 	}
 	return nil
