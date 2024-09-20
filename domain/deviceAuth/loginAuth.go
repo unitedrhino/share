@@ -42,9 +42,10 @@ type (
 	}
 )
 
+// 生成 MQTT 的 username 部分, 格式为 ${clientid};${sdkappid};${connid};${expiry}
 func GetLoginDevice(userName string) (*LoginDevice, error) {
 	keys := strings.Split(userName, ";")
-	if len(keys) != 4 || len(keys[0]) < 11 {
+	if len(keys) != 4 {
 		return nil, errors.Parameter.AddDetail("userName not right")
 	}
 	lg, err := GetClientIDInfo(keys[0])
