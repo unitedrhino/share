@@ -27,4 +27,5 @@ const (
 	NotifyTypeWxEWebhook  NotifyType = "wxEWebHook"  //企业微信webhook
 	NotifyTypeMessage     NotifyType = "message"     //站内信通知
 	NotifyTypePhoneCall   NotifyType = "phoneCall"   //电话通知
+	NotifyTypeWxApp       NotifyType = "wxCorApp"    //企业微信app消息
 )
