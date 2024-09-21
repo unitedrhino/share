@@ -15,7 +15,7 @@ type OssConf struct {
 	PrivateBucketName   string
 	Location            string
 	UseSSL              bool   `json:",optional"`
-	CustomHost          string `json:",default=/api/v1/oss,env=OssCustomHost"`
+	CustomHost          string `json:",default=/oss,env=OssCustomHost"`
 	CustomPath          string `json:",default=/oss,optional"`
 	ConnectTimeout      int64
 	ReadWriteTimeout    int64
