@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	ProductIdLen = 11
+	ProductIDLen = 11
 	HmacSha256   = "hmacsha256"
 	HmacSha1     = "hmacsha1"
 )
@@ -83,12 +83,12 @@ func GetClientIDInfo(ClientID string) (*LoginDevice, error) {
 		return lg, nil
 	default:
 		// 兼容老的clientID
-		if len(ClientID) < ProductIdLen {
+		if len(ClientID) < ProductIDLen {
 			return nil, errors.Parameter.AddDetail("clientID length not enough")
 		}
 		lg := &LoginDevice{
-			ProductID:  ClientID[0:ProductIdLen],
-			DeviceName: ClientID[ProductIdLen:],
+			ProductID:  ClientID[0:ProductIDLen],
+			DeviceName: ClientID[ProductIDLen:],
 		}
 		return lg, nil
 	}
@@ -151,7 +151,7 @@ func GenSecretDeviceInfo(hmacType string, productID string, deviceName string, d
 		token  string
 		pwd, _ = base64.StdEncoding.DecodeString(deviceSecret)
 	)
-	clientID = productID + deviceName
+	clientID = productID + "&" + deviceName
 	userName = fmt.Sprintf("%s;12010126;%s;%d", clientID, connID, expiry)
 	if hmacType == HmacSha1 {
 		token = utils.HmacSha1(userName, pwd)
