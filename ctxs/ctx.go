@@ -242,6 +242,11 @@ func WithDefaultRoot(ctx context.Context) context.Context {
 	return WithRoot(ctx)
 }
 
+func IsTenantDefault(ctx context.Context) bool {
+	uc := GetUserCtxNoNil(ctx)
+	return uc.TenantCode == def.TenantCodeDefault
+}
+
 // 如果是管理员,且没有传项目id,则直接给所有项目权限
 func WithDefaultAllProject(ctx context.Context) context.Context {
 	uc := GetUserCtxNoNil(ctx)
