@@ -147,6 +147,16 @@ func init() {
 	)
 	converters = append(converters, floatCopy...)
 
+	var (
+		mapString map[string]string
+		mapCopy   = []copier.TypeConverter{
+			{SrcType: mapString, DstType: mapString, Fn: func(src interface{}) (dst interface{}, err error) {
+				return src, nil
+			}},
+		}
+	)
+	converters = append(converters, mapCopy...)
+
 }
 
 func AddConverter(in ...copier.TypeConverter) {
