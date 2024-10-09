@@ -42,19 +42,24 @@ ${productID}/${deviceName}/xxxxx	订阅和发布   //自定义 暂不做支持
 
 const (
 	TopicHeadThing   = "$thing"
-	Thing            = "thing"
 	TopicHeadOta     = "$ota"
-	Ota              = "ota"
 	TopicHeadConfig  = "$config"
-	Config           = "config"
 	TopicHeadLog     = "$log"
-	Log              = "log"
 	TopicHeadShadow  = "$shadow"
-	Shadow           = "shadow"
 	TopicHeadGateway = "$gateway"
-	Gateway          = "gateway"
 	TopicHeadExt     = "$ext"
-	Ext              = "ext"
+)
+
+type MsgHandle = string
+
+const (
+	Thing   MsgHandle = "thing"
+	Ota     MsgHandle = "ota"
+	Config  MsgHandle = "config"
+	Log     MsgHandle = "log"
+	Shadow  MsgHandle = "shadow"
+	Gateway MsgHandle = "gateway"
+	Ext     MsgHandle = "ext"
 )
 
 // 设备通信流向

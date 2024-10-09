@@ -82,7 +82,7 @@ type MutSubReq struct {
 	Rh    int    `json:"rh"`
 }
 
-func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics []string) error {
+func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics []string, qos int) error {
 	logx.WithContext(ctx).Infof("SetClientMut clientID:%v,topics:%v", clientID, topics)
 	ts, err := m.GetClientSub(ctx, clientID)
 	if err != nil {
@@ -112,7 +112,7 @@ func (m MqttClient) SetClientMutSub(ctx context.Context, clientID string, topics
 	for _, v := range topics {
 		req = append(req, &MutSubReq{
 			Topic: v,
-			Qos:   0,
+			Qos:   qos,
 		})
 	}
 	var errs []error

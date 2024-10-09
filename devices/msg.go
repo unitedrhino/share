@@ -51,12 +51,12 @@ type (
 	}
 	// InnerPublish 用于其他服务 发送给ddsvr 转发给设备的
 	InnerPublish struct {
-		Handle       string `json:"handle"` //对应 mqtt topic的第一个 thing ota config 等等
-		Type         string `json:"type"`   // 操作类型 从topic中提取 物模型下就是   property属性 event事件 action行为
-		Payload      []byte `json:"payload"`
-		ProductID    string `json:"productID"`
-		DeviceName   string `json:"deviceName"`
-		ProtocolCode string `json:"protocolCode"`
+		Handle       MsgHandle `json:"handle"` //对应 mqtt topic的第一个 thing ota config 等等
+		Type         string    `json:"type"`   // 操作类型 从topic中提取 物模型下就是   property属性 event事件 action行为
+		Payload      []byte    `json:"payload"`
+		ProductID    string    `json:"productID"`
+		DeviceName   string    `json:"deviceName"`
+		ProtocolCode string    `json:"protocolCode"`
 	}
 )
 
