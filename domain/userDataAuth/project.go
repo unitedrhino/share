@@ -1,6 +1,6 @@
 package userDataAuth
 
-import "gitee.com/i-Things/share/def"
+import "gitee.com/unitedrhino/share/def"
 
 type Project struct {
 	ProjectID int64

@@ -3,8 +3,8 @@ package stores
 import (
 	"context"
 	"database/sql/driver"
-	"gitee.com/i-Things/share/ctxs"
-	"gitee.com/i-Things/share/utils"
+	"gitee.com/unitedrhino/share/ctxs"
+	"gitee.com/unitedrhino/share/utils"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"

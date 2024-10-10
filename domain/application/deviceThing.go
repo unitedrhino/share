@@ -2,10 +2,10 @@ package application
 
 import (
 	"encoding/json"
-	"gitee.com/i-Things/share/devices"
-	"gitee.com/i-Things/share/domain/deviceMsg"
-	"gitee.com/i-Things/share/domain/deviceMsg/msgOta"
-	"gitee.com/i-Things/share/domain/schema"
+	"gitee.com/unitedrhino/share/devices"
+	"gitee.com/unitedrhino/share/domain/deviceMsg"
+	"gitee.com/unitedrhino/share/domain/deviceMsg/msgOta"
+	"gitee.com/unitedrhino/share/domain/schema"
 	"github.com/spf13/cast"
 )
 

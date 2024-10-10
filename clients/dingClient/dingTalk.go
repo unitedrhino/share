@@ -2,8 +2,8 @@ package dingClient
 
 import (
 	"encoding/json"
-	"gitee.com/i-Things/share/conf"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/errors"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/zhaoyunxing92/dingtalk/v2"

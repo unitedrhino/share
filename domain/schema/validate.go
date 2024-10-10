@@ -2,9 +2,9 @@ package schema
 
 import (
 	"encoding/json"
-	"gitee.com/i-Things/share/utils"
+	"gitee.com/unitedrhino/share/utils"
 
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/errors"
 	"github.com/spf13/cast"
 )
 

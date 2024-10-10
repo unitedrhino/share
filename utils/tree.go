@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"gitee.com/i-Things/share/def"
+	"gitee.com/unitedrhino/share/def"
 	"github.com/spf13/cast"
 	"strings"
 )

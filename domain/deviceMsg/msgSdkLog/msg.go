@@ -1,11 +1,11 @@
 package msgSdkLog
 
 import (
-	"gitee.com/i-Things/share/domain/deviceMsg"
+	"gitee.com/unitedrhino/share/domain/deviceMsg"
 	"time"
 
-	"gitee.com/i-Things/share/def"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/def"
+	"gitee.com/unitedrhino/share/errors"
 )
 
 type (

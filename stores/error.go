@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/errors"
 	"gorm.io/gorm"
 	"strings"
 )

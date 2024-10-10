@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gitee.com/i-Things/share/domain/userDataAuth"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/domain/userDataAuth"
+	"gitee.com/unitedrhino/share/errors"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 )
 

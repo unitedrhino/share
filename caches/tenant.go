@@ -3,7 +3,7 @@ package caches
 import (
 	"context"
 	"encoding/json"
-	"gitee.com/i-Things/share/domain/tenant"
+	"gitee.com/unitedrhino/share/domain/tenant"
 )
 
 // 生产用户数据权限缓存key

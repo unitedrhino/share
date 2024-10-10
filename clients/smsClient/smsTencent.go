@@ -1,7 +1,7 @@
 package smsClient
 
 import (
-	"gitee.com/i-Things/share/conf"
+	"gitee.com/unitedrhino/share/conf"
 
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"

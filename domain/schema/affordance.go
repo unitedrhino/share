@@ -1,6 +1,6 @@
 package schema
 
-import "gitee.com/i-Things/share/utils"
+import "gitee.com/unitedrhino/share/utils"
 
 // 物模型功能类型 1:property属性 2:event事件 3:action行为
 type AffordanceType int64

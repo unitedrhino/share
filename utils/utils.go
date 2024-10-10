@@ -4,7 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/errors"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/zeromicro/go-zero/core/logx"
 	"math/big"

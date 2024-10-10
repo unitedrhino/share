@@ -1,9 +1,9 @@
 package deviceAuth
 
 import (
-	"gitee.com/i-Things/share/devices"
-	"gitee.com/i-Things/share/domain/deviceMsg/msgExt"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/devices"
+	"gitee.com/unitedrhino/share/domain/deviceMsg/msgExt"
+	"gitee.com/unitedrhino/share/errors"
 )
 
 type (

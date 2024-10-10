@@ -5,8 +5,8 @@ import (
 	"io"
 	"strconv"
 
-	"gitee.com/i-Things/share/conf"
-	"gitee.com/i-Things/share/oss/common"
+	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/oss/common"
 	aliOss "github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 

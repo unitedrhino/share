@@ -3,7 +3,7 @@ package barrier
 import (
 	"context"
 	"database/sql"
-	"gitee.com/i-Things/share/stores"
+	"gitee.com/unitedrhino/share/stores"
 	"github.com/dtm-labs/client/dtmgrpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

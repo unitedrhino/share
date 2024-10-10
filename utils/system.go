@@ -2,7 +2,7 @@ package utils
 
 //
 //import (
-//	"gitee.com/i-Things/share/utils/notify"
+//	"gitee.com/unitedrhino/share/utils/notify"
 //	"sync/atomic"
 //)
 //

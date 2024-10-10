@@ -2,7 +2,7 @@ package websocket
 
 import (
 	"context"
-	"gitee.com/i-Things/share/utils"
+	"gitee.com/unitedrhino/share/utils"
 	"github.com/mitchellh/mapstructure"
 	"github.com/zeromicro/go-zero/core/logx"
 )

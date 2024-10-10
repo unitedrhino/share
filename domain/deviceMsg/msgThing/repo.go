@@ -3,11 +3,11 @@ package msgThing
 
 import (
 	"context"
-	"gitee.com/i-Things/share/def"
-	"gitee.com/i-Things/share/domain/schema"
-	"gitee.com/i-Things/share/errors"
-	"gitee.com/i-Things/share/stores"
-	"gitee.com/i-Things/share/utils"
+	"gitee.com/unitedrhino/share/def"
+	"gitee.com/unitedrhino/share/domain/schema"
+	"gitee.com/unitedrhino/share/errors"
+	"gitee.com/unitedrhino/share/stores"
+	"gitee.com/unitedrhino/share/utils"
 	"github.com/zeromicro/go-zero/core/jsonx"
 	"time"
 )

@@ -2,11 +2,11 @@ package oss
 
 import (
 	"context"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/errors"
 	"sync"
 
-	"gitee.com/i-Things/share/conf"
-	"gitee.com/i-Things/share/oss/common"
+	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/oss/common"
 )
 
 type Client struct {

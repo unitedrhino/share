@@ -4,8 +4,8 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"gitee.com/i-Things/share/devices"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/devices"
+	"gitee.com/unitedrhino/share/errors"
 	"github.com/google/uuid"
 	"github.com/parnurzeal/gorequest"
 	"github.com/spf13/cast"
@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"gitee.com/i-Things/share/conf"
-	"gitee.com/i-Things/share/utils"
+	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/utils"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/zeromicro/go-zero/core/logx"
 )

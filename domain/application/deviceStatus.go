@@ -1,8 +1,8 @@
 package application
 
 import (
-	"gitee.com/i-Things/share/def"
-	"gitee.com/i-Things/share/devices"
+	"gitee.com/unitedrhino/share/def"
+	"gitee.com/unitedrhino/share/devices"
 )
 
 // 连接和断连消息信息

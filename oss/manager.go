@@ -1,8 +1,8 @@
 package oss
 
 import (
-	"gitee.com/i-Things/share/conf"
-	"gitee.com/i-Things/share/def"
+	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/def"
 )
 
 func newOssManager(setting conf.OssConf) (sm Handle, err error) {

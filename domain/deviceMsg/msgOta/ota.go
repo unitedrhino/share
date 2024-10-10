@@ -1,8 +1,8 @@
 package msgOta
 
 import (
-	"gitee.com/i-Things/share/domain/deviceMsg"
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/domain/deviceMsg"
+	"gitee.com/unitedrhino/share/errors"
 )
 
 const (

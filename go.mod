@@ -1,4 +1,4 @@
-module gitee.com/i-Things/share
+module gitee.com/unitedrhino/share
 
 go 1.21.4
 

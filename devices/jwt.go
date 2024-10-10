@@ -1,7 +1,7 @@
 package devices
 
 import (
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/errors"
 	//"github.com/dgrijalva/jwt-go"
 	"github.com/golang-jwt/jwt/v5"
 	"time"

@@ -2,7 +2,7 @@ package wxClient
 
 import (
 	"context"
-	"gitee.com/i-Things/share/conf"
+	"gitee.com/unitedrhino/share/conf"
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/credential"

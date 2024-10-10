@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"gitee.com/i-Things/share/ctxs"
+	"gitee.com/unitedrhino/share/ctxs"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"

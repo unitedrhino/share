@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"gitee.com/i-Things/share/oss/common"
+	"gitee.com/unitedrhino/share/oss/common"
 )
 
 type Handle interface {

@@ -3,7 +3,7 @@ package utils
 import (
 	"crypto/tls"
 	"fmt"
-	"gitee.com/i-Things/share/conf"
+	"gitee.com/unitedrhino/share/conf"
 	"github.com/jordan-wright/email"
 	"net/smtp"
 )

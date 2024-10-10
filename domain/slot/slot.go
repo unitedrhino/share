@@ -2,10 +2,10 @@ package slot
 
 import (
 	"context"
-	"gitee.com/i-Things/share/ctxs"
-	"gitee.com/i-Things/share/errors"
-	"gitee.com/i-Things/share/result"
-	"gitee.com/i-Things/share/utils"
+	"gitee.com/unitedrhino/share/ctxs"
+	"gitee.com/unitedrhino/share/errors"
+	"gitee.com/unitedrhino/share/result"
+	"gitee.com/unitedrhino/share/utils"
 	"github.com/parnurzeal/gorequest"
 	"github.com/spf13/cast"
 	"html/template"

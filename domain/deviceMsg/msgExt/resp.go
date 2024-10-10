@@ -1,7 +1,7 @@
 package msgExt
 
 import (
-	"gitee.com/i-Things/share/domain/deviceMsg"
+	"gitee.com/unitedrhino/share/domain/deviceMsg"
 	"time"
 )
 

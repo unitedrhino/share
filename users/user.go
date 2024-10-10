@@ -1,6 +1,6 @@
 package users
 
-import "gitee.com/i-Things/share/utils"
+import "gitee.com/unitedrhino/share/utils"
 
 type RegType = string
 

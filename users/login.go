@@ -1,7 +1,7 @@
 package users
 
 import (
-	"gitee.com/i-Things/share/errors"
+	"gitee.com/unitedrhino/share/errors"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )

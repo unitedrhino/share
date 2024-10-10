@@ -2,8 +2,8 @@ package stores
 
 import (
 	"fmt"
-	"gitee.com/i-Things/share/conf"
-	"gitee.com/i-Things/share/utils"
+	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/utils"
 	"gorm.io/gorm"
 )
 
