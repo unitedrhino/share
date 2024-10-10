@@ -4,16 +4,16 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	_ "gitee.com/unitedrhino/driver-go/v3/taosRestful"
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/utils"
-	_ "github.com/i-Things/driver-go/v3/taosRestful"
 	"math/rand"
 	"strings"
 	"time"
 
 	//tdengine 的cgo模式，这个模式是最快的，需要可以打开
-	//_ "github.com/i-Things/driver-go/v3/taosSql"
-	_ "github.com/i-Things/driver-go/v3/taosWS"
+	//_ "gitee.com/unitedrhino/driver-go/v3/taosSql"
+	_ "gitee.com/unitedrhino/driver-go/v3/taosWS"
 	"github.com/zeromicro/go-zero/core/logx"
 	"sync"
 )

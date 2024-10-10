@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 	"time"
 
-	sq "gitee.com/i-Things/squirrel"
+	sq "gitee.com/unitedrhino/squirrel"
 )
 
 type PageInfo2 struct {
