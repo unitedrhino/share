@@ -45,7 +45,7 @@ func NewMqttClient(conf *conf.MqttConf) (mcs *MqttClient, err error) {
 			var tryTime = 5
 			for i := tryTime; i > 0; i-- {
 				mc, err = initMqtt(conf)
-				if err != nil { //出现并发情况的时候可能iThings的http还没启动完毕
+				if err != nil { //出现并发情况的时候可能联犀的http还没启动完毕
 					logx.Errorf("mqtt 连接失败 重试剩余次数:%v", i-1)
 					time.Sleep(time.Second * time.Duration(tryTime) / time.Duration(i))
 					continue
