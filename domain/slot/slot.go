@@ -29,10 +29,6 @@ const (
 	SubCodePropertyControlSend = "propertyControlSend"
 )
 
-const (
-	SlotCodeIthings = "ithings"
-)
-
 type Info struct {
 	Code     string            `json:"code"` // 鉴权的编码
 	SubCode  string            `json:"subCode"`

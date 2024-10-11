@@ -7,5 +7,5 @@ var TimerPriority = map[int64]string{
 }
 
 const (
-	TimedIThingsQueueGroupCode = "iThings-queue"
+	TimedUnitedRhinoQueueGroupCode = "unitedRhino-queue"
 )
