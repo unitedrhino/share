@@ -8,7 +8,7 @@ const (
 )
 
 const (
-	ProtocolCodeUnitedRhino  = "unitedRhino"
+	ProtocolCodeUnitedRhino  = "iThings"
 	ProtocolCodeAliyunCloud  = "aliyunCloud"
 	ProtocolCodeAliyunMqtt   = "aliyunMqtt"
 	ProtocolCodeTencentCloud = "tencentCloud"
