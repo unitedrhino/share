@@ -51,14 +51,17 @@ type (
 		DeviceName string
 		DataID     string
 	}
+	Optional struct {
+		Sync bool //同步执行
+	}
 
 	SchemaDataRepo interface {
 		// InsertEventData 插入事件数据
 		InsertEventData(ctx context.Context, productID string, deviceName string, event *EventData) error
 		// InsertPropertyData 插入一条属性数据
-		InsertPropertyData(ctx context.Context, t *schema.Property, productID string, deviceName string, property *Param, timestamp time.Time) error
+		InsertPropertyData(ctx context.Context, t *schema.Property, productID string, deviceName string, property *Param, timestamp time.Time, optional Optional) error
 		// InsertPropertiesData 插入多条属性数据 params key为属性的id,val为属性的值
-		InsertPropertiesData(ctx context.Context, t *schema.Model, productID string, deviceName string, params map[string]Param, timestamp time.Time) error
+		InsertPropertiesData(ctx context.Context, t *schema.Model, productID string, deviceName string, params map[string]Param, timestamp time.Time, optional Optional) error
 		// GetEventDataWithID 根据事件id获取事件信息
 		GetEventDataByFilter(ctx context.Context, filter FilterOpt) ([]*EventData, error)
 		GetEventCountByFilter(ctx context.Context, filter FilterOpt) (int64, error)
