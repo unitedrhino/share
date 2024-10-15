@@ -6,6 +6,7 @@ import (
 	"gitee.com/unitedrhino/share/conf"
 	"github.com/jordan-wright/email"
 	"net/smtp"
+	"strings"
 )
 
 func SenEmail(c conf.Email, to []string, subject string, body string) error {
@@ -28,6 +29,9 @@ func SenEmail(c conf.Email, to []string, subject string, body string) error {
 		err = e.SendWithTLS(hostAddr, auth, &tls.Config{ServerName: c.Host})
 	} else {
 		err = e.Send(hostAddr, auth)
+	}
+	if strings.HasPrefix(err.Error(), "short response:") {
+		return nil
 	}
 	return err
 }

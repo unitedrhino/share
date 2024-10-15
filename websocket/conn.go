@@ -35,7 +35,7 @@ var (
 
 const (
 	errorCount    = 5                     //错误次数
-	interval      = 5 * time.Second       //心跳间隔
+	interval      = 10 * time.Second      //心跳间隔
 	keepAliveType = websocket.PingMessage //心跳类型
 )
 
