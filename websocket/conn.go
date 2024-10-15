@@ -3,7 +3,6 @@ package websocket
 import (
 	"bytes"
 	"context"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"gitee.com/unitedrhino/share/ctxs"
@@ -50,9 +49,7 @@ type connection struct {
 	userSubscribe map[string]any
 	closed        bool        //ws连接已关闭
 	send          chan []byte //发送信息管道
-	pingErrs      []int64     //发送的心跳失败次数
-	pongErrs      []int64     //收到的心跳失败次数
-	pingPongMutex sync.Mutex
+	pingErr       atomic.Int64
 }
 
 // ws调度器
@@ -142,69 +139,47 @@ func newDp(s2cGzip bool) *dispatcher {
 // 读ping心跳
 func (c *connection) pingRead(message []byte) error {
 	logx.Infof("websocket pingRead message:%s userID:%v", string(message), c.userID)
-	if utils.SliceIn(int64(binary.BigEndian.Uint64(message)), c.pingErrs...) {
-		func() {
-			c.pingPongMutex.Lock()
-			defer c.pingPongMutex.Unlock()
-			c.pingErrs = []int64{}
-		}()
-	} else {
-		c.writeMessage(websocket.PingMessage, []byte("ping error message :"+string(message)))
-	}
+	c.pingErr.Store(0)
+
 	return nil
 }
 
 // 读pong心跳
 func (c *connection) pongRead(message []byte) error {
 	logx.Infof("websocket pongRead message:%s userID:%v", string(message), c.userID)
-	if utils.SliceIn(int64(binary.BigEndian.Uint64(message)), c.pingErrs...) {
-		func() {
-			c.pingPongMutex.Lock()
-			defer c.pingPongMutex.Unlock()
-			c.pongErrs = []int64{}
-		}()
-	} else {
-		c.writeMessage(websocket.PongMessage, []byte("pong error message :"+string(message)))
-	}
+	c.pingErr.Store(0)
 	return nil
 }
 
 // 发送ping心跳
 func (c *connection) pingSend() error {
-	c.pingPongMutex.Lock()
-	defer c.pingPongMutex.Unlock()
-	if len(c.pingErrs) >= errorCount || len(c.pongErrs) >= errorCount {
-		logx.Infof("websocket connection timeout userID:%v connectID:%v pingErrs:%v pongErrs:%v", c.userID, c.connectID, c.pingErrs, c.pongErrs)
+	e := c.pingErr.Load()
+	if e >= errorCount {
+		logx.Infof("websocket connection timeout userID:%v connectID:%v pingErr:%v ", c.userID, c.connectID, e)
 		//连续5次没有收到ping心跳 关闭连接
 		return errors.System.AddMsg("connection timeout")
 	}
 	nowTime := []byte(strconv.FormatInt(time.Now().Unix(), 10))
 	if err := c.writeMessage(websocket.PingMessage, nowTime); err != nil {
-		c.pingErrs = append(c.pingErrs, int64(binary.BigEndian.Uint64(nowTime)))
-	} else {
-		c.pingErrs = []int64{}
-		c.pongErrs = append(c.pongErrs, int64(binary.BigEndian.Uint64(nowTime)))
+		logx.Infof("websocket PingMessage userID:%v connectID:%v err:%v ", c.userID, c.connectID, err)
 	}
+	c.pingErr.Add(1)
 	return nil
 }
 
 // 发送pong心跳
 func (c *connection) pongSend() error {
-	c.pingPongMutex.Lock()
-	defer c.pingPongMutex.Unlock()
-	if len(c.pingErrs) >= errorCount || len(c.pongErrs) >= errorCount {
-		logx.Infof("websocket connection timeout userID:%v connectID:%v pingErrs:%v pongErrs:%v", c.userID, c.connectID, c.pingErrs, c.pongErrs)
-
+	e := c.pingErr.Load()
+	if e >= errorCount {
+		logx.Infof("websocket connection timeout userID:%v connectID:%v pingErr:%v ", c.userID, c.connectID, e)
 		//连续5次没有收到pong心跳 关闭连接
 		return errors.System.AddMsg("connection timeout")
 	}
 	nowTime := []byte(strconv.FormatInt(time.Now().Unix(), 10))
 	if err := c.writeMessage(websocket.PongMessage, nowTime); err != nil {
-		c.pongErrs = append(c.pongErrs, int64(binary.BigEndian.Uint64(nowTime)))
-	} else {
-		c.pongErrs = []int64{}
-		c.pingErrs = append(c.pingErrs, int64(binary.BigEndian.Uint64(nowTime)))
+		logx.Infof("websocket PongMessage userID:%v connectID:%v err:%v ", c.userID, c.connectID, err)
 	}
+	c.pingErr.Add(1)
 	return nil
 }
 
@@ -274,12 +249,7 @@ func (c *connection) StartRead() {
 			c.errorSend(errors.Type.AddDetail("error reading message"))
 			continue
 		}
-		func() {
-			c.pingPongMutex.Lock()
-			defer c.pingPongMutex.Unlock()
-			c.pongErrs = []int64{}
-			c.pingErrs = []int64{}
-		}()
+		c.pingErr.Store(0)
 		c.handleRequest(message)
 	}
 }
