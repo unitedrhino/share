@@ -3,8 +3,9 @@ package def
 type NotifyCode = string
 
 const (
-	NotifyCodeSysUserLoginCaptcha    NotifyCode = "sysUserLoginCaptcha"
-	NotifyCodeSysUserRegisterCaptcha NotifyCode = "sysUserRegisterCaptcha"
+	NotifyCodeSysUserLoginCaptcha     NotifyCode = "sysUserLoginCaptcha"
+	NotifyCodeSysUserRegisterCaptcha  NotifyCode = "sysUserRegisterCaptcha"
+	NotifyCodeSysUserChangePwdCaptcha NotifyCode = "sysUserChangePwdCaptcha"
 
 	NotifyCodeRuleScene   NotifyCode = "ruleScene"       //场景联动通知
 	NotifyCodeDeviceAlarm NotifyCode = "ruleDeviceAlarm" //设备告警通知
