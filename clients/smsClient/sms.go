@@ -127,7 +127,7 @@ func (s *Sms) SendSmsTencent(ctx context.Context, param SendSmsParam) error {
 	}
 	b, _ := json.Marshal(response.Response)
 	// 打印返回的json字符串
-	fmt.Printf("%s", b)
+	logx.WithContext(ctx).Info(string(b))
 
 	/* 当出现以下错误码时，快速解决方案参考
 	 * [FailedOperation.SignatureIncorrectOrUnapproved](https://cloud.tencent.com/document/product/382/9558#.E7.9F.AD.E4.BF.A1.E5.8F.91.E9.80.81.E6.8F.90.E7.A4.BA.EF.BC.9Afailedoperation.signatureincorrectorunapproved-.E5.A6.82.E4.BD.95.E5.A4.84.E7.90.86.EF.BC.9F)
