@@ -71,6 +71,7 @@ const (
 	ApplicationDeviceReportThingPropertyAllDevice = "application.device.*.*.report.thing.property.>"
 	ApplicationDeviceStatusConnectedAllDevice     = "application.device.*.*.status.connected"
 	ApplicationDeviceStatusDisConnectedAllDevice  = "application.device.*.*.status.disconnected"
+	ApplicationDeviceStatusAllDevice              = "application.device.*.*.status.>"
 )
 
 // 服务自己的消息
