@@ -1,10 +1,14 @@
-package clients
+package wxClient
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	ctx2 "github.com/silenceper/wechat/v2/work/context"
+	"github.com/silenceper/wechat/v2/work/robot"
+	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"net/http"
 	"net/url"
@@ -181,4 +185,37 @@ func (c *WxCorAppClient) GetUserInfo(code string) (string, error) {
 func (c *WxCorAppClient) GetAuthUrl(redirectUri string, state string, agentID string) string {
 	auth_url := wx_auth_url + "?appid=" + c.CorpID + "&redirect_uri=" + url.QueryEscape(redirectUri) + "&response_type=code&scope=snsapi_base&state=" + url.QueryEscape(state) + "&agentid=" + agentID + "#wechat_redirect"
 	return auth_url
+}
+
+func SendRobotMsg(ctx context.Context, token string, msg string) error {
+	u, err := url.Parse(token)
+	if err == nil {
+		params, err := url.ParseQuery(u.RawQuery)
+		if err != nil {
+			return err
+		}
+		token = params.Get("key")
+	}
+	ret, err := robot.NewClient(&ctx2.Context{
+		Config:            nil,
+		AccessTokenHandle: nil,
+	}).RobotBroadcast(token, robot.WebhookSendTextOption{
+		MsgType: "text",
+		Text: struct {
+			Content             string   `json:"content"`
+			MentionedList       []string `json:"mentioned_list"`
+			MentionedMobileList []string `json:"mentioned_mobile_list"`
+		}(struct {
+			Content             string
+			MentionedList       []string
+			MentionedMobileList []string
+		}{
+			Content: msg,
+		}),
+	})
+	if err != nil {
+		logx.WithContext(ctx).Errorf("SendRobotMsg ret:%v err:%v", ret, err)
+		return err
+	}
+	return nil
 }
