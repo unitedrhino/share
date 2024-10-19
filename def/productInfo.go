@@ -10,12 +10,14 @@ const (
 type Net = int64
 
 const (
-	NetOther Net = 1 //其他
-	NetWifi  Net = 2 //wi-fi
-	NetG234  Net = 3 //2G/3G/4G
-	NetG5    Net = 4 //5G
-	NetBle   Net = 5 //蓝牙
-	NetLora  Net = 6 //LoRaWAN
+	NetOther   Net = 1 //其他
+	NetWifi    Net = 2 //wi-fi
+	NetG234    Net = 3 //2G/3G/4G
+	NetG5      Net = 4 //5G
+	NetBle     Net = 5 //蓝牙
+	NetLora    Net = 6 //LoRaWAN
+	NetWifiBle Net = 6 //Wifi+ble
+	NetWired   Net = 7 //有线网
 )
 
 type DeviceType = int64

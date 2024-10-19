@@ -10,14 +10,14 @@ import (
 type (
 	// Model 物模型协议-数据模板定义
 	Model struct {
-		Version    string      `json:"version"`    //版本号
-		Properties Properties  `json:"properties"` //属性
-		Events     Events      `json:"events"`     //事件
-		Actions    Actions     `json:"actions"`    //行为
-		Profile    Profile     `json:"profile"`    //配置信息
-		Property   PropertyMap `json:"-"`          //内部使用,使用map加速匹配,key为id
-		Event      EventMap    `json:"-"`          //内部使用,使用map加速匹配,key为id
-		Action     ActionMap   `json:"-"`          //内部使用,使用map加速匹配,key为id
+		Version    string      `json:"version,omitempty"`    //版本号
+		Properties Properties  `json:"properties,omitempty"` //属性
+		Events     Events      `json:"events,omitempty"`     //事件
+		Actions    Actions     `json:"actions,omitempty"`    //行为
+		Profile    Profile     `json:"profile"`              //配置信息
+		Property   PropertyMap `json:"-"`                    //内部使用,使用map加速匹配,key为id
+		Event      EventMap    `json:"-"`                    //内部使用,使用map加速匹配,key为id
+		Action     ActionMap   `json:"-"`                    //内部使用,使用map加速匹配,key为id
 	}
 	CommonParam struct {
 		Identifier        string `json:"identifier"`        //标识符 (统一)
@@ -109,6 +109,11 @@ func (m *Model) String() string {
 	tls, _ := json.Marshal(m)
 	return string(tls)
 }
+
+func (m *Model) ToSimple() *ModelSimple {
+	return utils.Copy[ModelSimple](m)
+}
+
 func (d *Define) String() string {
 	if d == nil {
 		return "{}"
