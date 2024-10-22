@@ -2,8 +2,9 @@ package eventBus
 
 // 服务自己的消息
 const (
-	SysProjectInfoDelete = "server.core.sys.project.info.delete"
-	SysAreaInfoDelete    = "server.core.sys.area.info.delete"
+	SysProjectInfoDelete      = "server.core.sys.project.info.delete"
+	SysAreaInfoDelete         = "server.core.sys.area.info.delete"
+	SysCoreOpsWorkOrderFinish = "server.core.sys.ops.workOrder.finish"
 
 	DmDeviceInfoUnbind         = "server.things.dm.device.info.unbind"
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"

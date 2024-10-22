@@ -3,6 +3,7 @@ package schema
 
 import (
 	"context"
+	"gitee.com/unitedrhino/share/devices"
 	"time"
 )
 
@@ -24,5 +25,5 @@ type (
 		//GetReadInfo(ctx context.Context, productID string) (*Info, error)
 		ClearCache(ctx context.Context, productID string) error
 	}
-	GetSchemaModel func(ctx context.Context, productID string) (*Model, error)
+	GetSchemaModel func(ctx context.Context, productID devices.Core) (*Model, error)
 )

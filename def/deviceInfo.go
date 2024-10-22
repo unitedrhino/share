@@ -33,6 +33,7 @@ const (
 	DeviceStatusOffline   DeviceStatus = 3 //离线
 	DeviceStatusAbnormal  DeviceStatus = 4 //异常
 	DeviceStatusArrearage DeviceStatus = 5 //欠费
+	DeviceStatusWarming   DeviceStatus = 6 //告警中
 )
 
 type ConnStatus = int64
