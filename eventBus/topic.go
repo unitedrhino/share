@@ -8,7 +8,8 @@ const (
 	DmDeviceInfoUnbind         = "server.things.dm.device.info.unbind"
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"
 	DmDeviceOnlineStatusChange = "server.things.dm.device.onlineStatus.change"
-	DmDeviceStaticHalfHour     = "server.things.dm.device.static.halfHour" //半小时统计
+	DmDeviceStaticHalfHour     = "server.things.dm.device.static.halfHour"  //半小时统计
+	DmDeviceStaticOneMinute    = "server.things.dm.device.static.oneMinute" //1分钟统计
 	DmProductInfoDelete        = "server.things.dm.product.info.delete"
 	DmProductCustomUpdate      = "server.things.dm.product.custom.update"   //产品脚本有更新
 	DmOtaDeviceUpgradePush     = "server.things.dm.ota.device.upgrade.push" //ota设备推送
