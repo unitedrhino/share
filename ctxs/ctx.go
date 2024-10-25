@@ -34,7 +34,8 @@ type UserCtx struct {
 }
 
 type ProjectAuth struct {
-	Area map[int64]def.AuthType //key是区域ID,value是授权类型
+	Area     map[int64]def.AuthType  //key是区域ID,value是授权类型
+	AreaPath map[string]def.AuthType //key是区域ID路径,value是授权类型
 	// 1 //管理权限,可以修改别人的权限,及读写权限 管理权限不限制区域权限
 	// 2 //读权限,只能读,不能修改
 	// 3 //读写权限,可以读写该权限
@@ -57,6 +58,18 @@ func GetAreaIDs(projectID int64, in map[int64]*ProjectAuth) (authType def.AuthTy
 	}
 	authType = v.AuthType
 	for area := range v.Area {
+		areas = append(areas, area)
+	}
+	return
+}
+
+func GetAreaIDPaths(projectID int64, in map[int64]*ProjectAuth) (authType def.AuthType, areas []string) {
+	v := in[projectID]
+	if v == nil {
+		return
+	}
+	authType = v.AuthType
+	for area := range v.AreaPath {
 		areas = append(areas, area)
 	}
 	return
