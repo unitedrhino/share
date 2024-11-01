@@ -38,6 +38,7 @@ type (
 	FilterOpt struct {
 		Page        def.PageInfo2
 		ProductID   string
+		DeviceName  string
 		DeviceNames []string
 		DataID      string
 		Types       []string     //事件类型: 信息:info  告警alert  故障:fault
@@ -77,6 +78,7 @@ type (
 		InitDevice(ctx context.Context, t *schema.Model, productID string, deviceName string) error
 		// DeleteDevice 删除设备时需要删除设备的所有表
 		DeleteDevice(ctx context.Context, t *schema.Model, productID string, deviceName string) error
+		DeleteDeviceProperty(ctx context.Context, productID string, deviceName string, s []schema.Property) error
 		// UpdateProduct 修改产品物模型 只支持新增和删除,不支持修改数据类型
 		//UpdateProduct(ctx context.Context, oldT *schema.Model, newt *schema.Model, productID string) error
 		CreateProperty(ctx context.Context, p *schema.Property, productID string) error

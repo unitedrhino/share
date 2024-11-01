@@ -36,6 +36,18 @@ func ValidateWithFmt(schemaStr []byte) (*Model, error) {
 	return schema.init(), err
 }
 
+func (m *Model) Aggregation(m2 *Model) {
+	for _, v := range m2.Properties {
+		m.Properties = append(m.Properties, v)
+	}
+	for _, v := range m2.Events {
+		m.Events = append(m.Events, v)
+	}
+	for _, v := range m2.Actions {
+		m.Actions = append(m.Actions, v)
+	}
+}
+
 func (m *Model) ValidateWithFmt() error {
 	idMap := make(map[string]struct{}, len(m.Actions)+len(m.Events)+len(m.Properties))
 	for i := range m.Properties {

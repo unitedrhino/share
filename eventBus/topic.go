@@ -46,7 +46,8 @@ const (
 	ServerCacheKeySysTenantOpenWebhook = "cache:sys:tenant:open:webhook"
 	ServerCacheKeyDmProduct            = "cache:dm:product"
 	ServerCacheKeyDmDevice             = "cache:dm:device"
-	ServerCacheKeyDmSchema             = "cache:dm:schema"
+	ServerCacheKeyDmProductSchema      = "cache:dm:product:schema"
+	ServerCacheKeyDmDeviceSchema       = "cache:dm:device:schema"
 	ServerCacheKeyDmUserShareDevice    = "cache:dm:user:share:device"
 	ServerCacheKeyDmMultiDevicesShare  = "cache:dm:user:multishare:devices"
 )
