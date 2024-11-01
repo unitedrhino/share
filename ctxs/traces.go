@@ -18,7 +18,7 @@ import (
 			dd.yaml中配置：
 			Telemetry:
 			  Name: dd.rpc                                --service name
-			  Endpoint: http://127.0.0.1:14268/api/traces --推送jaeger的已远程url地址
+			  Endpoint: http://localhost:14268/api/traces --推送jaeger的已远程url地址
 			  Sampler: 1.0                                --默认1.0
 			  Batcher: jaeger                             --可选择 jaeger或者zipkin
 		2、

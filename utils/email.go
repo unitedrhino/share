@@ -30,7 +30,7 @@ func SenEmail(c conf.Email, to []string, subject string, body string) error {
 	} else {
 		err = e.Send(hostAddr, auth)
 	}
-	if strings.HasPrefix(err.Error(), "short response:") {
+	if err != nil && strings.HasPrefix(err.Error(), "short response:") {
 		return nil
 	}
 	return err
