@@ -22,6 +22,7 @@ type (
 		Properties []*deviceMsg.TimeParams `json:"properties,omitempty"`
 		Events     []*deviceMsg.TimeParams `json:"events,omitempty"`
 		SubDevices []*SubDevice            `json:"subDevices,omitempty"`
+		Schema     string                  `json:"schema,omitempty"` //物模型
 	}
 
 	//设备基础信息
@@ -208,22 +209,31 @@ func (d *Req) VerifyReqParam(t *schema.Model, tt schema.ParamType) (map[string]P
 	return getParam, nil
 }
 
-func VerifyProperties(t *schema.Model, properties []*deviceMsg.TimeParams) ([]*TimeParam, error) {
+func VerifyProperties(t *schema.Model, properties []*deviceMsg.TimeParams) ([]*TimeParam, map[string]any, error) {
 	var ret []*TimeParam
+	var emptyParam = map[string]any{}
 	for _, p := range properties {
 		req := Req{
 			Params: p.Params,
 		}
 		param, err := req.VerifyReqParam(t, schema.ParamProperty)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
+		}
+		if len(p.Params) > len(param) { //存在上报了未定义的属性
+			for k, v := range p.Params {
+				if _, ok := param[k]; ok {
+					continue
+				}
+				emptyParam[k] = v
+			}
 		}
 		ret = append(ret, &TimeParam{
 			Timestamp: p.Timestamp,
 			Params:    param,
 		})
 	}
-	return ret, nil
+	return ret, emptyParam, nil
 }
 
 func VerifyEvents(t *schema.Model, events []*deviceMsg.TimeParams) ([]*TimeParam, error) {

@@ -68,15 +68,17 @@ const (
 		数据上行 Topic（用于发布）：$gateway/topo/${productid}/${devicename}
 		数据下行 Topic（用于订阅）：$gateway/topo/${productid}/${devicename}
 	*/
-	Bind       Method = "bind"       //绑定设备
-	Unbind     Method = "unbind"     //解绑设备
-	GetTopo    Method = "getTopo"    //查询拓扑关系
-	Change     Method = "change"     //拓扑关系变化
-	Register   Method = "register"   //注册新设备
-	GetFound   Method = "getFound"   //获取发现的子设备(可以用来绑定的设备列表)
-	GetSchema  Method = "getSchema"  //获取子设备的物模型列表
-	Found      Method = "found"      //网关上报发现子设备
-	NotifyBind Method = "notifyBind" //通知网关绑定子设备
+	Bind         Method = "bind"         //绑定设备
+	Unbind       Method = "unbind"       //解绑设备
+	GetTopo      Method = "getTopo"      //查询拓扑关系
+	Change       Method = "change"       //拓扑关系变化
+	Register     Method = "register"     //注册新设备
+	GetFound     Method = "getFound"     //获取发现的子设备(可以用来绑定的设备列表)
+	GetSchema    Method = "getSchema"    //获取子设备的物模型列表
+	CreateSchema Method = "createSchema" //创建设备物模型,需要打开对应产品的设备模型创建
+	DeleteSchema Method = "deleteSchema" //删除设备物模型,需要打开对应产品的设备模型创建
+	Found        Method = "found"        //网关上报发现子设备
+	NotifyBind   Method = "notifyBind"   //通知网关绑定子设备
 	/*
 		数据上行 Topic（用于发布）：$gateway/status/${productid}/${devicename}
 		数据下行 Topic（用于订阅）：$gateway/status/${productid}/${devicename}

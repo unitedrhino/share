@@ -315,7 +315,7 @@ func (d *Define) ValidateWithFmtFloat() error {
 	}
 	step, err := cast.ToFloat64E(d.Step)
 	if err != nil {
-		return errors.Parameter.WithMsgf("浮点型的步长定义不是数字类型:%v", d.Max)
+		return errors.Parameter.WithMsgf("浮点型的步长定义不是数字类型:%v", d.Step)
 	}
 	if step > max {
 		d.Step = cast.ToString(max)
