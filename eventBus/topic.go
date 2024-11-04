@@ -19,7 +19,11 @@ const (
 	DmProtocolInfoUpdate  = "server.things.dm.protocol.%s.update" //自定义协议配置有更新
 	UdRuleTimer           = "server.things.ud.rule.timer"
 	UdRuleTimerTenMinutes = "server.things.ud.rule.timer.tenMinutes"
-	DgOnlineTimer         = "server.things.dg.online.timer"
+
+	//最后一个参数是告警模式
+	UdRuleAlarmNotify = "server.things.ud.rule.alarm.%s" //trigger:触发告警 relieve:解除告警
+
+	DgOnlineTimer = "server.things.dg.online.timer"
 
 	SaleStaticTimer   = "server.sale.static.timer"
 	SalePayCheckTimer = "server.sale.pay.check.timer"
