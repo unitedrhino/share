@@ -27,7 +27,7 @@ func (t AreaIDPath) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Exp
 	return
 }
 func (t *AreaIDPath) Scan(value interface{}) error {
-	ret := utils.ToInt64(value)
+	ret := utils.ToString(value)
 	p := AreaIDPath(ret)
 	*t = p
 	return nil

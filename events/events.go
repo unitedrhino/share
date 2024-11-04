@@ -15,12 +15,11 @@ type MySpanContextConfig struct {
 }
 type (
 	// MsgHead 消息队列的头
-	//todo 后续考虑用proto重构这个头
 	MsgHead struct {
-		Trace     string        `json:"trace"`          //追踪tid
-		Timestamp int64         `json:"timestamp"`      //发送时毫秒级时间戳
-		Data      string        `json:"data,omitempty"` //传送的内容
-		UserCtx   *ctxs.UserCtx `json:"userCtx,omitempty"`
+		Trace     string        `json:"trace"`             //追踪tid
+		Timestamp int64         `json:"timestamp"`         //发送时毫秒级时间戳
+		Data      string        `json:"data,omitempty"`    //传送的内容
+		UserCtx   *ctxs.UserCtx `json:"userCtx,omitempty"` ////context中携带的上下文,如用户信息,租户信息等
 	}
 
 	EventHandle interface {

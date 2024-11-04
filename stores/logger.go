@@ -10,14 +10,6 @@ import (
 	"time"
 )
 
-//type Interface interface {
-//	LogMode(LogLevel) Interface
-//	Info(context.Context, string, ...interface{})
-//	Warn(context.Context, string, ...interface{})
-//	Error(context.Context, string, ...interface{})
-//	Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error)
-//}
-
 var (
 	SlowThreshold             time.Duration = 500 * time.Millisecond
 	ParameterizedQueries      bool          = false
