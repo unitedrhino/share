@@ -146,7 +146,7 @@ func (c *connection) pingRead(message []byte) error {
 
 // 读pong心跳
 func (c *connection) pongRead(message []byte) error {
-	logx.Infof("websocket pongRead message:%s userID:%v", string(message), c.userID)
+	logx.Infof("websocket pongRead message:%s userID:%v connectID:%v", string(message), c.userID, c.connectID)
 	c.pingErr.Store(0)
 	return nil
 }
