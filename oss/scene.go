@@ -37,6 +37,7 @@ const (
 	BusinessArea       = "area"       //区域
 	BusinessUserManage = "userManage" //产品管理
 	SceneHeadIng       = "headImg"    //头像
+	SceneConfigFile    = "configFile"
 )
 const (
 	BusinessTenantManage = "tenantManage"  //租户管理
