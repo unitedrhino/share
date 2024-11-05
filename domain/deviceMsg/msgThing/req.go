@@ -22,7 +22,7 @@ type (
 		Properties []*deviceMsg.TimeParams `json:"properties,omitempty"`
 		Events     []*deviceMsg.TimeParams `json:"events,omitempty"`
 		SubDevices []*SubDevice            `json:"subDevices,omitempty"`
-		Schema     string                  `json:"schema,omitempty"` //物模型
+		Schema     *schema.Model           `json:"schema,omitempty"` //物模型
 	}
 
 	//设备基础信息
