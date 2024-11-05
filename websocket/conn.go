@@ -240,6 +240,7 @@ func (c *connection) StartRead() {
 		if err != nil {
 			logx.Errorf("%s.websocket ReadMessage message:%s userID:%v connectID:%v err:%v",
 				utils.FuncName(), string(message), c.userID, c.connectID, err)
+			c.Close("read err")
 			break
 		}
 		logx.Infof("%s.websocket message:%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
