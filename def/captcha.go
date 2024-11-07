@@ -7,10 +7,11 @@ const (
 )
 
 const (
-	CaptchaUseLogin     = "login"
-	CaptchaUseRegister  = "register"
-	CaptchaUseChangePwd = "changePwd"
-	CaptchaUseForgetPwd = "forgetPwd"
+	CaptchaUseLogin       = "login"
+	CaptchaUseRegister    = "register"
+	CaptchaUseChangePwd   = "changePwd"
+	CaptchaUseBindAccount = "bindAccount"
+	CaptchaUseForgetPwd   = "forgetPwd"
 )
 
 const (
