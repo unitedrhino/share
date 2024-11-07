@@ -15,10 +15,6 @@ import (
 	"time"
 )
 
-type CacheSyncStu struct {
-	KeyType string `json:"keyType"`
-}
-
 type Cache[dataT any, keyType comparable] struct {
 	keyType    string
 	cache      otter.Cache[string, *dataT]
@@ -58,11 +54,6 @@ func NewCache[dataT any, keyType comparable](cfg CacheConfig[dataT, keyType]) (*
 	if err != nil {
 		return nil, err
 	}
-	//cache, _ := ristretto.NewCache(&ristretto.Config{
-	//	NumCounters: 1e7,     // number of keys to track frequency of (10M).
-	//	MaxCost:     1 << 30, // maximum cost of cache (1GB).
-	//	BufferItems: 64,      // number of keys per Get buffer.
-	//})
 	ret := Cache[dataT, keyType]{
 		sf:         syncx.NewSingleFlight(),
 		keyType:    cfg.KeyType,
