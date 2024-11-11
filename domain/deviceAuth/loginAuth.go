@@ -33,6 +33,7 @@ type (
 		HmacHandle func(data string, secret []byte) string
 	}
 	LoginDevice struct {
+		ClientID       string
 		ProductID      string //产品id
 		DeviceName     string //设备名称
 		SdkAppID       int64  //appid 直接填 12010126
@@ -69,6 +70,7 @@ func GetClientIDInfo(ClientID string) (*LoginDevice, error) {
 		lg := &LoginDevice{
 			ProductID:  clientIDs[0],
 			DeviceName: clientIDs[1],
+			ClientID:   ClientID,
 		}
 		return lg, nil
 	case 3:
@@ -79,6 +81,7 @@ func GetClientIDInfo(ClientID string) (*LoginDevice, error) {
 			ProductID:      clientIDs[1],
 			DeviceName:     clientIDs[2],
 			IsNeedRegister: true,
+			ClientID:       ClientID,
 		}
 		return lg, nil
 	default:
@@ -89,6 +92,7 @@ func GetClientIDInfo(ClientID string) (*LoginDevice, error) {
 		lg := &LoginDevice{
 			ProductID:  ClientID[0:ProductIDLen],
 			DeviceName: ClientID[ProductIDLen:],
+			ClientID:   ClientID,
 		}
 		return lg, nil
 	}
