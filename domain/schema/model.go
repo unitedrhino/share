@@ -111,7 +111,62 @@ func (m *Model) String() string {
 }
 
 func (m *Model) ToSimple() *ModelSimple {
-	return utils.Copy[ModelSimple](m)
+	var ret ModelSimple
+	for _, p := range m.Properties {
+		ret.Properties = append(ret.Properties, PropertySimple{
+			Identifier: p.Identifier,
+			Name:       p.Name,
+			Mode:       p.Mode,
+			Define:     p.Define.ToSimple(),
+		})
+	}
+	for _, e := range m.Events {
+		ret.Events = append(ret.Events, EventSimple{
+			Identifier: e.Identifier,
+			Name:       e.Name,
+			Type:       e.Type,
+			Params:     e.Params.ToSimple(),
+		})
+	}
+	for _, a := range m.Actions {
+		ret.Actions = append(ret.Actions, ActionSimple{
+			Identifier: a.Identifier,
+			Name:       a.Name,
+			Output:     a.Output.ToSimple(),
+			Input:      a.Input.ToSimple(),
+		})
+	}
+	return &ret
+}
+
+func (p Param) ToSimple() ParamSimple {
+	return ParamSimple{
+		Identifier: p.Identifier,
+		Name:       p.Name,
+		Define:     p.Define.ToSimple(),
+	}
+}
+func (p Params) ToSimple() ParamSimples {
+	var ret ParamSimples
+	for _, v := range p {
+		ret = append(ret, v.ToSimple())
+	}
+	return ret
+}
+
+func (d Define) ToSimple() Define {
+	ret := d
+	ret.Min = ""
+	ret.Max = ""
+	ret.Start = ""
+	ret.Step = ""
+	ret.Unit = ""
+	ret.Specs = nil
+	ret.ArrayInfo = nil
+	if d.Type == DataTypeBool {
+		ret.Mapping = nil
+	}
+	return ret
 }
 
 func (d *Define) String() string {

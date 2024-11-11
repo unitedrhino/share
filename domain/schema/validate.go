@@ -136,6 +136,9 @@ func (p *Property) ValidateWithFmt() error {
 	if err := DescValidate(p.Desc); err != nil {
 		return err
 	}
+	if p.Mode == "" {
+		p.Mode = PropertyModeRW
+	}
 	if p.Mode != PropertyModeRW && p.Mode != PropertyModeR {
 		return errors.Parameter.WithMsgf("属性读写类型只能为rw及r,收到:%v", p.Mode)
 	}
@@ -191,6 +194,12 @@ func (d *Define) ValidateWithFmt() error {
 	return errors.Parameter.WithMsgf("定义的类型不支持:%v", d.Type)
 }
 func (d *Define) ValidateWithFmtBool() error {
+	if len(d.Mapping) == 0 {
+		d.Mapping = map[string]string{
+			"0": "关",
+			"1": "开",
+		}
+	}
 	if len(d.Mapping) != 2 {
 		return errors.Parameter.WithMsgf("布尔的数据定义不正确:%v", d.Mapping)
 	}
@@ -220,6 +229,9 @@ func (d *Define) ValidateWithFmtBool() error {
 	return nil
 }
 func (d *Define) ValidateWithFmtInt() error {
+	if d.Max == "" {
+		d.Max = cast.ToString(DefineIntMax)
+	}
 	max, err := cast.ToInt64E(d.Max)
 	if err != nil {
 		return errors.Parameter.WithMsgf("整数的最大值定义不是数字:%v", d.Max)
@@ -227,6 +239,9 @@ func (d *Define) ValidateWithFmtInt() error {
 	if max > DefineIntMax {
 		max = DefineIntMax
 		d.Max = cast.ToString(max)
+	}
+	if d.Min == "" {
+		d.Min = cast.ToString(DefineIntMin)
 	}
 	min, err := cast.ToInt64E(d.Min)
 	if err != nil {
@@ -242,9 +257,12 @@ func (d *Define) ValidateWithFmtInt() error {
 	if len(d.Unit) > DefineUnitLen {
 		return errors.Parameter.WithMsgf("整数的单位定义值长度过大:%v", d.Unit)
 	}
+	if d.Step == "" {
+		d.Step = "1"
+	}
 	step, err := cast.ToInt64E(d.Step)
 	if err != nil {
-		return errors.Parameter.WithMsgf("整数的步长定义值类型不是数字:%v", d.Max)
+		return errors.Parameter.WithMsgf("整数的步长定义值类型不是数字:%v", d.Step)
 	}
 	if step > max {
 		d.Step = cast.ToString(max)
@@ -260,6 +278,9 @@ func (d *Define) ValidateWithFmtInt() error {
 	return nil
 }
 func (d *Define) ValidateWithFmtString() error {
+	if d.Max == "" {
+		d.Max = cast.ToString(DefineStringMax)
+	}
 	max, err := cast.ToInt64E(d.Max)
 	if err != nil {
 		return errors.Parameter.WithMsgf("字符串的最大值定义不是数字类型:%v", d.Max)
@@ -291,6 +312,9 @@ func (d *Define) ValidateWithFmtStruct() error {
 	return d.Specs.ValidateWithFmt()
 }
 func (d *Define) ValidateWithFmtFloat() error {
+	if d.Max == "" {
+		d.Max = cast.ToString(DefineIntMax)
+	}
 	max, err := cast.ToFloat64E(d.Max)
 	if err != nil {
 		return errors.Parameter.WithMsgf("浮点型的最大值定义不是数字类型:%v", d.Max)
@@ -298,6 +322,9 @@ func (d *Define) ValidateWithFmtFloat() error {
 	if max > DefineIntMax {
 		max = DefineIntMax
 		d.Max = cast.ToString(max)
+	}
+	if d.Min == "" {
+		d.Min = cast.ToString(DefineIntMin)
 	}
 	min, err := cast.ToFloat64E(d.Min)
 	if err != nil {
@@ -312,6 +339,9 @@ func (d *Define) ValidateWithFmtFloat() error {
 	}
 	if len(d.Unit) > DefineUnitLen {
 		return errors.Parameter.WithMsgf("浮点型的单位定义值长度过大:%v", d.Unit)
+	}
+	if d.Step == "" {
+		d.Step = "0.001"
 	}
 	step, err := cast.ToFloat64E(d.Step)
 	if err != nil {
