@@ -4,6 +4,7 @@ import (
 	"gitee.com/unitedrhino/share/def"
 	"gitee.com/unitedrhino/share/devices"
 	"gitee.com/unitedrhino/share/domain/deviceMsg"
+	"gitee.com/unitedrhino/share/domain/schema"
 	"gitee.com/unitedrhino/share/utils"
 )
 
@@ -34,14 +35,19 @@ type (
 		SignMethod string `json:"signMethod,omitempty"` //签名算法。支持 hmacsha1、hmacsha256
 	}
 	GatewayPayload struct {
-		Status  def.GatewayStatus `json:"status,omitempty"`
-		Devices Devices           `json:"devices"`
+		Status      def.GatewayStatus   `json:"status,omitempty"`
+		Devices     Devices             `json:"devices,omitempty"`
+		Identifiers []string            `json:"identifiers,omitempty"` //内为希望设备上报的属性列表,不填为获取全部
+		ProductID   string              `json:"productID,omitempty"`   //产品ID
+		DeviceName  string              `json:"deviceName,omitempty"`
+		Schema      *schema.ModelSimple `json:"schema,omitempty"` //物模型
 	}
 )
 
 const (
 	TypeTopo   = "topo"   //拓扑关系管理
 	TypeStatus = "status" //代理子设备上下线
+	TypeThing  = "thing"  //物模型操作
 )
 
 // 获取产品id列表(不重复的)

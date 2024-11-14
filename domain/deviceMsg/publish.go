@@ -41,9 +41,17 @@ type (
 		Sys       *SysConfig `json:"sys,omitempty"`       //系统配置
 	}
 	SysConfig struct {
-		NoAsk bool `json:"noAsk"` //云平台是否回复消息
+		NoAsk  bool `json:"noAsk"`  //云平台是否回复消息
+		RetMsg bool `json:"retMsg"` //是否返回错误信息
 	}
 )
+
+func (c *CommonMsg) NeedRetMsg() bool {
+	if c.Sys != nil {
+		return c.Sys.RetMsg
+	}
+	return false
+}
 
 func (p *PublishMsg) String() string {
 	msgMap := map[string]any{
@@ -86,13 +94,15 @@ func (c *CommonMsg) GetTimeStamp() time.Time {
 	}
 	return time.Now()
 }
-func (c *CommonMsg) AddStatus(err error) *CommonMsg {
+func (c *CommonMsg) AddStatus(err error, needRet bool) *CommonMsg {
 	if err == nil {
 		err = errors.OK
 	}
 	e := errors.Fmt(err)
 	c.Code = e.GetCode()
-	//c.Msg = e.GetI18nMsg("en")
+	if needRet {
+		c.Msg = e.GetI18nMsg("en")
+	}
 	return c
 }
 func (c *CommonMsg) Bytes() []byte {
