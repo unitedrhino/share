@@ -237,6 +237,10 @@ func AnyToNullString(in any) sql.NullString {
 	}
 	switch in.(type) {
 	case string, []byte:
+		str := cast.ToString(in)
+		if len(str) == 0 {
+			return sql.NullString{}
+		}
 		return sql.NullString{
 			String: cast.ToString(in),
 			Valid:  true,
