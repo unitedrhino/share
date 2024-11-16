@@ -121,7 +121,10 @@ func (c *CodeError) GetMsg() string {
 	return stringMsgs(c.Msg)
 }
 
+var ErrorMap = map[int64]string{}
+
 func NewCodeError(code int64, msg string) *CodeError {
+	ErrorMap[code] = msg
 	return &CodeError{Code: code, Msg: []I18nImpl{String(msg)}}
 }
 

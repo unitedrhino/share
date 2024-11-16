@@ -36,7 +36,7 @@ func ValidateWithFmt(schemaStr []byte) (*Model, error) {
 	return schema.init(), err
 }
 
-func (m *Model) Aggregation(m2 *Model) {
+func (m *Model) Aggregation(m2 *Model) *Model {
 	for _, v := range m2.Properties {
 		m.Properties = append(m.Properties, v)
 	}
@@ -46,6 +46,15 @@ func (m *Model) Aggregation(m2 *Model) {
 	for _, v := range m2.Actions {
 		m.Actions = append(m.Actions, v)
 	}
+	return m
+}
+
+func (m *Model) Copy() *Model {
+	newOne := Model{Profile: m.Profile}
+	newOne.Properties = append(newOne.Properties, m.Properties...)
+	newOne.Events = append(newOne.Events, m.Events...)
+	newOne.Actions = append(newOne.Actions, m.Actions...)
+	return &newOne
 }
 
 func (m *Model) ValidateWithFmt() error {

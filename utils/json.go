@@ -86,7 +86,7 @@ func Fmt2(v any) string {
 		}
 		js, err := json.Marshal(v)
 		if err != nil {
-			return fmt.Sprintf("%#v", js)
+			return fmt.Sprintf("%v", js)
 		}
 		return string(js)
 	}

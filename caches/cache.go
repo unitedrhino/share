@@ -7,6 +7,7 @@ import (
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/eventBus"
+	"gitee.com/unitedrhino/share/utils"
 	"github.com/maypok86/otter"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/syncx"
@@ -20,7 +21,8 @@ type Cache[dataT any, keyType comparable] struct {
 	cache      otter.Cache[string, *dataT]
 	fastEvent  *eventBus.FastEvent
 	getData    func(ctx context.Context, key keyType) (*dataT, error)
-	fmt        func(ctx context.Context, key keyType, data *dataT)
+	notifySlot []func(ctx context.Context, key []byte)
+	fmt        func(ctx context.Context, key keyType, data *dataT) *dataT
 	expireTime time.Duration
 	sf         syncx.SingleFlight
 }
@@ -28,7 +30,7 @@ type Cache[dataT any, keyType comparable] struct {
 type CacheConfig[dataT any, keyType comparable] struct {
 	KeyType    string
 	FastEvent  *eventBus.FastEvent
-	Fmt        func(ctx context.Context, key keyType, data *dataT)
+	Fmt        func(ctx context.Context, key keyType, data *dataT) *dataT
 	GetData    func(ctx context.Context, key keyType) (*dataT, error)
 	ExpireTime time.Duration
 }
@@ -68,8 +70,10 @@ func NewCache[dataT any, keyType comparable](cfg CacheConfig[dataT, keyType]) (*
 	}
 	if ret.fastEvent != nil {
 		err = ret.fastEvent.Subscribe(ret.genTopic(), func(ctx context.Context, t time.Time, body []byte) error {
-			cacheKey := string(body)
-			ret.cache.Delete(cacheKey)
+			ret.cache.Delete(string(body))
+			for _, f := range ret.notifySlot {
+				f(ctx, body)
+			}
 			return nil
 		})
 		if err != nil {
@@ -81,17 +85,32 @@ func NewCache[dataT any, keyType comparable](cfg CacheConfig[dataT, keyType]) (*
 	return &ret, nil
 }
 
+func GenKeyStr(in any) string {
+	return utils.Fmt2(in)
+}
+
+// 更新通知插槽
+func (c *Cache[dataT, keyType]) AddNotifySlot(f func(ctx context.Context, key []byte)) {
+	c.notifySlot = append(c.notifySlot, f)
+}
+
 func (c *Cache[dataT, keyType]) genTopic() string {
 	return fmt.Sprintf(eventBus.ServerCacheSync, c.keyType)
 }
 
-func (c *Cache[dataT, keyType]) genCacheKey(key keyType) string {
+func (c *Cache[dataT, keyType]) GenCacheKey(key any) string {
 	return fmt.Sprintf("cache:%s:%v", c.keyType, key)
+}
+
+func (c *Cache[dataT, keyType]) DeleteByFunc(f func(cacheKey string) bool) {
+	c.cache.DeleteByFunc(func(key string, value *dataT) bool {
+		return f(key)
+	})
 }
 
 // 删除数据的时候设置为空即可
 func (c *Cache[dataT, keyType]) SetData(ctx context.Context, key keyType, data *dataT) error {
-	cacheKey := c.genCacheKey(key)
+	cacheKey := c.GenCacheKey(key)
 	if data != nil { //如果是
 		dataStr, err := json.Marshal(data)
 		if err != nil {
@@ -108,9 +127,10 @@ func (c *Cache[dataT, keyType]) SetData(ctx context.Context, key keyType, data *
 			logx.WithContext(ctx).Error(err)
 		}
 	}
-	c.cache.Delete(cacheKey)
+	keyStr := GenKeyStr(key)
+	c.cache.Delete(keyStr)
 	if c.fastEvent != nil {
-		err := c.fastEvent.Publish(ctx, c.genTopic(), cacheKey)
+		err := c.fastEvent.Publish(ctx, c.genTopic(), keyStr)
 		if err != nil {
 			logx.WithContext(ctx).Error(err)
 		}
@@ -121,8 +141,9 @@ func (c *Cache[dataT, keyType]) SetData(ctx context.Context, key keyType, data *
 
 func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*dataT, error) {
 	ctx = ctxs.WithRoot(ctx)
-	cacheKey := c.genCacheKey(key)
-	temp, ok := c.cache.Get(cacheKey)
+	cacheKey := c.GenCacheKey(key)
+	keyStr := GenKeyStr(key)
+	temp, ok := c.cache.Get(keyStr)
 	if ok {
 		if temp == nil {
 			return nil, errors.NotFind
@@ -130,7 +151,7 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 		return temp, nil
 	}
 	//并发获取的情况下避免击穿
-	ret, err := c.sf.Do(cacheKey, func() (any, error) {
+	ret, err := c.sf.Do(keyStr, func() (any, error) {
 		{ //内存中没有就从redis上获取
 			val, err := store.GetCtx(ctx, cacheKey)
 			if err != nil {
@@ -143,14 +164,14 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 					return nil, err
 				}
 				if c.fmt != nil {
-					c.fmt(ctx, key, &ret)
+					ret = *c.fmt(ctx, key, &ret)
 				}
-				c.cache.Set(cacheKey, &ret)
+				c.cache.Set(keyStr, &ret)
 				return &ret, nil
 			}
 		}
 		if c.getData == nil { //如果没有设置第三级缓存则直接设置该参数为空并返回
-			c.cache.Set(cacheKey, nil)
+			c.cache.Set(keyStr, nil)
 			return nil, nil
 		}
 		//redis上没有就读数据库
@@ -159,7 +180,11 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 			return nil, err
 		}
 		//读到了之后设置缓存
-		c.cache.Set(cacheKey, data)
+		var newData = data
+		if c.fmt != nil {
+			newData = c.fmt(ctx, key, data)
+		}
+		c.cache.Set(keyStr, newData)
 		if data == nil {
 			return data, err
 		}
@@ -175,7 +200,7 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 				return
 			}
 		})
-		return data, nil
+		return newData, nil
 	})
 	if err != nil {
 		return nil, err
