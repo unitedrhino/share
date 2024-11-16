@@ -1,6 +1,6 @@
 package def
 
-const DeviceGroupLevel = 3
+const DeviceGroupLevel = 5
 
 type AuthType = int64
 

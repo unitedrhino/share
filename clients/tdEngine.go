@@ -9,6 +9,7 @@ import (
 	"gitee.com/unitedrhino/share/utils"
 	"math/rand"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	//tdengine 的cgo模式，这个模式是最快的，需要可以打开
@@ -55,9 +56,13 @@ func NewTDengine(DataSource conf.TSDB) (TD *Td, err error) {
 		if err != nil {
 			return
 		}
+		utils.Go(context.Background(), func() {
+			td.countSql()
+		})
 		for i := 0; i < asyncRunMax; i++ {
+			id := int64(i)
 			utils.Go(context.Background(), func() {
-				td.asyncInsertRuntime()
+				td.asyncInsertRuntime(id)
 			})
 		}
 	})
@@ -67,7 +72,22 @@ func NewTDengine(DataSource conf.TSDB) (TD *Td, err error) {
 	return &td, err
 }
 
-func (t *Td) asyncInsertRuntime() {
+var sendCount atomic.Int64
+
+func (t *Td) countSql() {
+	tick := time.Tick(time.Minute)
+	for {
+		select {
+		case <-tick:
+			e := sendCount.Swap(0)
+			if e != 0 {
+				logx.Infof("tdengineRuntimeCountSql %v/mim ", sendCount.Swap(0))
+			}
+		}
+	}
+}
+
+func (t *Td) asyncInsertRuntime(id int64) {
 	r := rand.Intn(1000)
 	tick := time.Tick(time.Second/2 + time.Millisecond*time.Duration(r))
 	execCache := make([]ExecArgs, 0, asyncExecMax*2)
@@ -86,6 +106,7 @@ func (t *Td) asyncInsertRuntime() {
 		if err != nil {
 			logx.Error(err)
 		}
+		sendCount.Add(int64(len(execCache)))
 		execCache = execCache[0:0] //清空切片
 	}
 	for {
@@ -95,6 +116,7 @@ func (t *Td) asyncInsertRuntime() {
 		case e := <-insertChan:
 			execCache = append(execCache, e)
 			if len(execCache) > asyncExecMax {
+				logx.Infof("tdengineRuntime id:%v, exec to much now num:%v", id, len(execCache))
 				exec()
 			}
 		}

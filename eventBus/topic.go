@@ -33,6 +33,7 @@ const (
 	ServerCacheSync = "server.cache.sync.%s"
 
 	CoreUserDelete    = "server.core.user.delete"
+	CoreUserSync      = "server.core.user.sync"
 	CoreProjectDelete = "server.core.project.delete"
 
 	CoreApiUserPublish = "server.core.api.user.publish.%v"
