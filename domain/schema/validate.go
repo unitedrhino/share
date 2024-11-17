@@ -37,6 +37,9 @@ func ValidateWithFmt(schemaStr []byte) (*Model, error) {
 }
 
 func (m *Model) Aggregation(m2 *Model) *Model {
+	if m == nil {
+		return m2
+	}
 	for _, v := range m2.Properties {
 		m.Properties = append(m.Properties, v)
 	}
@@ -50,6 +53,9 @@ func (m *Model) Aggregation(m2 *Model) *Model {
 }
 
 func (m *Model) Copy() *Model {
+	if m == nil {
+		return nil
+	}
 	newOne := Model{Profile: m.Profile}
 	newOne.Properties = append(newOne.Properties, m.Properties...)
 	newOne.Events = append(newOne.Events, m.Events...)
