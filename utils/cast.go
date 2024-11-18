@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/spf13/cast"
-	"golang.org/x/exp/constraints"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"reflect"
 	"strconv"
@@ -224,7 +223,7 @@ func Time2ToInt64(t *time.Time) int64 {
 	}
 	return TimeToInt64(*t)
 }
-func SetToSlice[t constraints.Ordered, vT any](in map[t]vT) (ret []t) {
+func SetToSlice[t comparable, vT any](in map[t]vT) (ret []t) {
 	for k := range in {
 		ret = append(ret, k)
 	}

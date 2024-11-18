@@ -205,6 +205,17 @@ func CopySlice[toT any, fromT any](fromValue []*fromT) []*toT {
 	return ret
 }
 
+func CopySlice2[toT any, fromT any](fromValue []fromT) []*toT {
+	if fromValue == nil {
+		return nil
+	}
+	var ret []*toT
+	for _, v := range fromValue {
+		ret = append(ret, Copy[toT](v))
+	}
+	return ret
+}
+
 func CopyMap[toT any, fromT any, keyT comparable](fromValue map[keyT]*fromT) map[keyT]*toT {
 	if len(fromValue) == 0 {
 		return nil
