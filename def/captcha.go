@@ -1,5 +1,7 @@
 package def
 
+type Captcha = string
+
 const (
 	CaptchaTypePhone = "phone"
 	CaptchaTypeImage = "image" //图形验证码

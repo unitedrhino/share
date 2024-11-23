@@ -17,7 +17,7 @@ var (
 	PasswordLevel        = NewCodeError(UserError+25, "密码强度不够")
 	GetInfoPartFailure   = NewCodeError(UserError+26, "获取用户信息有失败")
 	UsernameFormatErr    = NewCodeError(UserError+27, "账号必须以大小写字母开头，且账号只能包含大小写字母，数字，下划线和减号。 长度为6到20位之间")
-	AccountOrIpForbidden = NewCodeError(UserError+28, "密码输入错误过多，账号冻结")
+	AccountOrIpForbidden = NewCodeError(UserError+28, "账号冻结")
 	UseCaptcha           = NewCodeError(UserError+29, "账号或密码错误")
 	AccountDisable       = NewCodeError(UserError+30, "账号已禁用")
 	BindAccount          = NewCodeError(UserError+31, "账号已绑定")

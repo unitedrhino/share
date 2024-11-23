@@ -118,39 +118,48 @@ func GetHandle(r *http.Request, keys ...string) string {
 	return val
 }
 
+func InitCtxWithReq(r *http.Request) *http.Request {
+	uc := GetUserCtx(r.Context())
+	if uc == nil {
+		strIP, _ := utils.GetIP(r)
+		appCode := GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
+		tenantCode := GetHandle(r, UserTenantCodeKey)
+		uc = &UserCtx{
+			AppCode:    appCode,
+			TenantCode: tenantCode,
+			IP:         strIP,
+		}
+		c := context.WithValue(r.Context(), UserInfoKey, uc)
+		r = r.WithContext(c)
+	}
+	strProjectID := GetHandle(r, UserProjectID, UserProjectID2)
+	projectID := cast.ToInt64(strProjectID)
+	if projectID == 0 {
+		projectID = def.NotClassified
+	}
+	uc.AppCode = GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
+	if uc.AppCode == "" {
+		uc.AppCode = def.AppCore
+	}
+	if uc.TenantCode == "" {
+		uc.TenantCode = def.TenantCodeDefault
+	}
+	uc.ProjectID = projectID
+	uc.Os = GetHandle(r, "User-Agent")
+	uc.AcceptLanguage = GetHandle(r, "Accept-Language")
+	uc.Token = GetHandle(r, UserTokenKey)
+	if uc.IP == "" {
+		strIP, _ := utils.GetIP(r)
+		uc.IP = strIP
+	}
+	ctx := SetUserCtx(r.Context(), uc)
+	r = r.WithContext(ctx)
+	return r
+}
+
 func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		uc := GetUserCtx(r.Context())
-		if uc == nil {
-			strIP, _ := utils.GetIP(r)
-			appCode := GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
-			tenantCode := GetHandle(r, UserTenantCodeKey)
-			uc = &UserCtx{
-				AppCode:    appCode,
-				TenantCode: tenantCode,
-				IP:         strIP,
-			}
-			c := context.WithValue(r.Context(), UserInfoKey, uc)
-			r = r.WithContext(c)
-		}
-		strProjectID := GetHandle(r, UserProjectID, UserProjectID2)
-		projectID := cast.ToInt64(strProjectID)
-		if projectID == 0 {
-			projectID = def.NotClassified
-		}
-		uc.AppCode = GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
-		if uc.AppCode == "" {
-			uc.AppCode = def.AppCore
-		}
-		if uc.TenantCode == "" {
-			uc.TenantCode = def.TenantCodeDefault
-		}
-		uc.ProjectID = projectID
-		uc.Os = GetHandle(r, "User-Agent")
-		uc.AcceptLanguage = GetHandle(r, "Accept-Language")
-		uc.Token = GetHandle(r, UserTokenKey)
-		ctx := SetUserCtx(r.Context(), uc)
-		r = r.WithContext(ctx)
+		r = InitCtxWithReq(r)
 		next(w, r)
 	}
 }
