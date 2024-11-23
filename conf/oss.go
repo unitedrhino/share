@@ -7,13 +7,13 @@ import (
 )
 
 type OssConf struct {
-	OssType             string `json:",options=minio|aliyun"`
-	AccessKeyID         string
-	AccessKeySecret     string
-	PublicBucketName    string
-	TemporaryBucketName string //临时桶,30分钟有效期
-	PrivateBucketName   string
-	Location            string
+	OssType             string `json:",default=minio,options=minio|aliyun"`
+	AccessKeyID         string `json:",default=root,optional"`
+	AccessKeySecret     string `json:",default=password,optional"`
+	PublicBucketName    string `json:",default=ithings-public,optional"`
+	TemporaryBucketName string `json:",default=ithings-temporary,optional"` //临时桶,30分钟有效期
+	PrivateBucketName   string `json:",default=ithings-private,optional"`
+	Location            string `json:",default=localhost:9000,optional"`
 	UseSSL              bool   `json:",optional"`
 	CustomHost          string `json:",default=/oss,env=OssCustomHost"`
 	CustomPath          string `json:",default=/oss,optional"`
