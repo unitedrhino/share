@@ -42,3 +42,13 @@ const (
 	ConnectedStatus    ConnStatus = 1
 	DisConnectedStatus ConnStatus = 2
 )
+
+type MobileOperator = int64 //移动运营商
+
+const (
+	MobileOperatorYD   = 1  //移动
+	MobileOperatorLT   = 2  //联通
+	MobileOperatorDX   = 3  //电信
+	MobileOperatorGD   = 4  //移动
+	MobileOperatorNone = 10 //无
+)
