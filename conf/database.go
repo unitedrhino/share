@@ -8,11 +8,10 @@ const (
 )
 
 type Database struct {
-	DBType      string `json:",default=mysql,options=mysql|pgsql|sqlite"`          //
-	Driver      string `json:",default=taosWS,options=taosRestful|taosWS|taosSql"` //
-	IsInitTable bool   `json:",default=true"`
-	//IsInitTable bool   `json:",default=true"`
-	DSN string `json:""` //dsn
+	DBType string `json:",default=mysql,env=dbType,options=mysql|pgsql|sqlite"` //
+	//IsInitTable bool   `json:",default=false"`
+	IsInitTable bool   `json:",env=dbIsInitTable,default=true"`
+	DSN         string `json:",env=dbDSN"` //dsn
 }
 
 // 时序数据库（Time Series Database）
