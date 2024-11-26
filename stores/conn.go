@@ -2,9 +2,7 @@ package stores
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"gitee.com/unitedrhino/share/clients"
 	"gitee.com/unitedrhino/share/conf"
 	"github.com/glebarez/sqlite"
 	"github.com/spf13/cast"
@@ -54,23 +52,6 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 	db.SetConnMaxIdleTime(time.Hour)
 	db.SetConnMaxLifetime(time.Hour)
 	return
-}
-
-func GetConnDB(database conf.Database) (db *sql.DB, err error) {
-	switch database.DBType {
-	case conf.Tdengine:
-		td, err := clients.NewTDengine(database)
-		if err != nil {
-			return nil, err
-		}
-		return td.DB, nil
-	default:
-		conn, err := GetConn(database)
-		if err != nil {
-			return nil, err
-		}
-		return conn.DB()
-	}
 }
 
 const (
