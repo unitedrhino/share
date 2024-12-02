@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/fatih/structs"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/spf13/cast"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -316,6 +317,24 @@ func MapBoolToInt(in map[string]any) {
 		}
 	}
 	return
+}
+
+func ToStringMapString(in any) map[string]string {
+	t := reflect.TypeOf(in)
+	kind := t.Kind()
+	if kind == reflect.Ptr {
+		t = t.Elem()
+		kind = t.Kind()
+	}
+	if kind != reflect.Struct {
+		return cast.ToStringMapString(in)
+	}
+	var ret = make(map[string]string)
+	m := structs.Map(in)
+	for k, v := range m {
+		ret[k] = cast.ToString(v)
+	}
+	return ret
 }
 
 func ToStringMap(in any) map[string]any {

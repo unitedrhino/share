@@ -144,11 +144,6 @@ func BoolToInt(in any) any {
 	return in
 }
 
-// ToStringMapString casts an interface to a map[string]string type.
-func ToStringMapString(i any) map[string]string {
-	return cast.ToStringMapString(i)
-}
-
 // ToStringMapStringSlice casts an interface to a map[string][]string type.
 func ToStringMapStringSlice(i any) map[string][]string {
 	return cast.ToStringMapStringSlice(i)
