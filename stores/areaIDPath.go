@@ -19,7 +19,6 @@ func (t AreaIDPath) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Exp
 	stmt := db.Statement
 	uc := ctxs.GetUserCtxOrNil(ctx)
 	expr = clause.Expr{SQL: "?", Vars: []interface{}{string(t)}}
-
 	authType, areas := ctxs.GetAreaIDPaths(uc.ProjectID, uc.ProjectAuth)
 	if t != "" && !(uc.IsAdmin || uc.AllArea || authType <= def.AuthReadWrite || utils.SliceIn(string(t), areas...)) { //如果没有权限
 		stmt.Error = errors.Permissions.WithMsg("区域权限不足")
@@ -27,6 +26,12 @@ func (t AreaIDPath) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Exp
 	return
 }
 func (t *AreaIDPath) Scan(value interface{}) error {
+	if v, ok := value.([]byte); ok {
+		if len(v) == 1 && v[0] == 0 {
+			*t = ""
+			return nil
+		}
+	}
 	ret := utils.ToString(value)
 	p := AreaIDPath(ret)
 	*t = p
