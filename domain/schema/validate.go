@@ -41,6 +41,8 @@ func (m *Model) Aggregation(m2 *Model) *Model {
 		return m2
 	}
 	for _, v := range m2.Properties {
+		vv := v
+		vv.Define.Spec = nil
 		m.Properties = append(m.Properties, v)
 	}
 	for _, v := range m2.Events {
@@ -57,9 +59,42 @@ func (m *Model) Copy() *Model {
 		return nil
 	}
 	newOne := Model{Profile: m.Profile}
-	newOne.Properties = append(newOne.Properties, m.Properties...)
-	newOne.Events = append(newOne.Events, m.Events...)
-	newOne.Actions = append(newOne.Actions, m.Actions...)
+	for _, p := range m.Properties {
+		v := p
+		v.Define = v.Define.Copy()
+		newOne.Properties = append(newOne.Properties, v)
+
+	}
+	for _, e := range m.Events {
+		v := e
+		v.Param = nil
+		v.Params = nil
+		for _, p := range e.Params {
+			vv := p
+			vv.Define = vv.Define.Copy()
+			v.Params = append(v.Params, vv)
+		}
+		newOne.Events = append(newOne.Events, v)
+
+	}
+	for _, a := range m.Actions {
+		v := a
+		v.In = nil
+		v.Out = nil
+		v.Output = nil
+		v.Input = nil
+		for _, p := range a.Input {
+			vv := p
+			vv.Define = vv.Define.Copy()
+			v.Input = append(v.Input, vv)
+		}
+		for _, p := range a.Output {
+			vv := p
+			vv.Define = vv.Define.Copy()
+			v.Output = append(v.Output, vv)
+		}
+		newOne.Actions = append(newOne.Actions, v)
+	}
 	return &newOne
 }
 

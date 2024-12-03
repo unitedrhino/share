@@ -36,6 +36,25 @@ func NewSchemaTsl(schemaStr []byte) (*Model, error) {
 	return &schema, nil
 }
 
+func (d Define) Copy() Define {
+	ret := d
+	ret.Mapping = make(map[string]string)
+	ret.Spec = nil
+	for k, v := range d.Mapping {
+		ret.Mapping[k] = v
+	}
+	if ret.ArrayInfo != nil {
+		ai := ret.ArrayInfo.Copy()
+		ret.ArrayInfo = &ai
+	}
+	for _, s := range d.Specs {
+		v := s
+		v.DataType = v.DataType.Copy()
+		d.Specs = append(d.Specs, v)
+	}
+	return ret
+}
+
 func (d *Define) init() *Define {
 	if d.Specs != nil {
 		d.Spec = make(map[string]*Spec, len(d.Specs)+1)
