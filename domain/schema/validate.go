@@ -40,6 +40,9 @@ func (m *Model) Aggregation(m2 *Model) *Model {
 	if m == nil {
 		return m2
 	}
+	if m2 == nil {
+		return m
+	}
 	for _, v := range m2.Properties {
 		vv := v
 		vv.Define.Spec = nil
