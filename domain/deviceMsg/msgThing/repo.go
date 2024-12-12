@@ -53,7 +53,8 @@ type (
 		DataID     string
 	}
 	Optional struct {
-		Sync bool //同步执行
+		Sync      bool //同步执行
+		OnlyCache bool //只记录到缓存中
 	}
 
 	SchemaDataRepo interface {
