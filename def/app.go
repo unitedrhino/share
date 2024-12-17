@@ -29,6 +29,7 @@ type AppSubType = string
 
 const (
 	AppSubTypeWx   = "wx"
+	AppSubTypeWxE  = "wxE" //企业微信
 	AppSubTypeDing = "ding"
 
 	AppSubTypeAndroid = "android"

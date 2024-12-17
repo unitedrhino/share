@@ -9,4 +9,7 @@ var (
 	UserSubscribeDeviceConn           = "deviceConn"           //设备连接消息
 	UserSubscribeDeviceOtaReport      = "deviceOtaReport"      //设备ota消息推送
 	UserSubscribeUserOrderPay         = "userOrderPay"         //用户订单支付通知
+
+	UserSubscribeRuleDebugMsgReport = "ruleDebugMsgReport" //规则引擎调试消息推送
+
 )
