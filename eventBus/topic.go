@@ -5,6 +5,7 @@ const (
 	SysProjectInfoDelete      = "server.core.sys.project.info.delete"
 	SysAreaInfoDelete         = "server.core.sys.area.info.delete"
 	SysCoreOpsWorkOrderFinish = "server.core.sys.ops.workOrder.finish"
+	SysSyncHalfHour           = "server.core.sys.sync.halfHour" //半小时统计
 
 	DmDeviceInfoUnbind         = "server.things.dm.device.info.unbind"
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"
