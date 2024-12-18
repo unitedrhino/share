@@ -2,10 +2,15 @@ package eventBus
 
 // 服务自己的消息
 const (
-	SysProjectInfoDelete      = "server.core.sys.project.info.delete"
-	SysAreaInfoDelete         = "server.core.sys.area.info.delete"
-	SysCoreOpsWorkOrderFinish = "server.core.sys.ops.workOrder.finish"
-	SysSyncHalfHour           = "server.core.sys.sync.halfHour" //半小时统计
+	CoreProjectInfoDelete  = "server.core.project.info.delete"
+	CoreAreaInfoDelete     = "server.core.area.info.delete"
+	CoreOpsWorkOrderFinish = "server.core.ops.workOrder.finish"
+	CoreSyncHalfHour       = "server.core.sync.halfHour" //半小时统计
+	CoreUserDelete         = "server.core.user.delete"
+	CoreUserCreate         = "server.core.user.create"
+	CoreUserUpdate         = "server.core.user.update"
+	CoreProjectDelete      = "server.core.project.delete"
+	CoreApiUserPublish     = "server.core.api.user.publish.%v"
 
 	DmDeviceInfoUnbind         = "server.things.dm.device.info.unbind"
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"
@@ -32,12 +37,6 @@ const (
 	PAliTimer = "server.things.pali.data.timer"
 
 	ServerCacheSync = "server.cache.sync.%s"
-
-	CoreUserDelete    = "server.core.user.delete"
-	CoreUserSync      = "server.core.user.sync"
-	CoreProjectDelete = "server.core.project.delete"
-
-	CoreApiUserPublish = "server.core.api.user.publish.%v"
 )
 
 const (

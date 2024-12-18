@@ -35,6 +35,7 @@ require (
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/nats-io/nats.go v1.35.0
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
+	github.com/open-dingtalk/dingtalk-stream-sdk-go v0.9.0
 	github.com/parnurzeal/gorequest v0.3.0
 	github.com/samber/lo v1.47.0
 	github.com/silenceper/wechat/v2 v2.1.5

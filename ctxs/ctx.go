@@ -164,6 +164,13 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func BindUser(ctx context.Context, userID int64, account string) context.Context {
+	uc := GetUserCtxNoNil(ctx)
+	uc.UserID = userID
+	uc.Account = account
+	return SetUserCtx(ctx, uc)
+}
+
 func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) context.Context {
 	uc := GetUserCtx(ctx)
 	if uc == nil {
