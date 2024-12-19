@@ -26,6 +26,7 @@ const (
 	DeviceTypeDevice  DeviceType = 1 //设备
 	DeviceTypeGateway DeviceType = 2 //网关
 	DeviceTypeSubset  DeviceType = 3 //子设备
+	DeviceTypeMedia   DeviceType = 4 //监控设备
 )
 
 type DataProto = int64

@@ -112,3 +112,22 @@ func (sd AreaIDPathClause) ModifyStatement(stmt *gorm.Statement) { //查询的�
 		}
 	}
 }
+
+func GetAreaAuthIDPaths(ctx context.Context) ([]string, error) {
+	uc := ctxs.GetUserCtxOrNil(ctx)
+	if uc == nil {
+		return nil, nil
+	}
+	authType, areas := ctxs.GetAreaIDPaths(uc.ProjectID, uc.ProjectAuth)
+	if uc.IsAdmin || uc.AllArea || authType <= def.AuthReadWrite {
+		return nil, nil
+	}
+	if len(areas) == 0 { //如果没有权限
+		return nil, errors.Permissions.WithMsg("区域权限不足")
+	}
+	var values = []string{}
+	for _, v := range areas {
+		values = append(values, v)
+	}
+	return values, nil
+}

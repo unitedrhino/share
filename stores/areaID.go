@@ -128,3 +128,22 @@ func GenAreaAuthScope(ctx context.Context, db *gorm.DB) *gorm.DB {
 	db = db.Where("area_id in ?", values)
 	return db
 }
+
+func GetAreaAuthIDs(ctx context.Context) ([]int64, error) {
+	uc := ctxs.GetUserCtxOrNil(ctx)
+	if uc == nil {
+		return nil, nil
+	}
+	authType, areas := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
+	if uc.IsAdmin || uc.AllArea || authType <= def.AuthReadWrite {
+		return nil, nil
+	}
+	if len(areas) == 0 { //如果没有权限
+		return nil, errors.Permissions.WithMsg("区域权限不足")
+	}
+	var values = []int64{def.NotClassified}
+	for _, v := range areas {
+		values = append(values, v)
+	}
+	return values, nil
+}
