@@ -69,9 +69,17 @@ func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候�
 	if uc == nil {
 		return
 	}
-	authType, areas := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
+	authType, areaIDs := ctxs.GetAreaIDs(uc.ProjectID, uc.ProjectAuth)
+	_, areaIDPaths := ctxs.GetAreaIDPaths(uc.ProjectID, uc.ProjectAuth)
 	if uc.IsAdmin || uc.AllArea || authType <= def.AuthReadWrite {
 		return
+	}
+	areaIDPathF := stmt.Schema.FieldsByName["AreaIDPath"]
+	var areaPathExpr []clause.Expression
+	if areaIDPathF != nil && len(areaIDPaths) > 0 {
+		for _, v := range areaIDPaths {
+			areaPathExpr = append(areaPathExpr, clause.Like{Column: clause.Column{Table: clause.CurrentTable, Name: areaIDPathF.DBName}, Value: v + "%"})
+		}
 	}
 	switch sd.Opt {
 	case Create:
@@ -89,21 +97,44 @@ func (sd AreaClause) ModifyStatement(stmt *gorm.Statement) { //查询的时候�
 					}
 				}
 			}
-			if len(areas) == 0 { //如果没有权限
+			if len(areaIDs) == 0 { //如果没有权限
 				//stmt.Error = errors.Permissions.WithMsg("区域权限不足")
-				stmt.AddClause(clause.Where{Exprs: []clause.Expression{
-					clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: nil},
-				}})
+				if areaIDPathF != nil {
+					or := []clause.Expression{
+						clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: nil},
+					}
+					or = append(or, areaPathExpr...)
+					if len(or) > 1 {
+						stmt.AddClause(clause.Where{Exprs: []clause.Expression{
+							clause.OrConditions{Exprs: or},
+						}})
+					} else {
+						stmt.AddClause(clause.Where{Exprs: or})
+					}
+
+				} else {
+					stmt.AddClause(clause.Where{Exprs: []clause.Expression{
+						clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: nil},
+					}})
+				}
 				stmt.Clauses[sd.GenAuthKey()] = clause.Clause{}
 				return
 			}
 			var values = []any{def.NotClassified}
-			for _, v := range areas {
+			for _, v := range areaIDs {
 				values = append(values, v)
 			}
-			stmt.AddClause(clause.Where{Exprs: []clause.Expression{
+			w := []clause.Expression{
 				clause.IN{Column: clause.Column{Table: clause.CurrentTable, Name: sd.Field.DBName}, Values: values},
-			}})
+			}
+			w = append(w, areaPathExpr...)
+			if len(w) > 1 {
+				stmt.AddClause(clause.Where{Exprs: []clause.Expression{
+					clause.OrConditions{Exprs: w},
+				}})
+			} else {
+				stmt.AddClause(clause.Where{Exprs: w})
+			}
 			stmt.Clauses[sd.GenAuthKey()] = clause.Clause{}
 		}
 	}
