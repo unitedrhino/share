@@ -11,7 +11,7 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	var info SubscribeInfo
 	err := mapstructure.Decode(body.Body, &info)
 	if err != nil {
-		logx.Errorf("websocket userSubscribe Decode userID:%v connectID:%v body:%v err:%v",
+		logx.WithContext(ctx).Errorf("websocket userSubscribe Decode userID:%v connectID:%v body:%v err:%v",
 			c.userID, c.connectID, utils.Fmt(body), err)
 		c.errorSend(err)
 		return
@@ -19,7 +19,7 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	if checkSubscribe != nil {
 		err = checkSubscribe(ctx, &info)
 		if err != nil {
-			logx.Errorf("websocket userSubscribe checkSubscribe userID:%v connectID:%v body:%v err:%v",
+			logx.WithContext(ctx).Errorf("websocket userSubscribe checkSubscribe userID:%v connectID:%v body:%v err:%v",
 				c.userID, c.connectID, utils.Fmt(body), err)
 			c.errorSend(err)
 			return
@@ -34,7 +34,7 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	md := utils.Md5Map(info.Params)
 	key := info.Code + ":" + md
 	c.userSubscribe[key] = info.Params
-	logx.Infof("websocket userSubscribe userID:%v connectID:%v info:%v key:%v subList:%v",
+	logx.WithContext(ctx).Infof("websocket userSubscribe userID:%v connectID:%v info:%v key:%v subList:%v",
 		c.userID, c.connectID, utils.Fmt(info), key, utils.Fmt(c.userSubscribe))
 	func() {
 		dp.userSubscribeMutex.Lock()
