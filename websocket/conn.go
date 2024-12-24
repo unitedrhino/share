@@ -211,7 +211,8 @@ func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request,
 		send:          make(chan []byte, 10000),
 	}
 	AddConnPool(userID, conn)
-	logx.Infof("websocket 创建连接成功 RemoteAddr::%s userID:%v connectID:%v", wsConn.RemoteAddr().String(), userID, conn.connectID)
+	logx.Infof("websocket 创建连接成功 RemoteAddr::%s userID:%v connectID:%v uc:%v",
+		wsConn.RemoteAddr().String(), userID, conn.connectID, utils.Fmt(conn.uc))
 	resp := WsResp{}
 	clientToken := trace.TraceIDFromContext(ctx)
 	resp.Handler = map[string]string{
