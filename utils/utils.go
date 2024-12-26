@@ -155,8 +155,13 @@ func GetIP(r *http.Request) (string, error) {
 	if net.ParseIP(ip) != nil {
 		return ip, nil
 	}
-
 	ip = r.Header.Get("X-Forward-For")
+	for _, i := range strings.Split(ip, ",") {
+		if net.ParseIP(i) != nil {
+			return i, nil
+		}
+	}
+	ip = r.Header.Get("X-Forwarded-For")
 	for _, i := range strings.Split(ip, ",") {
 		if net.ParseIP(i) != nil {
 			return i, nil

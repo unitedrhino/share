@@ -323,9 +323,15 @@ func NewUserCtx(ctx context.Context) context.Context {
 	if !ok { //这里线上不能获取不到
 		return ctx
 	}
+
 	var newUc UserCtx
 	newUc = *val
-	return context.WithValue(context.Background(), UserInfoKey, &newUc)
+	newCtx := context.WithValue(context.Background(), UserInfoKey, &newUc)
+	md, ok := metadata.FromOutgoingContext(ctx)
+	if ok {
+		newCtx = metadata.NewOutgoingContext(newCtx, md)
+	}
+	return newCtx
 }
 
 func IsRoot(ctx context.Context) error {
