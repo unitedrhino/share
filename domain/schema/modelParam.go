@@ -13,7 +13,15 @@ func (d *Define) FmtValue(val any) (any, error) {
 		return cast.ToBoolE(val)
 	case DataTypeInt, DataTypeEnum, DataTypeTimestamp:
 		if num, err := cast.ToInt64E(val); err != nil {
-			return nil, errors.Parameter.AddDetail(err)
+			num2, er := cast.ToFloat64E(val)
+			if er != nil {
+				return nil, errors.Parameter.AddDetail(err)
+			}
+			num, err = cast.ToInt64E(num2)
+			if err != nil {
+				return nil, errors.Parameter.AddDetail(err)
+			}
+			return num, nil
 		} else {
 			return num, nil
 		}
