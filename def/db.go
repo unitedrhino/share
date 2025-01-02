@@ -1,10 +1,9 @@
 package def
 
 import (
+	sq "gitee.com/unitedrhino/squirrel"
 	"gorm.io/gorm"
 	"time"
-
-	sq "gitee.com/unitedrhino/squirrel"
 )
 
 type PageInfo2 struct {
@@ -62,6 +61,25 @@ func (p PageInfo2) FmtSql(sql sq.SelectBuilder) sq.SelectBuilder {
 		if p.Page != 0 {
 			sql = sql.Offset(uint64(p.GetOffset()))
 		}
+	}
+	return sql
+}
+
+func (p PageInfo2) FmtSql2(sql *gorm.DB) *gorm.DB {
+	if p.TimeStart != 0 {
+		sql = sql.Where("ts>=?", p.GetTimeStart())
+	}
+	if p.TimeEnd != 0 {
+		sql = sql.Where("ts<=?", p.GetTimeEnd())
+	}
+	if p.Size != 0 {
+		sql = sql.Limit(int(p.GetLimit()))
+		if p.Page != 0 {
+			sql = sql.Offset(int(p.GetOffset()))
+		}
+	}
+	if len(p.Orders) == 0 {
+		sql = sql.Order("ts desc")
 	}
 	return sql
 }

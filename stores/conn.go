@@ -16,9 +16,13 @@ import (
 	"time"
 )
 
+type DB = gorm.DB
+
 var (
 	commonConn *gorm.DB
+	tsConn     *gorm.DB
 	once       sync.Once
+	tsOnce     sync.Once
 	tenantConn sync.Map
 	dbType     string //数据库类型
 )
@@ -27,6 +31,18 @@ func InitConn(database conf.Database) {
 	var err error
 	once.Do(func() {
 		commonConn, err = GetConn(database)
+		logx.Must(err)
+	})
+	return
+}
+func InitTsConn(database conf.TSDB) {
+	var err error
+	tsOnce.Do(func() {
+		tsConn, err = GetConn(conf.Database{
+			DBType:      database.DBType,
+			IsInitTable: true,
+			DSN:         database.DSN,
+		})
 		logx.Must(err)
 	})
 	return
@@ -89,6 +105,18 @@ func GetCommonConn(in any) *gorm.DB {
 		return commonConn.WithContext(ctx)
 	}
 	return commonConn.WithContext(ctx).Debug()
+}
+
+// 获取时序连接 传入context或db连接 如果传入的是db连接则直接返回db
+func GetTsConn(in any) *gorm.DB {
+	if db, ok := in.(*gorm.DB); ok {
+		return db
+	}
+	ctx := in.(context.Context)
+	if val := ctx.Value(dbCtxDebugKey); val != nil && cast.ToBool(val) == false { //不打印日志
+		return tsConn.WithContext(ctx)
+	}
+	return tsConn.WithContext(ctx).Debug()
 }
 
 func SetAuthIncrement(conn *gorm.DB, table schema.Tabler) error {

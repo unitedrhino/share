@@ -16,7 +16,7 @@ type Database struct {
 
 // 时序数据库（Time Series Database）
 type TSDB struct {
-	DBType string `json:",default=mysql,env=tsDBType,options=mysql|pgsql|sqlite"`            //
-	Driver string `json:",default=taosWS,env=tsDBDriver,options=taosRestful|taosWS|taosSql"` //
-	DSN    string `json:",env=tsDBDSN"`                                                      //dsn
+	DBType string `json:",default=tdengine,env=tsDBType,options=tdengine|mysql|pgsql|sqlite"` //
+	Driver string `json:",default=taosWS,env=tsDBDriver,options=taosRestful|taosWS|taosSql"`  //
+	DSN    string `json:",env=tsDBDSN"`                                                       //dsn
 }

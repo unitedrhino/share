@@ -15,16 +15,16 @@ import (
 type (
 	// PropertyData 属性数据
 	PropertyData struct {
-		Identifier string    `json:"identifier"` //标识符
-		Param      any       `json:"property" `  //一个属性的参数
-		TimeStamp  time.Time `json:"timeStamp" ` //时间戳
+		Identifier string    `gorm:"column:identifier;type:varchar(50);NOT NULL" json:"identifier"` //标识符
+		Param      any       `gorm:"column:param;type:varchar(256);NOT NULL" json:"params" `        //一个属性的参数
+		TimeStamp  time.Time `gorm:"column:ts;NOT NULL;" json:"timeStamp"`                          //时间戳
 	}
 	// EventData 事件数据
 	EventData struct {
-		Identifier string         `json:"identifier"` //标识符
-		Type       string         `json:"type" `      //事件类型: 信息:info  告警alert  故障:fault
-		Params     map[string]any `json:"params" `    //事件参数
-		TimeStamp  time.Time      `json:"timeStamp" ` //时间戳
+		Identifier string         `gorm:"column:identifier;type:varchar(50);NOT NULL" json:"identifier"` //标识符
+		Type       string         `gorm:"column:type;type:varchar(20);NOT NULL" json:"type" `            //事件类型: 信息:info  告警alert  故障:fault
+		Params     map[string]any `gorm:"column:param;type:varchar(256);NOT NULL" json:"params" `        //事件参数
+		TimeStamp  time.Time      `gorm:"column:ts;NOT NULL;" json:"timeStamp"`                          //时间戳
 	}
 	/*
 	   FILL 语句指定某一窗口区间数据缺失的情况下的填充模式。填充模式包括以下几种：
@@ -58,6 +58,7 @@ type (
 	}
 
 	SchemaDataRepo interface {
+		Init(ctx context.Context) error
 		// InsertEventData 插入事件数据
 		InsertEventData(ctx context.Context, productID string, deviceName string, event *EventData) error
 		// InsertPropertyData 插入一条属性数据

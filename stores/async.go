@@ -11,8 +11,10 @@ import (
 )
 
 type AsyncInsert[t any] struct {
+	db         *DB
 	once       sync.Once
 	insertChan chan *t
+	tableName  string
 }
 
 const (
@@ -20,9 +22,11 @@ const (
 	asyncRunMax  = 40
 )
 
-func NewAsyncInsert[t any]() (a *AsyncInsert[t]) {
+func NewAsyncInsert[t any](db *DB, tableName string) (a *AsyncInsert[t]) {
 	a = &AsyncInsert[t]{
 		insertChan: make(chan *t, asyncExecMax*10),
+		db:         db,
+		tableName:  tableName,
 	}
 	for i := 0; i < asyncRunMax; i++ {
 		utils.Go(context.Background(), func() {
@@ -44,7 +48,11 @@ func (a *AsyncInsert[t]) asyncInsertRuntime() {
 		if len(execCache) == 0 {
 			return
 		}
-		err := GetTenantConn(ctxs.WithRoot(context.Background())).CreateInBatches(execCache, 100).Error
+		db := a.db.WithContext(ctxs.WithRoot(context.Background()))
+		if a.tableName != "" {
+			db = db.Table(a.tableName)
+		}
+		err := db.CreateInBatches(execCache, 100).Error
 		if err != nil {
 			logx.Error(err)
 		}
