@@ -10,7 +10,7 @@ import (
 func (d *Define) FmtValue(val any) (any, error) {
 	switch d.Type {
 	case DataTypeBool:
-		return cast.ToBoolE(val)
+		return cast.ToInt64E(val)
 	case DataTypeInt, DataTypeEnum, DataTypeTimestamp:
 		if num, err := cast.ToInt64E(val); err != nil {
 			num2, er := cast.ToFloat64E(val)
