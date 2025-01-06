@@ -33,6 +33,12 @@ type PropertyReport struct {
 	Param      any          `json:"param"`            //推送属性的参数
 }
 
+type PropertyReportV2 struct {
+	Device    devices.Core   `json:"device"`
+	Timestamp int64          `json:"timestamp,string"` //毫秒时间戳
+	Params    map[string]any `json:"params"`           //推送属性的参数,key为属性的id,value为值
+}
+
 type Hub struct {
 	ProductID   string `json:"productID"`                  // 产品id
 	DeviceName  string `json:"deviceName"`                 // 设备名称

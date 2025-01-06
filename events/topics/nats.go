@@ -59,7 +59,8 @@ const (
 	// ApplicationDeviceStatusDisConnected 设备登出状态推送 中间两个是产品id和设备名称
 	ApplicationDeviceStatusDisConnected = "application.device.%s.%s.status.disconnected"
 	// ApplicationDeviceReportThingProperty 设备物模型属性上报通知 中间两个是产品id和设备名称,最后一个是属性id
-	ApplicationDeviceReportThingProperty = "application.device.%s.%s.report.thing.property.%s"
+	ApplicationDeviceReportThingProperty   = "application.device.%s.%s.report.thing.property.%s"
+	ApplicationDeviceReportThingPropertyV2 = "application.v2.device.%s.%s.report.thing.property"
 	// ApplicationDeviceReportThingEvent 设备物模型事件上报通知 中间两个是产品id和设备名称,最后两个是事件类型和事件id
 	ApplicationDeviceReportThingEvent = "application.device.%s.%s.report.thing.event.%s.%s"
 	// ApplicationDeviceReportThingAction 设备物模型事件上报通知 中间两个是产品id和设备名称,最后三个是actionID,请求类型(req resp)和调用方向
