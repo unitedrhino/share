@@ -1,6 +1,7 @@
 package ctxs
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -8,7 +9,9 @@ import (
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/spf13/cast"
+	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/metadata"
+	"io"
 	"net/http"
 )
 
@@ -160,7 +163,17 @@ func InitCtxWithReq(r *http.Request) *http.Request {
 func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		r = InitCtxWithReq(r)
+		reqBody, _ := io.ReadAll(r.Body)                //读取 reqBody
+		r.Body = io.NopCloser(bytes.NewReader(reqBody)) //重建 reqBody
+		if len(reqBody) > 256 {
+			reqBody = reqBody[0:256]
+		}
+		reqBody = bytes.ReplaceAll(reqBody, []byte("\n"), []byte{})
+		reqBody = bytes.ReplaceAll(reqBody, []byte("\r"), []byte{})
 		next(w, r)
+		uc := GetUserCtxNoNil(r.Context())
+		logx.WithContext(r.Context()).Infof("[HTTP] %s userID:%v account:%v isOpen:%v req:%v",
+			r.RequestURI, uc.UserID, uc.Account, uc.IsOpen, string(reqBody))
 	}
 }
 
