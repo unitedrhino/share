@@ -285,7 +285,7 @@ func WithProjectID(ctx context.Context, projectID int64) context.Context {
 // 如果是default租户直接给root权限
 func WithDefaultRoot(ctx context.Context) context.Context {
 	uc := GetUserCtxNoNil(ctx)
-	if uc.TenantCode != def.TenantCodeDefault || !uc.IsSuperAdmin || uc.ProjectID > 3 { //传了项目ID则不是root权限
+	if uc.TenantCode != def.TenantCodeDefault || !uc.IsAdmin || uc.ProjectID > 3 { //传了项目ID则不是root权限
 		return ctx
 	}
 	return WithRoot(ctx)
