@@ -16,7 +16,7 @@ type (
 	// PropertyData 属性数据
 	PropertyData struct {
 		Identifier string    `gorm:"column:identifier;type:varchar(50);NOT NULL" json:"identifier"` //标识符
-		Param      any       `gorm:"column:param;type:varchar(256);NOT NULL" json:"params" `        //一个属性的参数
+		Param      any       `gorm:"column:param;type:varchar(256);NOT NULL" json:"param" `         //一个属性的参数
 		TimeStamp  time.Time `gorm:"column:ts;NOT NULL;" json:"timeStamp"`                          //时间戳
 	}
 	// EventData 事件数据
