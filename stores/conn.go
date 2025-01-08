@@ -50,7 +50,7 @@ func InitTsConn(database conf.TSDB) {
 
 func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 	dbType = database.DBType
-	cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: NewLog(logger.Warn)}
+	cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, PrepareStmt: true, Logger: NewLog(logger.Warn)}
 	switch database.DBType {
 	case conf.Pgsql:
 		conn, err = gorm.Open(postgres.Open(database.DSN), &cfg)
