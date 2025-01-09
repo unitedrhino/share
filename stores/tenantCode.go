@@ -100,32 +100,30 @@ func (sd TenantCodeClause) ModifyStatement(stmt *gorm.Statement) { //查询的�
 
 	switch sd.Opt {
 	case Create:
-		if uc != nil {
-			destV := reflect.ValueOf(stmt.Dest)
-			if destV.Kind() == reflect.Array || destV.Kind() == reflect.Slice {
-				for i := 0; i < destV.Len(); i++ {
-					dest := destV.Index(i)
-					if dest.Kind() == reflect.Pointer || dest.Kind() == reflect.Interface {
-						dest = dest.Elem()
-					}
-					field := dest.FieldByName(sd.Field.Name)
-					if tenantCode != "" && !field.IsZero() { //只有root权限的租户可以设置为其他租户
-						continue
-					}
-					var v TenantCode
-					v = TenantCode(tenantCode)
-					field.Set(reflect.ValueOf(v))
+		destV := reflect.ValueOf(stmt.Dest)
+		if destV.Kind() == reflect.Array || destV.Kind() == reflect.Slice {
+			for i := 0; i < destV.Len(); i++ {
+				dest := destV.Index(i)
+				if dest.Kind() == reflect.Pointer || dest.Kind() == reflect.Interface {
+					dest = dest.Elem()
 				}
-				return
+				field := dest.FieldByName(sd.Field.Name)
+				if tenantCode != "" && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+					continue
+				}
+				var v TenantCode
+				v = TenantCode(tenantCode)
+				field.Set(reflect.ValueOf(v))
 			}
-			field := destV.Elem().FieldByName(sd.Field.Name)
-			if tenantCode != "" && !field.IsZero() { //只有root权限的租户可以设置为其他租户
-				return
-			}
-			var v TenantCode
-			v = TenantCode(tenantCode)
-			field.Set(reflect.ValueOf(v))
+			return
 		}
+		field := destV.Elem().FieldByName(sd.Field.Name)
+		if tenantCode != "" && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+			return
+		}
+		var v TenantCode
+		v = TenantCode(tenantCode)
+		field.Set(reflect.ValueOf(v))
 	case Update, Delete, Select:
 		if uc.IsSuperAdmin && allTenant { //只有超管能修改其他租户
 			return
