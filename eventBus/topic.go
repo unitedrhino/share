@@ -6,11 +6,13 @@ const (
 	CoreAreaInfoDelete     = "server.core.area.info.delete"
 	CoreOpsWorkOrderFinish = "server.core.ops.workOrder.finish"
 	CoreSyncHalfHour       = "server.core.sync.halfHour" //半小时统计
-	CoreUserDelete         = "server.core.user.delete"
-	CoreUserCreate         = "server.core.user.create"
-	CoreUserUpdate         = "server.core.user.update"
-	CoreProjectDelete      = "server.core.project.delete"
-	CoreApiUserPublish     = "server.core.api.user.publish.%v"
+	CoreSyncDay            = "server.core.sync.day"      //一天
+
+	CoreUserDelete     = "server.core.user.delete"
+	CoreUserCreate     = "server.core.user.create"
+	CoreUserUpdate     = "server.core.user.update"
+	CoreProjectDelete  = "server.core.project.delete"
+	CoreApiUserPublish = "server.core.api.user.publish.%v"
 
 	DmDeviceInfoUnbind         = "server.things.dm.device.info.unbind"
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"

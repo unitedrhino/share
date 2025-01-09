@@ -150,7 +150,7 @@ func InitCtxWithReq(r *http.Request) *http.Request {
 	uc.ProjectID = projectID
 	uc.Os = GetHandle(r, "User-Agent")
 	uc.AcceptLanguage = GetHandle(r, "Accept-Language")
-	uc.Token = GetHandle(r, UserTokenKey)
+	uc.Token = GetHandle(r, UserTokenKey, UserToken2Key)
 	if uc.IP == "" {
 		strIP, _ := utils.GetIP(r)
 		uc.IP = strIP
