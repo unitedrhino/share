@@ -11,10 +11,15 @@ import (
 
 func ConfMustLoad(path string, v any, opts ...conf.Option) {
 	confPrefix := os.Getenv("confPrefix")
+	confSuffix := os.Getenv("confSuffix")
 	if path[0] == '/' {
-		if confPrefix != "" {
+		if confPrefix != "" || confSuffix != "" {
 			dir, file := filepath.Split(path)
-			newPath := filepath.Join(dir, fmt.Sprintf("%s/%s", confPrefix, file))
+			files := strings.Split(file, ".")
+			if len(files) > 1 && confSuffix != "" {
+				file = fmt.Sprintf("%s%s.%s", files[0], confSuffix, files[len(files)-1])
+			}
+			newPath := filepath.Join(dir, fmt.Sprintf("%s%s", confPrefix, file))
 			_, err := os.Stat(newPath)
 			if err == nil {
 				conf.MustLoad(newPath, v, opts...)
@@ -24,9 +29,13 @@ func ConfMustLoad(path string, v any, opts ...conf.Option) {
 		conf.MustLoad(path, v, opts...)
 		return
 	}
-	if confPrefix != "" {
+	if confPrefix != "" || confSuffix != "" {
 		dir, file := filepath.Split(path)
-		newPath := filepath.Join(dir, fmt.Sprintf("%s_%s", confPrefix, file))
+		files := strings.Split(file, ".")
+		if len(files) > 1 && confSuffix != "" {
+			file = fmt.Sprintf("%s%s.%s", files[0], confSuffix, files[len(files)-1])
+		}
+		newPath := filepath.Join(dir, fmt.Sprintf("%s%s", confPrefix, file))
 		_, err := os.Stat(newPath)
 		if err == nil {
 			conf.MustLoad(newPath, v, opts...)
@@ -44,9 +53,13 @@ func ConfMustLoad(path string, v any, opts ...conf.Option) {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	logx.Must(err)
 	newPath := filepath.Join(dir, path)
-	if confPrefix != "" {
+	if confPrefix != "" || confSuffix != "" {
 		dir, file := filepath.Split(newPath)
-		newPath2 := filepath.Join(dir, fmt.Sprintf("%s_%s", confPrefix, file))
+		files := strings.Split(file, ".")
+		if len(files) > 1 && confSuffix != "" {
+			file = fmt.Sprintf("%s%s.%s", files[0], confSuffix, files[len(files)-1])
+		}
+		newPath2 := filepath.Join(dir, fmt.Sprintf("%s%s", confPrefix, file))
 		_, err := os.Stat(newPath2)
 		if err == nil {
 			conf.MustLoad(newPath2, v, opts...)
