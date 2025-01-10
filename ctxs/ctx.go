@@ -172,8 +172,8 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		reqBody = bytes.ReplaceAll(reqBody, []byte("\r"), []byte{})
 		next(w, r)
 		uc := GetUserCtxNoNil(r.Context())
-		logx.WithContext(r.Context()).Infof("[HTTP] %s userID:%v account:%v isOpen:%v req:%v",
-			r.RequestURI, uc.UserID, uc.Account, uc.IsOpen, string(reqBody))
+		logx.WithContext(r.Context()).Infof("[HTTP] %s uc:%v isOpen:%v req:%v",
+			r.RequestURI, utils.Fmt(uc), string(reqBody))
 	}
 }
 
