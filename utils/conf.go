@@ -83,6 +83,5 @@ func GerRealPwd(path string) string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	logx.Must(err)
 	newPath := filepath.Join(dir, path)
-	fmt.Printf("\n\n\npath:%s\n\n", newPath)
 	return newPath
 }
