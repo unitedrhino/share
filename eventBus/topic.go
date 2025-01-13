@@ -15,6 +15,7 @@ const (
 	CoreApiUserPublish = "server.core.api.user.publish.%v"
 
 	DmDeviceInfoUnbind         = "server.things.dm.device.info.unbind"
+	DmDeviceInfoCreate         = "server.things.dm.device.info.create"
 	DmDeviceInfoDelete         = "server.things.dm.device.info.delete"
 	DmDeviceOnlineStatusChange = "server.things.dm.device.onlineStatus.change"
 	DmDeviceStaticOneHour      = "server.things.dm.device.static.2Hour"     //2小时统计
