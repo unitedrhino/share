@@ -2,7 +2,6 @@ package result
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/errors"
@@ -55,7 +54,7 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 		httpx.WriteJson(w, http.StatusOK, Error(er.Code, msg))
 		code = int(er.Code)
 	}
-	ret := r.Context().Value(needRespKey)
+	ret := ctxs.GetResp(r)
 	if ret != nil {
 		//将接口的应答结果写入r.Response，为操作日志记录接口提供应答信息
 		var temp http.Response
@@ -65,7 +64,7 @@ func Http(w http.ResponseWriter, r *http.Request, resp any, err error) {
 			bs, _ := json.Marshal(resp)
 			temp.Body = ioutil.NopCloser(bytes.NewReader(bs))
 		}
-		*ret.(*http.Response) = temp
+		*ret = temp
 	}
 
 }
@@ -82,21 +81,4 @@ func HttpWithoutWrap(w http.ResponseWriter, r *http.Request, resp any, err error
 			r.URL.Path, utils.Fmt(er))
 		httpx.WriteJson(w, http.StatusOK, Error(er.Code, er.GetMsg()))
 	}
-}
-
-const needRespKey = "result.needResp"
-
-func NeedResp(r *http.Request) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), needRespKey, &http.Response{}))
-}
-func GetResp(r *http.Request) *http.Response {
-	v := r.Context().Value(needRespKey)
-	if v == nil {
-		return nil
-	}
-	vv := v.(*http.Response)
-	if vv.StatusCode == 0 {
-		return nil
-	}
-	return vv
 }

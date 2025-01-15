@@ -4,15 +4,22 @@ import (
 	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/metric"
 	"path/filepath"
 	"runtime"
 	"runtime/debug"
 	"strings"
 )
 
-func Recover(ctx context.Context) {
+func Recover(ctx context.Context, infos ...string) {
 	if p := recover(); p != nil {
-		HandleThrow(ctx, p)
+		HandleThrow(ctx, p, infos...)
+	}
+}
+
+func Recoverf(ctx context.Context, q string, v ...any) {
+	if p := recover(); p != nil {
+		HandleThrow(ctx, p, fmt.Sprintf(q, v...))
 	}
 }
 
@@ -22,15 +29,27 @@ func SetPanicNotify(f func(string)) {
 	setPanicNotify = f
 }
 
-func HandleThrow(ctx context.Context, p any) {
+const serverNamespace = "lx"
+
+var (
+	metricServerReqDur = metric.NewCounterVec(&metric.CounterVecOpts{
+		Namespace: serverNamespace,
+		Subsystem: "panic",
+		Name:      "recover",
+		Help:      "panic recover count",
+		Labels:    []string{"traceID", "error"},
+	})
+)
+
+func HandleThrow(ctx context.Context, p any, msgs ...string) {
 	pc := make([]uintptr, 1)
 	runtime.Callers(3, pc)
-	f := runtime.FuncForPC(pc[0])
-	msg := fmt.Sprintf("HandleThrow|func=%s|error=%#v|stack=%s\n", f, p, string(debug.Stack()))
+	msg := fmt.Sprintf("HandleThrow|traceID=%s|msg=%v|error=%#v|stack=%s", TraceIdFromContext(ctx), msgs, p, string(debug.Stack()))
 	logx.WithContext(ctx).Error(msg)
 	if setPanicNotify != nil {
 		setPanicNotify(msg)
 	}
+	metricServerReqDur.Inc(TraceIdFromContext(ctx), Fmt(p))
 	//os.Exit(-1)
 }
 

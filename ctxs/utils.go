@@ -4,6 +4,7 @@ import (
 	"context"
 	"gitee.com/unitedrhino/share/utils"
 	"go.opentelemetry.io/otel/trace"
+	"net/http"
 	"time"
 )
 
@@ -35,4 +36,22 @@ func GetDeadLine(ctx context.Context, defaultDeadLine time.Time) time.Time {
 		return defaultDeadLine
 	}
 	return dead
+}
+
+const needRespKey = "result.needResp"
+
+func NeedResp(r *http.Request) *http.Request {
+	v := r.Context().Value(needRespKey)
+	if v != nil {
+		return r
+	}
+	return r.WithContext(context.WithValue(r.Context(), needRespKey, &http.Response{}))
+}
+func GetResp(r *http.Request) *http.Response {
+	v := r.Context().Value(needRespKey)
+	if v == nil {
+		return nil
+	}
+	vv := v.(*http.Response)
+	return vv
 }

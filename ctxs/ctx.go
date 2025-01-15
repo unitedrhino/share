@@ -1,7 +1,6 @@
 package ctxs
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -9,40 +8,38 @@ import (
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/spf13/cast"
-	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/metadata"
-	"io"
 	"net/http"
 )
 
 type UserCtx struct {
-	IsOpen         bool //是否开放认证用户
+	IsOpen         bool `json:",omitempty"` //是否开放认证用户
 	AppCode        string
-	Token          string
-	TenantCode     string //租户Code
-	AcceptLanguage string
-	ProjectID      int64 `json:",string"`
-	IsAdmin        bool  //是否是超级管理员
-	IsSuperAdmin   bool
-	UserID         int64   `json:",string"` //用户id（开放认证用户值为0）
-	RoleIDs        []int64 //用户使用的角色（开放认证用户值为0）
-	RoleCodes      []string
-	IsAllData      bool   //是否所有数据权限（开放认证用户值为true）
-	IP             string //用户的ip地址
-	Os             string //操作系统
+	Token          string   `json:",omitempty"`
+	TenantCode     string   //租户Code
+	AcceptLanguage string   `json:",omitempty"`
+	ProjectID      int64    `json:",string"`
+	IsAdmin        bool     `json:",omitempty"` //是否是超级管理员
+	IsSuperAdmin   bool     `json:",omitempty"`
+	UserID         int64    `json:",string"`    //用户id（开放认证用户值为0）
+	RoleIDs        []int64  `json:",omitempty"` //用户使用的角色（开放认证用户值为0）
+	RoleCodes      []string `json:",omitempty"`
+	IsAllData      bool     `json:",omitempty"` //是否所有数据权限（开放认证用户值为true）
+	IP             string   `json:",omitempty"` //用户的ip地址
+	Os             string   `json:",omitempty"` //操作系统
 	UserName       string
 	Account        string
-	ProjectAuth    map[int64]*ProjectAuth
+	ProjectAuth    map[int64]*ProjectAuth `json:",omitempty"`
 	InnerCtx
 }
 
 type ProjectAuth struct {
-	Area     map[int64]def.AuthType  //key是区域ID,value是授权类型
-	AreaPath map[string]def.AuthType //key是区域ID路径,value是授权类型
+	Area     map[int64]def.AuthType  `json:",omitempty"` //key是区域ID,value是授权类型
+	AreaPath map[string]def.AuthType `json:",omitempty"` //key是区域ID路径,value是授权类型
 	// 1 //管理权限,可以修改别人的权限,及读写权限 管理权限不限制区域权限
 	// 2 //读权限,只能读,不能修改
 	// 3 //读写权限,可以读写该权限
-	AuthType def.AuthType //项目的授权类型
+	AuthType def.AuthType `json:",omitempty"` //项目的授权类型
 }
 
 func GetAllAreaIDs(in map[int64]*ProjectAuth) (areas []int64) {
@@ -100,10 +97,10 @@ func (u *UserCtx) HasRole(roleCodes ...string) bool {
 }
 
 type InnerCtx struct {
-	AllProject       bool
-	AllArea          bool //内部使用,不限制区域
-	AllTenant        bool //所有租户的权限
-	WithCommonTenant bool //同时获取公共租户
+	AllProject       bool `json:",omitempty"`
+	AllArea          bool `json:",omitempty"` //内部使用,不限制区域
+	AllTenant        bool `json:",omitempty"` //所有租户的权限
+	WithCommonTenant bool `json:",omitempty"` //同时获取公共租户
 }
 
 func GetHandle(r *http.Request, keys ...string) string {
@@ -158,23 +155,6 @@ func InitCtxWithReq(r *http.Request) *http.Request {
 	ctx := SetUserCtx(r.Context(), uc)
 	r = r.WithContext(ctx)
 	return r
-}
-
-func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		r = InitCtxWithReq(r)
-		reqBody, _ := io.ReadAll(r.Body)                //读取 reqBody
-		r.Body = io.NopCloser(bytes.NewReader(reqBody)) //重建 reqBody
-		if len(reqBody) > 256 {
-			reqBody = reqBody[0:256]
-		}
-		reqBody = bytes.ReplaceAll(reqBody, []byte("\n"), []byte{})
-		reqBody = bytes.ReplaceAll(reqBody, []byte("\r"), []byte{})
-		next(w, r)
-		uc := GetUserCtxNoNil(r.Context())
-		logx.WithContext(r.Context()).Infof("[HTTP] %s uc:%v isOpen:%v req:%v",
-			r.RequestURI, utils.Fmt(uc), string(reqBody))
-	}
 }
 
 func BindUser(ctx context.Context, userID int64, account string) context.Context {
