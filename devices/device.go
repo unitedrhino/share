@@ -17,6 +17,15 @@ type Info struct {
 	TenantCode string
 	ProjectID  int64
 	AreaID     int64
+	AreaIDPath string
+}
+
+// 归属
+type Affiliation struct {
+	TenantCode string
+	ProjectID  int64
+	AreaID     int64
+	AreaIDPath string
 }
 
 // 设备标签

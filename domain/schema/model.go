@@ -2,9 +2,12 @@ package schema
 
 import (
 	"encoding/json"
+	"fmt"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/spf13/cast"
+	"strings"
+	"time"
 )
 
 type (
@@ -230,6 +233,34 @@ func (p *PropertyMap) GetIDs() []string {
 		}
 	}
 	return ids
+}
+
+func (d *Define) GetValueDesc(value any) string {
+	switch d.Type {
+	case DataTypeBool:
+		if utils.ToBool(value) {
+			return d.Mapping["1"]
+		}
+		return d.Mapping["0"]
+	case DataTypeTimestamp:
+		return time.Unix(0, cast.ToInt64(value)).Format("2006-01-02 15:04:05.000")
+	case DataTypeStruct:
+		var descs []string
+		vv := utils.ToStringMap(value)
+		for k, v := range vv {
+			s := d.Spec[k]
+			if s != nil {
+				descs = append(descs, fmt.Sprintf("%s:%s", s.Name, s.DataType.GetValueDesc(v)))
+			}
+		}
+		return strings.Join(descs, ",")
+	case DataTypeEnum:
+		return d.Mapping[utils.ToString(value)]
+	case DataTypeInt, DataTypeFloat:
+		return fmt.Sprintf("%v%s", value, d.Unit)
+	default:
+		return cast.ToString(value)
+	}
 }
 
 func (d *Define) GetDefaultValue() (retAny any, err error) {
