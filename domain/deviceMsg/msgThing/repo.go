@@ -15,6 +15,7 @@ import (
 type (
 	// PropertyData 属性数据
 	PropertyData struct {
+		DeviceName string    `gorm:"column:device_name;type:varchar(50);NOT NULL" json:"deviceName"`
 		Identifier string    `gorm:"column:identifier;type:varchar(50);NOT NULL" json:"identifier"` //标识符
 		Param      any       `gorm:"column:param;type:varchar(256);NOT NULL" json:"param" `         //一个属性的参数
 		TimeStamp  time.Time `gorm:"column:ts;NOT NULL;" json:"timeStamp"`                          //时间戳
@@ -47,6 +48,7 @@ type (
 		IntervalUnit def.TimeUnit //间隔单位 a (毫秒,默认), d (天), h (小时), m (分钟), n (月), s (秒), u (微秒), w (周), y (年)
 		Fill         string       //指定窗口区间数据缺失的情况下的填充模式
 		ArgFunc      string       //聚合函数 avg:平均值 first:第一个参数 last:最后一个参数 count:总数 twa: 时间加权平均函数 参考:https://docs.taosdata.com/taos-sql/function
+		PartitionBy  string       //切分数据,可以填写deviceName
 	}
 	LatestFilter struct {
 		ProductID  string
