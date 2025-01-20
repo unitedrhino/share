@@ -270,9 +270,12 @@ func (d *Define) ValidateWithFmtBool() error {
 			return errors.Parameter.WithMsgf("布尔的1数据定义值长度过大:%v", d.Mapping)
 		}
 	}
+	_, ok := d.Mapping[d.Start]
+	if d.Start != "" && !ok {
+		return errors.Parameter.WithMsgf("布尔的初始值没有在定义范围内:%v", d.Start)
+	}
 	d.Min = ""
 	d.Max = ""
-	d.Start = ""
 	d.Step = ""
 	d.Unit = ""
 	d.Specs = nil
@@ -462,9 +465,12 @@ func (d *Define) ValidateWithFmtEnum() error {
 			return errors.Parameter.WithMsgf("枚举的%v数据定义值长度过大:%v", k, v)
 		}
 	}
+	_, ok := d.Mapping[d.Start]
+	if d.Start != "" && !ok {
+		return errors.Parameter.WithMsgf("枚举的初始值没有在定义范围内:%v", d.Start)
+	}
 	d.Min = ""
 	d.Max = ""
-	d.Start = ""
 	d.Step = ""
 	d.Unit = ""
 	d.Specs = nil

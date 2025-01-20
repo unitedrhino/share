@@ -266,6 +266,9 @@ func (d *Define) GetValueDesc(value any) string {
 func (d *Define) GetDefaultValue() (retAny any, err error) {
 	switch d.Type {
 	case DataTypeBool:
+		if d.Start != "" {
+			return cast.ToInt64(d.Mapping[d.Start]), nil
+		}
 		return 0, nil
 	case DataTypeInt:
 		return cast.ToInt64(d.Start), nil
@@ -284,6 +287,9 @@ func (d *Define) GetDefaultValue() (retAny any, err error) {
 	case DataTypeArray:
 		return d.ArrayInfo.GetDefaultValue()
 	case DataTypeEnum:
+		if d.Start != "" {
+			return cast.ToInt64(d.Mapping[d.Start]), nil
+		}
 		var keys []int64
 		for k := range d.Mapping {
 			keys = append(keys, cast.ToInt64(k))
