@@ -37,8 +37,9 @@ type (
 	   NEXT 填充：使用下一个非 NULL 值填充数据。例如：FILL(NEXT)。
 	*/
 	FilterOpt struct {
-		Page      def.PageInfo2
-		ProductID string
+		Page       def.PageInfo2
+		ProductID  string
+		ProductIDs []string
 		//DeviceName  string
 		DeviceNames  []string
 		DataID       string
