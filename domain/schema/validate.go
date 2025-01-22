@@ -2,6 +2,7 @@ package schema
 
 import (
 	"encoding/json"
+	"gitee.com/unitedrhino/share/def"
 	"gitee.com/unitedrhino/share/utils"
 
 	"gitee.com/unitedrhino/share/errors"
@@ -191,6 +192,9 @@ func (p *Property) ValidateWithFmt() error {
 	}
 	if p.Mode == "" {
 		p.Mode = PropertyModeRW
+	}
+	if p.IsPassword == 0 {
+		p.IsPassword = def.False
 	}
 	if p.Mode != PropertyModeRW && p.Mode != PropertyModeR {
 		return errors.Parameter.WithMsgf("属性读写类型只能为rw及r,收到:%v", p.Mode)
