@@ -50,6 +50,9 @@ const (
 	// DeviceUpStatusDisconnected 设备的登出后向内部推送以下topic
 	DeviceUpStatusDisconnected = "device.up.status.disconnected"
 	DeviceUpStatus             = "device.up.status.>"
+
+	// DeviceDownStatusConnected 设备在线状态修复,第一个参数是协议coe
+	DeviceDownStatusConnected = "device.down.%s.status.fix"
 )
 
 // 应用事件通知(设备状态变化,设备上报)

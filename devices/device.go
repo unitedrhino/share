@@ -11,6 +11,11 @@ type Core struct {
 	DeviceName string `json:"deviceName"` //设备名称
 }
 
+type WithGateway struct {
+	Dev     Core  `json:"dev"`
+	Gateway *Core `json:"gateway,omitempty"` //如果是子设备类型,会带上网关
+}
+
 type Info struct {
 	ProductID  string `json:"productID"`  //产品id
 	DeviceName string `json:"deviceName"` //设备名称
