@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
-	"fmt"
-	"gitee.com/unitedrhino/share/domain/schema"
 	"gitee.com/unitedrhino/share/errors"
 	"github.com/spf13/cast"
 	"reflect"
@@ -102,29 +100,6 @@ func Scan(rows *sql.Rows, Dest any) error {
 		return errors.Database.AddMsgf("not support type:%v", reflect.TypeOf(dest))
 	}
 	return nil
-}
-
-func GetTdType(define schema.Define) string {
-	switch define.Type {
-	case schema.DataTypeBool:
-		return "BOOL"
-	case schema.DataTypeInt:
-		return "BIGINT"
-	case schema.DataTypeString:
-		return "BINARY(5000)"
-	case schema.DataTypeStruct:
-		return "BINARY(5000)"
-	case schema.DataTypeFloat:
-		return "DOUBLE"
-	case schema.DataTypeTimestamp:
-		return "TIMESTAMP"
-	case schema.DataTypeArray:
-		return "BINARY(5000)"
-	case schema.DataTypeEnum:
-		return "SMALLINT"
-	default: //走到这里说明前面没有进行校验需要检查是否是前面有问题
-		panic(fmt.Sprintf("%v not support", define.Type))
-	}
 }
 
 // GenParams 返回占位符?,?,?,? 参数id名:aa,bbb,ccc 参数值列表

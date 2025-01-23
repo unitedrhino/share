@@ -17,7 +17,6 @@ require (
 	github.com/casbin/casbin/v2 v2.68.0
 	github.com/dop251/goja v0.0.0-20231024180952-594410467bc6
 	github.com/dtm-labs/client v1.17.3
-	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/fatih/structs v1.1.0
 	github.com/glebarez/sqlite v1.8.0
 	github.com/go-playground/universal-translator v0.18.1

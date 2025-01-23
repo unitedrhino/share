@@ -50,7 +50,7 @@ func (DeletedTime) QueryClauses(f *schema.Field) []clause.Interface {
 }
 
 type SoftDeleteQueryClause struct {
-	clauseInterface
+	ClauseInterface
 	Field *schema.Field
 }
 
@@ -101,7 +101,7 @@ func (DeletedTime) UpdateClauses(f *schema.Field) []clause.Interface {
 
 type SoftDeleteUpdateClause struct {
 	Field *schema.Field
-	clauseInterface
+	ClauseInterface
 }
 
 func (sd SoftDeleteUpdateClause) ModifyStatement(stmt *gorm.Statement) {
@@ -115,7 +115,7 @@ type SoftDeleteDeleteClause struct {
 	Flag          bool
 	TimeType      schema.TimeType
 	DeleteAtField *schema.Field
-	clauseInterface
+	ClauseInterface
 }
 
 func (sd SoftDeleteDeleteClause) ModifyStatement(stmt *gorm.Statement) {

@@ -13,17 +13,17 @@ const (
 	Select
 )
 
-type clauseInterface struct {
+type ClauseInterface struct {
 }
 
-func (sd clauseInterface) Name() string {
+func (sd ClauseInterface) Name() string {
 	return ""
 }
 
-func (sd clauseInterface) Build(clause.Builder) {
+func (sd ClauseInterface) Build(clause.Builder) {
 
 }
 
-func (sd clauseInterface) MergeClause(*clause.Clause) {
+func (sd ClauseInterface) MergeClause(*clause.Clause) {
 
 }
