@@ -1,3 +1,4 @@
+// 废弃 使用things下的share/domain/protocols
 package def
 
 const (
@@ -8,7 +9,7 @@ const (
 )
 
 const (
-	ProtocolCodeUnitedRhino  = "iThings"
+	ProtocolCodeUnitedRhino  = "urMqtt"
 	ProtocolCodeAliyunCloud  = "aliyunCloud"
 	ProtocolCodeAliyunMqtt   = "aliyunMqtt"
 	ProtocolCodeTencentCloud = "tencentCloud"

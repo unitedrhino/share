@@ -31,7 +31,7 @@ func Hmac(sign HmacType, data string, secret []byte) string {
 		return HmacSha1(data, secret)
 	case HmacTypeSha256:
 		return HmacSha256(data, secret)
-	case HmacTypeMd5:
+	default:
 		return HmacMd5(data, secret)
 	}
 	return ""
