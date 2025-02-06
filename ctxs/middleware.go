@@ -22,8 +22,8 @@ var (
 		Subsystem: "lx_requests",
 		Name:      "duration_ms",
 		Help:      "http server requests duration(ms).",
-		Labels:    []string{"path", "code", "msg", "tenantCode", "userID", "account"},
-		Buckets:   []float64{5, 10, 25, 50, 100, 250, 500, 750, 1000, 2000, 5000, 10000, 20000, 50000},
+		Labels:    []string{"path", "code", "tenantCode", "userID"},
+		Buckets:   []float64{0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500, 750, 1000, 2000, 5000, 10000, 20000, 50000, 100000},
 	})
 )
 
@@ -53,7 +53,7 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			}
 			useTime := timex.Since(startTime)
 			metricServerReqDur.Observe(useTime.Milliseconds(),
-				r.RequestURI, cast.ToString(resp.StatusCode), resp.Status, uc.TenantCode, cast.ToString(uc.UserID), uc.Account)
+				r.RequestURI, cast.ToString(resp.StatusCode), uc.TenantCode, cast.ToString(uc.UserID))
 
 			logx.WithContext(r.Context()).Infof("[HTTP %v %v] %s use:%v uc:[%v]  reqBody:[%v] respBody:[%v]",
 				resp.StatusCode, resp.Status, r.RequestURI, useTime, utils.Fmt(uc), string(reqBody), string(respBody))
