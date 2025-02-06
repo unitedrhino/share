@@ -9,7 +9,6 @@ import (
 	"github.com/zeromicro/go-zero/core/proc"
 	"os"
 	"runtime"
-	"runtime/debug"
 )
 
 var token = os.Getenv("dingRobotToken")
@@ -40,7 +39,7 @@ func init() {
 			pc := make([]uintptr, 1)
 			runtime.Callers(3, pc)
 			f := runtime.FuncForPC(pc[0])
-			msg := fmt.Sprintf("程序Shutdown|func=%s|stack=%s\n", f, string(debug.Stack()))
+			msg := fmt.Sprintf("程序Shutdown|func=%s|stack=%s\n", f, utils.Stack(2, 5))
 			logx.Error(msg)
 		})
 	}

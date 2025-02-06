@@ -7,7 +7,6 @@ import (
 	"github.com/zeromicro/go-zero/core/metric"
 	"path/filepath"
 	"runtime"
-	"runtime/debug"
 	"strings"
 )
 
@@ -42,9 +41,7 @@ var (
 )
 
 func HandleThrow(ctx context.Context, p any, msgs ...string) {
-	pc := make([]uintptr, 1)
-	runtime.Callers(3, pc)
-	msg := fmt.Sprintf("HandleThrow|traceID=%s|msg=%v|error=%#v|stack=%s", TraceIdFromContext(ctx), msgs, p, string(debug.Stack()))
+	msg := fmt.Sprintf("HandleThrow|traceID=%s|msg=%v|error=%#v|stack=%s", TraceIdFromContext(ctx), msgs, p, Stack(3, 5))
 	logx.WithContext(ctx).Error(msg)
 	if setPanicNotify != nil {
 		setPanicNotify(msg)

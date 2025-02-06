@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 	"os"
 	"runtime"
-	"runtime/debug"
+	"strings"
 )
 
 type CodeError struct {
@@ -80,15 +80,11 @@ func (c CodeError) AddMsgf(format string, a ...any) *CodeError {
 
 func (c CodeError) AddDetail(msg ...any) *CodeError {
 	c.Details = append(c.Details, fmt.Sprint(msg...))
-	pc := make([]uintptr, 1)
-	runtime.Callers(2, pc)
-	c.Stack = append(c.Stack, string(debug.Stack()))
+	c.Stack = append(c.Stack, stack(2, 3))
 	return &c
 }
-func (c CodeError) WithStack() *CodeError {
-	pc := make([]uintptr, 1)
-	runtime.Callers(2, pc)
-	c.Stack = append(c.Stack, string(debug.Stack()))
+func (c CodeError) WithStack(skip int) *CodeError {
+	c.Stack = append(c.Stack, stack(skip+2, 3))
 	return &c
 }
 
@@ -194,10 +190,23 @@ func Is(err, target error) bool {
 
 func Must(err error, msg string) {
 	if err != nil {
-		pc := make([]uintptr, 1)
-		runtime.Callers(2, pc)
-		stack := string(debug.Stack())
-		logx.Errorf("出现一个程序退出错误:%v,err:%v,stack:%v", msg, err, stack)
+		logx.Errorf("出现一个程序退出错误:%v,err:%v,stack:%v", msg, err, stack(2, 3))
 		os.Exit(-1)
 	}
+}
+
+func stack(skip int, len int) string {
+	var pc = make([]uintptr, 20)
+	n := runtime.Callers(skip+1, pc)
+	if len != 0 && n > len {
+		n = len
+	}
+	var stacks = make([]string, 0, n+1)
+	for i := 0; i < n; i++ {
+		f := runtime.FuncForPC(pc[i] - 1)
+		file, line := f.FileLine(pc[i] - 1)
+		s := fmt.Sprintf("[%s:%d]", file[0:], line)
+		stacks = append(stacks, s)
+	}
+	return strings.Join(stacks, "--")
 }

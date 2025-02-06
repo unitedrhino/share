@@ -28,22 +28,6 @@ func MD5V(str []byte) string {
 }
 
 /*
-检测用户名是否符合规范 只可以使用字母数字及下划线 最多30个字符
-*/
-func CheckUserName(name string) error {
-	if len(name) > 30 {
-		return errors.Parameter.AddMsg("userName len more than 30")
-	}
-	if IsPhone(name) {
-		return errors.Parameter.AddMsg("userName can't be phone number")
-	}
-	if IsEmail(name) {
-		return errors.Parameter.AddMsg("userName can't be email")
-	}
-	return nil
-}
-
-/*
 检测密码是否符合规范 需要至少8位 并且需要包含数字和字母
 */
 //密码强度必须为字⺟⼤⼩写+数字+符号，9位以上
@@ -235,4 +219,21 @@ func StructToMap(data interface{}) map[string]interface{} {
 	}
 
 	return result
+}
+
+// Stack 获取堆栈信息
+func Stack(skip int, len int) string {
+	var pc = make([]uintptr, 20)
+	n := runtime.Callers(skip+1, pc)
+	if len != 0 && n > len {
+		n = len
+	}
+	var stacks = make([]string, 0, n+1)
+	for i := 0; i < n; i++ {
+		f := runtime.FuncForPC(pc[i] - 1)
+		file, line := f.FileLine(pc[i] - 1)
+		s := fmt.Sprintf("[%s:%d]", file[0:], line)
+		stacks = append(stacks, s)
+	}
+	return strings.Join(stacks, "--")
 }

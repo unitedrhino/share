@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func SenEmail(c conf.Email, to []string, subject string, body string) error {
+func SendEmail(c conf.Email, to []string, subject string, body string) error {
 	if c.Port == 0 {
 		c.Port = 465
 	}
