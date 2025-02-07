@@ -19,7 +19,7 @@ const serverNamespace = "http_server"
 var (
 	metricServerReqDur = metric.NewHistogramVec(&metric.HistogramVecOpts{
 		Namespace: serverNamespace,
-		Subsystem: "lx_requests",
+		Subsystem: "ur_requests",
 		Name:      "duration_ms",
 		Help:      "http server requests duration(ms).",
 		Labels:    []string{"path", "code", "tenantCode", "userID"},

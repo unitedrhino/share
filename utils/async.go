@@ -28,7 +28,7 @@ func SetPanicNotify(f func(string)) {
 	setPanicNotify = f
 }
 
-const serverNamespace = "lx"
+const serverNamespace = "ur"
 
 var (
 	metricServerReqDur = metric.NewCounterVec(&metric.CounterVecOpts{
