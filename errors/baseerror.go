@@ -135,6 +135,10 @@ func (c CodeError) Error() string {
 	return string(ret)
 }
 
+func (c CodeError) Eq(err error) bool {
+	return Cmp(c, err)
+}
+
 // 将普通的error及转换成json的error或error类型的转回自己的error
 func Fmt(errs error) *CodeError {
 	if errs == nil {

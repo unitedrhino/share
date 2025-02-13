@@ -138,7 +138,8 @@ func (m *Minio) GetObjectInfo(ctx context.Context, filePath string) (*common.Sto
 }
 
 func (m *Minio) ListObjects(ctx context.Context, prefix string) (ret []*common.StorageObjectInfo, err error) {
-	for obj := range m.client.ListObjects(ctx, m.currentBucketName, minio.ListObjectsOptions{Prefix: prefix}) {
+	objs := m.client.ListObjects(ctx, m.currentBucketName, minio.ListObjectsOptions{Prefix: prefix})
+	for obj := range objs {
 		ret = append(ret, &common.StorageObjectInfo{
 			FilePath: obj.Key,
 			Size:     obj.Size,
