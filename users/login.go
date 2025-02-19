@@ -23,14 +23,12 @@ type UserInfo struct {
 	IsAllData  int64
 }
 
-func GetLoginJwtToken(secretKey string, t time.Time, seconds, userID int64, appCode string) (string, error) {
-	IssuedAt := jwt.NewNumericDate(t)
+func GetLoginJwtToken(secretKey string, userID int64, appCode string, id string) (string, error) {
 	claims := LoginClaims{
 		UserID:  userID,
 		AppCode: appCode,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(t.Add(time.Duration(seconds) * time.Second)),
-			IssuedAt:  IssuedAt,
+			ID: id,
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

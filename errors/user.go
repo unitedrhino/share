@@ -21,4 +21,5 @@ var (
 	UseCaptcha           = NewCodeError(UserError+29, "账号或密码错误")
 	AccountDisable       = NewCodeError(UserError+30, "账号已禁用")
 	BindAccount          = NewCodeError(UserError+31, "账号已绑定")
+	AccountKickedOut     = NewCodeError(UserError+32, "账号被顶出")
 )

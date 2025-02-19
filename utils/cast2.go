@@ -34,6 +34,8 @@ func ToInt64(i any) int64 {
 		return t.Unix()
 	case time.Time:
 		return i.(time.Time).Unix()
+	case *wrapperspb.Int64Value:
+		return i.(*wrapperspb.Int64Value).GetValue()
 	default:
 		return cast.ToInt64(i)
 	}

@@ -29,7 +29,9 @@ type UserCtx struct {
 	Os             string   `json:",omitempty"` //操作系统
 	UserName       string
 	Account        string
-	ProjectAuth    map[int64]*ProjectAuth `json:",omitempty"`
+	ProjectAuth    map[int64]*ProjectAuth  `json:",omitempty"`
+	Dept           map[int64]def.AuthType  `json:",omitempty"` //key是区域ID,value是授权类型
+	DeptPath       map[string]def.AuthType `json:",omitempty"` //key是区域ID路径,value是授权类型
 	InnerCtx
 }
 
