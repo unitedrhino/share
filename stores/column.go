@@ -17,6 +17,18 @@ func Col(column string) string {
 	}
 }
 
+func ColWithT(column string, tableAlias string) string {
+	if tableAlias != "" {
+		tableAlias = tableAlias + "."
+	}
+	switch dbType {
+	case conf.Pgsql:
+		return fmt.Sprintf(`%s"%s"`, tableAlias, column)
+	default:
+		return fmt.Sprintf("%s`%s`", tableAlias, column)
+	}
+}
+
 func WithSelect(db *gorm.DB, columns ...string) *gorm.DB {
 	if len(columns) == 0 {
 		return db
