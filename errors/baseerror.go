@@ -145,6 +145,9 @@ func Fmt(errs error) *CodeError {
 		return nil
 	}
 	switch errs.(type) {
+	case CodeError:
+		e := errs.(CodeError)
+		return &e
 	case *CodeError:
 		return errs.(*CodeError)
 	case RpcError: //如果是grpc类型的错误
