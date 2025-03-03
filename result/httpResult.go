@@ -30,6 +30,15 @@ func HttpErr(w http.ResponseWriter, r *http.Request, httpCode int, err error) {
 	temp.StatusCode = code
 	temp.Status = msg
 	r.Response = &temp
+
+	ret := ctxs.GetResp(r)
+	if ret != nil {
+		//将接口的应答结果写入r.Response，为操作日志记录接口提供应答信息
+		var temp http.Response
+		temp.StatusCode = code
+		temp.Status = msg
+		*ret = temp
+	}
 }
 
 // Http http返回
