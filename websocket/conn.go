@@ -75,7 +75,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 		dp = newDp(s2cGzip)
 		event.Subscribe(fmt.Sprintf(eventBus.CoreApiUserPublish, ">"), func(ctx context.Context, t time.Time, body []byte) error {
 			var pbs = WsPublishes{}
-			logx.Debugf("websocket StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
+			logx.WithContext(ctx).Debugf("websocket StartWsDp.sendMessage nodeID:%v publishs:%v", nodeID, string(body))
 			err := json.Unmarshal(body, &pbs)
 			if err != nil {
 				return err
@@ -93,7 +93,7 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 						}
 					}
 					if sub == nil { //没有订阅的
-						logx.Debugf("no sub:%v", utils.Fmt(pb))
+						logx.WithContext(ctx).Debugf("no sub:%v", utils.Fmt(pb))
 						return nil
 					}
 					var connectIDSet = map[int64]struct{}{}
@@ -244,7 +244,7 @@ func (c *connection) StartRead() {
 			c.Close("read err")
 			break
 		}
-		logx.Infof("%s.websocket message:%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
+
 		var data map[string]interface{}
 		err = json.Unmarshal(message, &data)
 		if err != nil {
@@ -271,6 +271,14 @@ func (c *connection) handleRequest(message []byte) {
 		c.errorSend(errors.Parameter)
 		return
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	defer cancel()
+	utils.Recover(ctx)
+	//dgsvr 订阅到了设备端数据，此时调用StartSpan方法，将订阅到的主题推送给jaeger
+	//此时的ctx已经包含当前节点的span信息，会随着 handle(ctx).Publish 传递到下个节点
+	ctx, span := ctxs.StartSpan(ctx, string(body.Type), "")
+	defer span.End()
+	logx.WithContext(ctx).Infof("%s.websocket message:%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
 	if err := isDataComplete(body.Type, body); err != nil {
 		c.errorSend(err)
 		return
@@ -280,10 +288,9 @@ func (c *connection) handleRequest(message []byte) {
 			c.r.Header.Set(k, v)
 		}
 	}
-	ctx := ctxs.SetUserCtx(context.Background(), c.uc)
 	switch body.Type {
-	case Control:
-		downControl(c, body)
+	//case Control:
+	//	downControl(c, body)
 	case Sub:
 		subscribeHandle(ctx, c, body)
 	case UnSub:

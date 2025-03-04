@@ -58,11 +58,6 @@ func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
 		return
 	}
 	//err = NewUserSubscribe(store).Del(ctx, c.userID, &info)
-	if err != nil {
-		logx.Error(err)
-		c.errorSend(err)
-		return
-	}
 	md := utils.Md5Map(info.Params)
 	key := info.Code + ":" + md
 	delete(c.userSubscribe, key)
