@@ -478,6 +478,6 @@ func (c *connection) writeMessage(messageType int, message []byte) error {
 			logx.Infof("%s.websocket error message::%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
 		}
 	}
-	logx.Debugf("%s.websocket message:%s userID:%v", utils.FuncName(), string(message), c.userID)
+	logx.Debugf("%s.websocket message:%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
 	return nil
 }
