@@ -25,12 +25,13 @@ import (
 )
 
 var (
-	dp             *dispatcher //ws调度器
-	once           sync.Once
-	store          kv.Store
-	nodeID         int64
-	checkSubscribe func(ctx context.Context, in *SubscribeInfo) error
-	connectID      atomic.Int64
+	dp              *dispatcher //ws调度器
+	once            sync.Once
+	store           kv.Store
+	nodeID          int64
+	checkSubscribe  func(ctx context.Context, in *SubscribeInfo) error
+	checkSubscribe2 func(ctx context.Context, in *SubscribeInfo) ([]map[string]any, error)
+	connectID       atomic.Int64
 )
 
 const (
@@ -46,7 +47,7 @@ type connection struct {
 	ws            *websocket.Conn //ws连接实例
 	userID        int64           //ws连接实例唯一标识
 	connectID     int64
-	userSubscribe map[string]any
+	userSubscribe map[string]map[string]struct{}
 	closed        bool        //ws连接已关闭
 	send          chan []byte //发送信息管道
 	pingErr       atomic.Int64
@@ -124,6 +125,10 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 
 func RegisterSubscribeCheck(f func(ctx context.Context, in *SubscribeInfo) error) {
 	checkSubscribe = f
+}
+
+func RegisterSubscribeCheck2(f func(ctx context.Context, in *SubscribeInfo) ([]map[string]any, error)) {
+	checkSubscribe2 = f
 }
 
 // 创建ws调度器
@@ -206,7 +211,7 @@ func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request,
 		uc:            ctxs.GetUserCtx(ctx),
 		r:             r,
 		userID:        userID,
-		userSubscribe: map[string]any{},
+		userSubscribe: map[string]map[string]struct{}{},
 		connectID:     connectID.Add(1),
 		send:          make(chan []byte, 10000),
 	}
@@ -271,7 +276,7 @@ func (c *connection) handleRequest(message []byte) {
 		c.errorSend(errors.Parameter)
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
+	ctx, cancel := context.WithTimeout(ctxs.SetUserCtx(context.Background(), c.uc), 50*time.Second)
 	defer cancel()
 	utils.Recover(ctx)
 	//dgsvr 订阅到了设备端数据，此时调用StartSpan方法，将订阅到的主题推送给jaeger
