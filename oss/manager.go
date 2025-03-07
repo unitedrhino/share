@@ -12,6 +12,8 @@ func newOssManager(setting conf.OssConf) (sm Handle, err error) {
 		sm, err = newAliYunOss(conf.AliYunConf{OssConf: setting})
 	case def.OssMinio:
 		sm, err = newMinio(conf.MinioConf{OssConf: setting})
+	case def.OssLocal:
+		sm, err = newLocal(setting)
 	}
 	return sm, err
 }

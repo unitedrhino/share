@@ -131,7 +131,7 @@ func GetFilePath2(ctx context.Context, fh *multipart.FileHeader) (string, error)
 		return "", errors.Permissions.WithMsg("需要登录")
 	}
 	return fmt.Sprintf("%s/%s/%s/%d/%s/%s", utils.ToYYMMdd2(time.Now().UnixMilli()), uc.TenantCode, uc.AppCode, uc.UserID,
-		utils.ToddHHSS(time.Now().UnixMilli()), fileName), nil
+		utils.ToddHHSS2(time.Now().UnixMilli()), fileName), nil
 
 }
 
