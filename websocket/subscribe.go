@@ -13,7 +13,7 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	if err != nil {
 		logx.WithContext(ctx).Errorf("websocket userSubscribe Decode userID:%v connectID:%v body:%v err:%v",
 			c.userID, c.connectID, utils.Fmt(body), err)
-		c.errorSend(err)
+		c.errorSend(body, err)
 		return
 	}
 	md := utils.Md5Map(info.Params)
@@ -46,7 +46,7 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 		if err != nil {
 			logx.WithContext(ctx).Errorf("websocket userSubscribe checkSubscribe userID:%v connectID:%v body:%v err:%v",
 				c.userID, c.connectID, utils.Fmt(body), err)
-			c.errorSend(err)
+			c.errorSend(body, err)
 			return
 		}
 		handle([]map[string]any{info.Params})
@@ -56,7 +56,7 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 		if err != nil {
 			logx.WithContext(ctx).Errorf("websocket userSubscribe checkSubscribe userID:%v connectID:%v body:%v err:%v",
 				c.userID, c.connectID, utils.Fmt(body), err)
-			c.errorSend(err)
+			c.errorSend(body, err)
 			return
 		}
 		if len(subs) > 0 {
@@ -65,7 +65,7 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 			handle([]map[string]any{info.Params})
 		}
 	}
-	var resp WsResp
+	var resp = WsResp{WsBody: WsBody{}}
 	resp.WsBody.Type = SubRet
 	c.sendMessage(resp)
 }
@@ -75,7 +75,7 @@ func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	err := mapstructure.Decode(body.Body, &info)
 	if err != nil {
 		logx.Error(err)
-		c.errorSend(err)
+		c.errorSend(body, err)
 		return
 	}
 	//err = NewUserSubscribe(store).Del(ctx, c.userID, &info)
@@ -97,7 +97,7 @@ func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
 			}
 		}
 	}()
-	var resp WsResp
+	var resp = WsResp{WsBody: WsBody{}}
 	resp.WsBody.Type = UnSubRet
 	c.sendMessage(resp)
 }

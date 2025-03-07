@@ -218,7 +218,7 @@ func NewConn(ctx context.Context, userID int64, server *Server, r *http.Request,
 	AddConnPool(userID, conn)
 	logx.Infof("websocket 创建连接成功 RemoteAddr::%s userID:%v connectID:%v uc:%v",
 		wsConn.RemoteAddr().String(), userID, conn.connectID, utils.Fmt(conn.uc))
-	resp := WsResp{}
+	resp := WsResp{WsBody: WsBody{}}
 	clientToken := trace.TraceIDFromContext(ctx)
 	resp.Handler = map[string]string{
 		"Traceparent": clientToken,
@@ -253,18 +253,19 @@ func (c *connection) StartRead() {
 		var data map[string]interface{}
 		err = json.Unmarshal(message, &data)
 		if err != nil {
-			c.errorSend(errors.Type.AddDetail("error reading message"))
+			c.errorSend(WsReq{}, errors.Type.AddDetail("error reading message"))
 			continue
 		}
 		c.pingErr.Store(0)
 		c.handleRequest(message)
 	}
 }
-func (c *connection) errorSend(data error) {
+func (c *connection) errorSend(req WsReq, data error) {
 	e := errors.Fmt(data)
 	resp := WsResp{
-		Code: e.GetCode(),
-		Msg:  e.GetI18nMsg(""),
+		WsBody: WsBody{Type: req.Type, Path: req.Path},
+		Code:   e.GetCode(),
+		Msg:    e.GetI18nMsg(""),
 	}
 	c.sendMessage(resp)
 }
@@ -273,7 +274,7 @@ func (c *connection) handleRequest(message []byte) {
 	var body WsReq
 	err := json.Unmarshal(message, &body)
 	if err != nil {
-		c.errorSend(errors.Parameter)
+		c.errorSend(body, errors.Parameter)
 		return
 	}
 	ctx, cancel := context.WithTimeout(ctxs.SetUserCtx(context.Background(), c.uc), 50*time.Second)
@@ -285,7 +286,7 @@ func (c *connection) handleRequest(message []byte) {
 	defer span.End()
 	logx.WithContext(ctx).Infof("%s.websocket message:%s userID:%v connectID:%v", utils.FuncName(), string(message), c.userID, c.connectID)
 	if err := isDataComplete(body.Type, body); err != nil {
-		c.errorSend(err)
+		c.errorSend(body, err)
 		return
 	}
 	if len(body.Handler) > 0 {
@@ -301,7 +302,7 @@ func (c *connection) handleRequest(message []byte) {
 	case UnSub:
 		unSubscribeHandle(ctx, c, body)
 	case UpPing:
-		var resp WsResp
+		var resp = WsResp{WsBody: WsBody{}}
 		resp.WsBody.Type = DownPong
 		c.sendMessage(resp)
 	default:
