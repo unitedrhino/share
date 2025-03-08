@@ -120,6 +120,16 @@ func StartWsDp(s2cGzip bool, NodeID int64, event *eventBus.FastEvent, c cache.Cl
 			}
 			return nil
 		})
+		utils.Go(context.Background(), func() {
+			t := time.NewTicker(time.Second * 10)
+			for range t.C {
+				func() {
+					dp.userSubscribeMutex.RLock()
+					defer dp.userSubscribeMutex.RUnlock()
+					logx.Infof("websocket userSubscribeMutex:%v", utils.Fmt(dp.userSubscribe))
+				}()
+			}
+		})
 	})
 }
 
