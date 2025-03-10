@@ -20,6 +20,8 @@ func subscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	subKey := info.Code + ":" + md
 
 	handle := func(infos []map[string]any) {
+		c.userSubscribeMutex.Lock()
+		defer c.userSubscribeMutex.Unlock()
 		for _, i := range infos {
 			md := utils.Md5Map(i)
 			key := info.Code + ":" + md
@@ -81,6 +83,8 @@ func unSubscribeHandle(ctx context.Context, c *connection, body WsReq) {
 	//err = NewUserSubscribe(store).Del(ctx, c.userID, &info)
 	md := utils.Md5Map(info.Params)
 	key := info.Code + ":" + md
+	c.userSubscribeMutex.Lock()
+	defer c.userSubscribeMutex.Unlock()
 	keys := c.userSubscribe[key]
 	delete(c.userSubscribe, key)
 	func() {

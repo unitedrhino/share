@@ -41,16 +41,17 @@ const (
 )
 
 type connection struct {
-	r             *http.Request
-	uc            *ctxs.UserCtx
-	server        *Server
-	ws            *websocket.Conn //ws连接实例
-	userID        int64           //ws连接实例唯一标识
-	connectID     int64
-	userSubscribe map[string]map[string]struct{}
-	closed        bool        //ws连接已关闭
-	send          chan []byte //发送信息管道
-	pingErr       atomic.Int64
+	r                  *http.Request
+	uc                 *ctxs.UserCtx
+	server             *Server
+	ws                 *websocket.Conn //ws连接实例
+	userID             int64           //ws连接实例唯一标识
+	connectID          int64
+	userSubscribeMutex sync.Mutex
+	userSubscribe      map[string]map[string]struct{}
+	closed             bool        //ws连接已关闭
+	send               chan []byte //发送信息管道
+	pingErr            atomic.Int64
 }
 
 // ws调度器
@@ -449,6 +450,8 @@ func (c *connection) Close(msg string) {
 		if len(dp.connPool[c.userID]) == 0 {
 			delete(dp.connPool, c.userID)
 		}
+		c.userSubscribeMutex.Lock()
+		defer c.userSubscribeMutex.Unlock()
 		for key := range c.userSubscribe {
 			func() {
 				dp.userSubscribeMutex.Lock()
