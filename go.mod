@@ -5,7 +5,7 @@ go 1.22.7
 toolchain go1.23.3
 
 require (
-	gitee.com/unitedrhino/driver-go/v3 v3.30.1
+	gitee.com/unitedrhino/driver-go/v3 v3.30.2
 	gitee.com/unitedrhino/squirrel v1.20.5
 	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.6
@@ -40,7 +40,7 @@ require (
 	github.com/parnurzeal/gorequest v0.3.0
 	github.com/samber/lo v1.47.0
 	github.com/silenceper/wechat/v2 v2.1.5
-	github.com/spf13/cast v1.7.0
+	github.com/spf13/cast v1.7.1
 	github.com/stretchr/testify v1.10.0
 	github.com/suifengtec/gocoord v0.0.0-20210116135606-a0cd8c71c959
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.985
