@@ -15,6 +15,7 @@ type TargetType = string
 const (
 	TargetUser = "user" //授权给用户
 	TargetRole = "role" //授权给角色
+	TargetDept = "dept" //授权给部门
 )
 
 type CoordinateSystem string
