@@ -8,8 +8,9 @@ import (
 
 // Custom claims structure
 type LoginClaims struct {
-	UserID  int64 `json:",string"`
-	AppCode string
+	UserID   int64 `json:",string"`
+	AppCode  string
+	DeviceID string `json:""`
 	jwt.RegisteredClaims
 }
 

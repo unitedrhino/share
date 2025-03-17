@@ -15,6 +15,7 @@ import (
 type UserCtx struct {
 	IsOpen         bool `json:",omitempty"` //是否开放认证用户
 	AppCode        string
+	DeviceID       string
 	Token          string   `json:",omitempty"`
 	TenantCode     string   //租户Code
 	AcceptLanguage string   `json:",omitempty"`
@@ -139,6 +140,7 @@ func InitCtxWithReq(r *http.Request) *http.Request {
 	if projectID == 0 {
 		projectID = def.NotClassified
 	}
+	uc.DeviceID = GetHandle(r, UserDeviceIDKey)
 	uc.AppCode = GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
 	if uc.AppCode == "" {
 		uc.AppCode = def.AppCore
