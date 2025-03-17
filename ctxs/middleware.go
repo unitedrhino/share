@@ -58,11 +58,11 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			logx.WithContext(r.Context()).Infof("[HTTP %v %v] %s use:%v uc:[%v]  reqBody:[%v] respBody:[%v]",
 				resp.StatusCode, resp.Status, r.RequestURI, useTime, utils.Fmt(uc), string(reqBody), string(respBody))
 		}()
-		defer utils.Recoverf(r.Context(), "uri:%s uc:%v isOpen:%v req:%v",
+		defer utils.Recoverf(r.Context(), "uri:%s uc:%v  req:%v",
 			r.RequestURI, utils.Fmt(uc), string(reqBody))
 		defer func() {
 			if p := recover(); p != nil {
-				utils.HandleThrow(r.Context(), "uri:%s uc:%v isOpen:%v req:%v",
+				utils.HandleThrow(r.Context(), "uri:%s uc:%v  req:%v",
 					r.RequestURI, utils.Fmt(uc), string(reqBody))
 				ret := GetResp(r)
 				err := errors.Panic.AddDetail(p)

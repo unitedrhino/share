@@ -110,7 +110,6 @@ func (p *Point) Scan(value interface{}) error {
 	default:
 		return fmt.Errorf("failed to scan point: invalid type: %T", value)
 	}
-	return nil
 }
 
 //func (p Point) Value() (driver.Value, error) {

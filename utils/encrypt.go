@@ -34,7 +34,6 @@ func Hmac(sign HmacType, data string, secret []byte) string {
 	default:
 		return HmacMd5(data, secret)
 	}
-	return ""
 }
 
 func HmacSha256(data string, secret []byte) string {

@@ -411,7 +411,7 @@ func (c *connection) StartWrite() {
 				err = c.pongSend()
 			}
 			if err != nil {
-				logx.Errorf("websocket pingPong keepAliveType:%v  userID:%v,connectID:%v writeMessage:%v err:%v",
+				logx.Errorf("websocket pingPong keepAliveType:%v  userID:%v,connectID:%v  err:%v",
 					keepAliveType, c.userID, c.connectID, err)
 				c.Close("connection timeout")
 				return

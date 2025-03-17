@@ -121,8 +121,8 @@ func CmpJsonObjEq(k string, v any) *Cmp {
 // json对象中 obj.key like '%v%'
 func CmpJsonObjLike(k string, v any) *Cmp {
 	return &Cmp{toSqlFunc: func(db *DB, column string) string {
-		return fmt.Sprintf("JSON_SEARCH(%s, 'all', '%s', NULL, '$.\"%s\"') IS NOT NULL", column)
-	}, Value: []any{k, "%" + utils.ToString(v) + "%"}}
+		return fmt.Sprintf("JSON_SEARCH(%s, 'all', ?, NULL, '$.\"%s\"') IS NOT NULL", column, k)
+	}, Value: []any{"%" + utils.ToString(v) + "%"}}
 }
 
 // json 数组中包含 v的值 或方式

@@ -33,5 +33,4 @@ func (p *Int64Arr) Scan(value interface{}) error {
 	default:
 		return fmt.Errorf("failed to scan point: invalid type: %T", value)
 	}
-	return nil
 }

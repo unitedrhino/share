@@ -121,11 +121,11 @@ func (m *Local) Upload(ctx context.Context, filePath string, reader io.Reader, o
 	dir := filepath.Dir(path)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
-		return "", errors.System.AddDetailf("无法创建目录: %w", err)
+		return "", errors.System.AddDetailf("无法创建目录: %v", err)
 	}
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
-		return "", errors.System.AddDetailf("无法打开文件: %w", err)
+		return "", errors.System.AddDetailf("无法打开文件: %v", err)
 	}
 	// 确保文件在函数结束时关闭
 	defer file.Close()
@@ -133,7 +133,7 @@ func (m *Local) Upload(ctx context.Context, filePath string, reader io.Reader, o
 	// 将 reader 中的数据复制到文件中
 	_, err = io.Copy(file, reader)
 	if err != nil {
-		return "", errors.System.AddDetailf("写入文件时出错: %w", err)
+		return "", errors.System.AddDetailf("写入文件时出错: %v", err)
 	}
 	return m.GetUrl(filePath, false)
 }
@@ -187,7 +187,7 @@ func (m *Local) GetObjectLocal(ctx context.Context, filePath string, localPath s
 	dir := filepath.Dir(localPath)
 	err = os.MkdirAll(dir, 0755)
 	if err != nil {
-		return errors.System.AddDetailf("无法创建目录: %w", err)
+		return errors.System.AddDetailf("无法创建目录: %v", err)
 	}
 	// 创建目标文件
 	destinationFile, err := os.Create(localPath)
