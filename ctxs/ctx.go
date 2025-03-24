@@ -207,6 +207,7 @@ func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
 	))
 	return context.WithValue(ctx, UserInfoKey, userCtx)
 }
+
 func SetInnerCtx(ctx context.Context, inner InnerCtx) context.Context {
 	uc := GetUserCtx(ctx)
 	if uc == nil {
@@ -233,6 +234,15 @@ func GetUserCtx(ctx context.Context) *UserCtx {
 	return val
 }
 
+func GenGrpcurlHandle(ctx context.Context) string {
+	uc := GetUserCtx(ctx)
+	if uc == nil {
+		return ""
+	}
+	info, _ := json.Marshal(uc)
+	return UserInfoKey + ":" + base64.StdEncoding.EncodeToString(info)
+}
+
 func GetUserCtxNoNil(ctx context.Context) *UserCtx {
 	val, ok := ctx.Value(UserInfoKey).(*UserCtx)
 	if !ok { //这里线上不能获取不到
@@ -240,6 +250,7 @@ func GetUserCtxNoNil(ctx context.Context) *UserCtx {
 	}
 	return val
 }
+
 func WithRoot(ctx context.Context) context.Context {
 	uc := *GetUserCtxNoNil(ctx)
 	uc.TenantCode = def.TenantCodeDefault //只有default租户有root权限去读其他租户的数据

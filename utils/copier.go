@@ -2,6 +2,8 @@ package utils
 
 import (
 	"database/sql"
+	"encoding/base64"
+	"gitee.com/unitedrhino/share/errors"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/jinzhu/copier"
 	"time"
@@ -19,7 +21,18 @@ func init() {
 		str2    *wrappers.StringValue
 		str3    sql.NullString
 		str4    string
+		str5    []byte
 		strCopy = []copier.TypeConverter{
+			{SrcType: str5, DstType: str4, Fn: func(src interface{}) (dst interface{}, err error) {
+				return base64.StdEncoding.EncodeToString(src.([]byte)), nil
+			}},
+			{SrcType: str4, DstType: str5, Fn: func(src interface{}) (dst interface{}, err error) {
+				decoded, err := base64.StdEncoding.DecodeString(src.(string))
+				if err != nil {
+					return nil, errors.Parameter.AddMsg("base64解析失败").AddDetail(err)
+				}
+				return decoded, nil
+			}},
 			{SrcType: str1, DstType: str2, Fn: func(src interface{}) (dst interface{}, err error) {
 				return ToRpcNullString(src), nil
 			}},
