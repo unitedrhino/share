@@ -182,8 +182,10 @@ func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) con
 
 	} else {
 		uc.TenantCode = tenantCode
+		uc.AllTenant = false
 		if projectID != 0 {
 			uc.ProjectID = projectID
+			uc.AllProject = true
 		}
 	}
 	return ctx
