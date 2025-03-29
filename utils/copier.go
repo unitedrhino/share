@@ -6,6 +6,7 @@ import (
 	"gitee.com/unitedrhino/share/errors"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/jinzhu/copier"
+	"github.com/spf13/cast"
 	"time"
 )
 
@@ -17,12 +18,25 @@ type (
 
 func init() {
 	var (
-		str1    *string
-		str2    *wrappers.StringValue
-		str3    sql.NullString
-		str4    string
-		str5    []byte
-		strCopy = []copier.TypeConverter{
+		str1     *string
+		str2     *wrappers.StringValue
+		str3     sql.NullString
+		str4     string
+		str5     []byte
+		strArr   []string
+		int64Arr []int64
+		strCopy  = []copier.TypeConverter{
+			{SrcType: int64Arr, DstType: strArr, Fn: func(src interface{}) (dst interface{}, err error) {
+				return cast.ToStringSliceE(src)
+			}},
+			{SrcType: strArr, DstType: int64Arr, Fn: func(src interface{}) (dst interface{}, err error) {
+				in := src.([]string)
+				var ret []int64
+				for _, v := range in {
+					ret = append(ret, cast.ToInt64(v))
+				}
+				return ret, nil
+			}},
 			{SrcType: str5, DstType: str4, Fn: func(src interface{}) (dst interface{}, err error) {
 				return base64.StdEncoding.EncodeToString(src.([]byte)), nil
 			}},
