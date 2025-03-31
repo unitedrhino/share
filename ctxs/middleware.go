@@ -3,6 +3,7 @@ package ctxs
 import (
 	"bytes"
 	"encoding/json"
+	"gitee.com/unitedrhino/share/def"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/spf13/cast"
@@ -11,6 +12,7 @@ import (
 	"github.com/zeromicro/go-zero/core/timex"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const bufferSize = 256
@@ -54,9 +56,14 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			useTime := timex.Since(startTime)
 			metricServerReqDur.Observe(useTime.Milliseconds(),
 				r.URL.Path, cast.ToString(resp.StatusCode), uc.TenantCode)
+			if strings.Contains(r.Header.Get(def.ContentType), def.ApplicationJson) {
+				logx.WithContext(r.Context()).Infof("[HTTP %v %v] %s use:%v uc:[%v]  reqBody:[%v] respBody:[%v]",
+					resp.StatusCode, resp.Status, r.RequestURI, useTime, utils.Fmt(uc), string(reqBody), string(respBody))
+			} else {
+				logx.WithContext(r.Context()).Infof("[HTTP %v %v] %s use:%v uc:[%v]  respBody:[%v]",
+					resp.StatusCode, resp.Status, r.RequestURI, useTime, utils.Fmt(uc), string(respBody))
+			}
 
-			logx.WithContext(r.Context()).Infof("[HTTP %v %v] %s use:%v uc:[%v]  reqBody:[%v] respBody:[%v]",
-				resp.StatusCode, resp.Status, r.RequestURI, useTime, utils.Fmt(uc), string(reqBody), string(respBody))
 		}()
 		defer utils.Recoverf(r.Context(), "uri:%s uc:%v  req:%v",
 			r.RequestURI, utils.Fmt(uc), string(reqBody))
