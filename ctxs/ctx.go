@@ -8,6 +8,8 @@ import (
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/spf13/cast"
+	"github.com/zeromicro/go-zero/core/logx"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/metadata"
 	"net/http"
 )
@@ -197,6 +199,60 @@ func UpdateUserCtx(ctx context.Context) context.Context {
 		return ctx
 	}
 	return SetUserCtx(ctx, uc)
+}
+
+type ctxStr struct {
+	UserCtx *UserCtx
+	Trace   string
+}
+
+func ToString(ctx context.Context) string {
+	uc := GetUserCtx(ctx)
+	span := trace.SpanFromContext(ctx)
+	traceinfo, _ := span.SpanContext().MarshalJSON()
+	ctxstr := ctxStr{
+		UserCtx: uc,
+		Trace:   string(traceinfo),
+	}
+	return utils.MarshalNoErr(ctxstr)
+}
+
+type mySpanContextConfig struct {
+	TraceID string
+	SpanID  string
+}
+
+func StringParse(ctx context.Context, str string) context.Context {
+	var cs ctxStr
+	err := json.Unmarshal([]byte(str), &cs)
+	if err != nil {
+		return ctx
+	}
+	var msg mySpanContextConfig
+	err = json.Unmarshal([]byte(cs.Trace), &msg)
+	if err != nil {
+		logx.Errorf("[GetCtx]|json Unmarshal trace.SpanContextConfig err:%v", err)
+		return ctx
+	}
+	//将MsgHead 中的msg链路信息 重新注入ctx中并返回
+	t, err := trace.TraceIDFromHex(msg.TraceID)
+	if err != nil {
+		logx.Errorf("[GetCtx]|TraceIDFromHex err:%v", err)
+		return ctx
+	}
+	s, err := trace.SpanIDFromHex(msg.SpanID)
+	if err != nil {
+		logx.Errorf("[GetCtx]|SpanIDFromHex err:%v", err)
+		return ctx
+	}
+	parent := trace.NewSpanContext(trace.SpanContextConfig{
+		TraceID:    t,
+		SpanID:     s,
+		TraceFlags: 0x1,
+	})
+	ctx2 := trace.ContextWithRemoteSpanContext(ctx, parent)
+	return SetUserCtx(ctx2, cs.UserCtx)
+
 }
 
 func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
