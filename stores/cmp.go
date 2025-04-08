@@ -130,7 +130,7 @@ func CmpJsonArrayOrHas[t any](v ...t) *Cmp {
 	return &Cmp{toSqlFunc: func(db *DB, column string) string {
 		var s []string
 		for range v {
-			s = append(s, fmt.Sprintf("JSON_CONTAINS(%s, ?)", column))
+			s = append(s, fmt.Sprintf("JSON_SEARCH(%s, 'all',?) is not null", column))
 		}
 		return strings.Join(s, " or ")
 	}, Value: utils.ToAnySlice(v)}
