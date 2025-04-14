@@ -29,4 +29,5 @@ var (
 	Script           = NewCodeError(SysError+23, "脚本执行失败")
 	OnGoing          = NewCodeError(SysError+24, "正在执行中")     //事务分布式事务中如果返回该错误码,分布式事务会定时重试
 	Failure          = NewCodeError(SysError+25, "执行失败,需要回滚") //事务分布式事务中如果返回该错误码,分布式事务会进行回滚
+	Jump             = NewCodeError(SysError+26, "跳过执行")
 )
