@@ -3,6 +3,7 @@ package result
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
@@ -38,6 +39,32 @@ func HttpErr(w http.ResponseWriter, r *http.Request, httpCode int, err error) {
 		temp.StatusCode = code
 		temp.Status = msg
 		*ret = temp
+	}
+}
+
+func HttpSse[respT any](w http.ResponseWriter, r *http.Request, resp chan *respT, err error) {
+	if err != nil {
+		HttpErr(w, r, http.StatusBadRequest, err)
+		return
+	}
+	for {
+		select {
+		case msg, ok := <-resp:
+			if !ok {
+				return
+			}
+			// 发送事件数据
+			data, err := json.Marshal(msg)
+			if err != nil {
+				logx.WithContext(r.Context()).Error(err.Error())
+				continue
+			}
+			fmt.Fprintf(w, "data: %s\n\n", data)
+			w.(http.Flusher).Flush()
+		case <-r.Context().Done():
+			// 客户端断开连接
+			return
+		}
 	}
 }
 

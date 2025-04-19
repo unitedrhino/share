@@ -256,6 +256,9 @@ func StringParse(ctx context.Context, str string) context.Context {
 }
 
 func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	if userCtx == nil {
 		return ctx
 	}
@@ -302,6 +305,9 @@ func GenGrpcurlHandle(ctx context.Context) string {
 }
 
 func GetUserCtxNoNil(ctx context.Context) *UserCtx {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	val, ok := ctx.Value(UserInfoKey).(*UserCtx)
 	if !ok { //这里线上不能获取不到
 		return &UserCtx{ProjectID: def.NotClassified, TenantCode: def.TenantCodeDefault}
