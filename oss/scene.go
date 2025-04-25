@@ -26,6 +26,10 @@ type (
 
 // 产品管理
 const (
+	BusinessDeviceManage = "deviceManage" //设备管理
+	SceneDeviceImg       = "deviceImg"    //产品图片
+	SceneFile            = "file"         //产品图片
+
 	BusinessProductManage = "productManage"   //产品管理
 	SceneProductImg       = "productImg"      //产品图片
 	SceneProductCustomUi  = "productCustomUi" //产品自定义ui
