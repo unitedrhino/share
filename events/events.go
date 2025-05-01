@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"gitee.com/unitedrhino/share/ctxs"
+	"gitee.com/unitedrhino/share/utils"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.opentelemetry.io/otel/trace"
 	"time"
@@ -60,19 +61,19 @@ func (m *MsgHead) GetCtx() context.Context {
 	var msg MySpanContextConfig
 	err := json.Unmarshal([]byte(m.Trace), &msg)
 	if err != nil {
-		logx.Errorf("[GetCtx]|json Unmarshal trace.SpanContextConfig err:%v", err)
-		return nil
+		logx.Errorf("[GetCtx]|json Unmarshal trace.SpanContextConfig MsgHead:%v  err:%v", utils.Fmt(m), err)
+		return context.Background()
 	}
 	//将MsgHead 中的msg链路信息 重新注入ctx中并返回
 	t, err := trace.TraceIDFromHex(msg.TraceID)
 	if err != nil {
-		logx.Errorf("[GetCtx]|TraceIDFromHex err:%v", err)
-		return nil
+		logx.Errorf("[GetCtx]|TraceIDFromHex MsgHead:%v  err:%v", utils.Fmt(m), err)
+		return context.Background()
 	}
 	s, err := trace.SpanIDFromHex(msg.SpanID)
 	if err != nil {
-		logx.Errorf("[GetCtx]|SpanIDFromHex err:%v", err)
-		return nil
+		logx.Errorf("[GetCtx]|SpanIDFromHex MsgHead:%v  err:%v", utils.Fmt(m), err)
+		return context.Background()
 	}
 	parent := trace.NewSpanContext(trace.SpanContextConfig{
 		TraceID:    t,

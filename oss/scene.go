@@ -3,6 +3,7 @@ package oss
 import (
 	"context"
 	"fmt"
+	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/oss/common"
@@ -29,6 +30,8 @@ const (
 	BusinessDeviceManage = "deviceManage" //设备管理
 	SceneDeviceImg       = "deviceImg"    //产品图片
 	SceneFile            = "file"         //产品图片
+
+	BusinessDeviceGroup = "deviceGroup"
 
 	BusinessProductManage = "productManage"   //产品管理
 	SceneProductImg       = "productImg"      //产品图片
@@ -73,6 +76,13 @@ func GetSceneInfo(filePath string) (*SceneInfo, error) {
 		FileName: paths[len(paths)-1],
 	}
 	return scene, nil
+}
+
+func IsFilePath(c conf.OssConf, filePath string) bool {
+	if strings.HasPrefix(filePath, "http") || strings.HasPrefix(filePath, c.CustomPath) || strings.HasPrefix(filePath, c.CustomHost) {
+		return false
+	}
+	return true
 }
 
 func GenFilePath(ctx context.Context, svrName, business, scene, filePath string) string {

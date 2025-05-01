@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Int8Tobool(i int8) bool {
+func Int8ToBool(i int8) bool {
 	if i == 0 {
 		return false
 	}
