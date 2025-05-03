@@ -114,7 +114,7 @@ func (m *Minio) IsObjectExist(ctx context.Context, filePath string, opKv common.
 	return false, err
 }
 func (m *Minio) Upload(ctx context.Context, filePath string, reader io.Reader, opKv common.OptionKv) (string, error) {
-	uploadInfo, err := m.client.PutObject(ctx, m.currentBucketName, filePath, reader, -1, minio.PutObjectOptions{ContentType: common.GetFilePathMineType(filePath)})
+	uploadInfo, err := m.client.PutObject(ctx, m.currentBucketName, filePath, reader, -1, minio.PutObjectOptions{ContentType: common.GetFilePathMineType(filePath), PartSize: 1024 * 1024 * 16})
 	uri, _ := url.Parse(uploadInfo.Location)
 	return m.setting.CustomPath + uri.RequestURI(), err
 }
