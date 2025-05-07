@@ -5,6 +5,7 @@ import (
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/zeromicro/go-zero/core/logx"
+	"gorm.io/gorm/clause"
 	"math/rand"
 	"sync"
 	"time"
@@ -52,7 +53,7 @@ func (a *AsyncInsert[t]) asyncInsertRuntime() {
 		if a.tableName != "" {
 			db = db.Table(a.tableName)
 		}
-		err := db.CreateInBatches(execCache, 100).Error
+		err := db.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(execCache, 100).Error
 		if err != nil {
 			logx.Error(err)
 		}
