@@ -6,9 +6,7 @@ import (
 	"gitee.com/unitedrhino/share/def"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
-	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/metric"
 	"github.com/zeromicro/go-zero/core/timex"
 	"io"
 	"net/http"
@@ -19,14 +17,14 @@ const bufferSize = 256
 const serverNamespace = "http_server"
 
 var (
-	metricServerReqDur = metric.NewHistogramVec(&metric.HistogramVecOpts{
-		Namespace: serverNamespace,
-		Subsystem: "ur_requests",
-		Name:      "duration_ms",
-		Help:      "http server requests duration(ms).",
-		Labels:    []string{"path", "code", "tenantCode"},
-		Buckets:   []float64{0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500, 750, 1000, 2000, 5000, 10000, 20000, 50000, 100000},
-	})
+//	metricServerReqDur = metric.NewHistogramVec(&metric.HistogramVecOpts{
+//		Namespace: serverNamespace,
+//		Subsystem: "ur_requests",
+//		Name:      "duration_ms",
+//		Help:      "http server requests duration(ms).",
+//		Labels:    []string{"path", "code", "tenantCode"},
+//		Buckets:   []float64{0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500, 750, 1000, 2000, 5000, 10000, 20000, 50000, 100000},
+//	})
 )
 
 func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
@@ -54,8 +52,8 @@ func InitMiddleware(next http.HandlerFunc) http.HandlerFunc {
 				}
 			}
 			useTime := timex.Since(startTime)
-			metricServerReqDur.Observe(useTime.Milliseconds(),
-				r.URL.Path, cast.ToString(resp.StatusCode), uc.TenantCode)
+			//metricServerReqDur.Observe(useTime.Milliseconds(),
+			//	r.URL.Path, cast.ToString(resp.StatusCode), uc.TenantCode)
 			if strings.Contains(r.Header.Get(def.ContentType), def.ApplicationJson) {
 				logx.WithContext(r.Context()).Infof("[HTTP %v %v] %s use:%v uc:[%v]  reqBody:[%v] respBody:[%v]",
 					resp.StatusCode, resp.Status, r.RequestURI, useTime, utils.Fmt(uc), string(reqBody), string(respBody))
