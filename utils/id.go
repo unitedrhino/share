@@ -21,6 +21,13 @@ func GenIDPath(in ...int64) string {
 	return strings.Join(cast.ToStringSlice(in), "-") + "-"
 }
 
+func GenSliceStr[a any](s []a) string {
+	if len(s) == 0 {
+		return ""
+	}
+	return "," + strings.Join(cast.ToStringSlice(s), ",") + ","
+}
+
 func GetIDPath(idPath string) (ret []int64) {
 	ids := strings.Split(idPath, "-")
 	for _, v := range ids {

@@ -6,8 +6,10 @@ import (
 	"fmt"
 	_ "gitee.com/unitedrhino/driver-go/v3/taosRestful"
 	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/stores"
 	"gitee.com/unitedrhino/share/utils"
+	"github.com/spf13/cast"
 	"math/rand"
 	"strings"
 	"sync/atomic"
@@ -188,4 +190,91 @@ func (t *Td) genInsertSql(eas ...ExecArgs) (query string, args []any) {
 		as = append(as, e.Args...)
 	}
 	return fmt.Sprintf("insert into %s;", strings.Join(qs, " ")), as
+}
+
+type TableDesc struct {
+	Field    string
+	Type     string
+	Length   int64
+	Note     string
+	Encode   string
+	Compress string
+	Level    string
+}
+
+func (t *Td) STables(ctx context.Context, like string) ([]string, error) {
+	rows, err := t.QueryContext(ctx, fmt.Sprintf("show stables like '%%%s%%';", like))
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var datas []map[string]any
+	err = stores.Scan(rows, &datas)
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var ret []string
+	for _, v := range datas {
+		ret = append(ret, v["stable_name"].(string))
+	}
+	return ret, nil
+}
+
+func (t *Td) Tables(ctx context.Context, like string) ([]string, error) {
+	rows, err := t.QueryContext(ctx, fmt.Sprintf("show tables like '%%%s%%';", like))
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var datas []map[string]any
+	err = stores.Scan(rows, &datas)
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var ret []string
+	for _, v := range datas {
+		ret = append(ret, v["table_name"].(string))
+	}
+	return ret, nil
+}
+
+func (t *Td) TableTags(ctx context.Context, tbName string) (map[string]string, error) {
+
+	rows, err := t.QueryContext(ctx, fmt.Sprintf("SHOW  TAGS FROM  `%s`;", tbName))
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var datas []map[string]any
+	err = stores.Scan(rows, &datas)
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var ret = map[string]string{}
+	for _, v := range datas {
+		ret[v["tag_name"].(string)] = cast.ToString(v["tag_value"])
+	}
+	return ret, nil
+}
+
+func (t *Td) DescTable(ctx context.Context, tbName string) (map[string]*TableDesc, error) {
+	rows, err := t.QueryContext(ctx, fmt.Sprintf("desc `%s`", tbName))
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var datas []map[string]any
+	err = stores.Scan(rows, &datas)
+	if err != nil {
+		return nil, errors.Fmt(err)
+	}
+	var ret = map[string]*TableDesc{}
+	for _, d := range datas {
+		ret[cast.ToString(d["field"])] = &TableDesc{
+			Field:    cast.ToString(d["field"]),
+			Type:     cast.ToString(d["type"]),
+			Length:   cast.ToInt64(d["length"]),
+			Note:     cast.ToString(d["note"]),
+			Encode:   cast.ToString(d["encode"]),
+			Compress: cast.ToString(d["compress"]),
+			Level:    cast.ToString(d["level"]),
+		}
+	}
+	return ret, nil
 }

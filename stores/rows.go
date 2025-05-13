@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"gitee.com/unitedrhino/share/errors"
 	"github.com/spf13/cast"
 	"reflect"
@@ -138,5 +139,22 @@ func ArrayToSql[arrType any](arr []arrType) (sql string) {
 		sql += "\"" + cast.ToString(v) + "\","
 	}
 	sql = sql[:len(sql)-1]
+	return
+}
+
+func ArrayPathToSql[arrType any](column string, arr []arrType) (sql string) {
+	var strs []string
+	for _, v := range arr {
+		strs = append(strs, fmt.Sprintf(" `%s` like '%%,%v%%' ", column, v))
+	}
+	sql = strings.Join(strs, "or")
+	return
+}
+func ArrayEqToSql[arrType any](column string, arr []arrType) (sql string) {
+	var strs []string
+	for _, v := range arr {
+		strs = append(strs, fmt.Sprintf(" `%s` like '%%,%v,%%' ", column, v))
+	}
+	sql = strings.Join(strs, "or")
 	return
 }
