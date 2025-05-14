@@ -28,6 +28,36 @@ func GenSliceStr[a any](s []a) string {
 	return "," + strings.Join(cast.ToStringSlice(s), ",") + ","
 }
 
+func StrGenStrSlice(s string) []string {
+	if len(s) == 0 {
+		return []string{}
+	}
+	strs := strings.Split(s, ",")
+	var ret []string
+	for _, str := range strs {
+		if str == "" {
+			continue
+		}
+		ret = append(ret, str)
+	}
+	return ret
+}
+
+func StrGenInt64Slice(s string) []int64 {
+	if len(s) == 0 {
+		return []int64{}
+	}
+	strs := strings.Split(s, ",")
+	var ret []int64
+	for _, str := range strs {
+		if str == "" {
+			continue
+		}
+		ret = append(ret, cast.ToInt64(str))
+	}
+	return ret
+}
+
 func GetIDPath(idPath string) (ret []int64) {
 	ids := strings.Split(idPath, "-")
 	for _, v := range ids {
