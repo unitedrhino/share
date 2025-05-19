@@ -253,3 +253,25 @@ func CopyMap[toT any, fromT any, keyT comparable](fromValue map[keyT]*fromT) map
 	}
 	return ret
 }
+
+func CopyMap2[toT any, fromT any, keyT comparable](fromValue map[keyT]fromT) map[keyT]*toT {
+	if len(fromValue) == 0 {
+		return nil
+	}
+	var ret = map[keyT]*toT{}
+	for k, v := range fromValue {
+		ret[k] = Copy[toT](&v)
+	}
+	return ret
+}
+
+func CopyMap3[toT any, fromT any, keyT comparable](fromValue map[keyT]*fromT) map[keyT]toT {
+	if len(fromValue) == 0 {
+		return nil
+	}
+	var ret = map[keyT]toT{}
+	for k, v := range fromValue {
+		ret[k] = Copy2[toT](v)
+	}
+	return ret
+}
