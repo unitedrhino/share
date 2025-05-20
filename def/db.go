@@ -42,17 +42,17 @@ func (p PageInfo2) GetOffset() int64 {
 	}
 	return p.Size * (p.Page - 1)
 }
-func (p PageInfo2) GetTimeStart() time.Time {
+func (p PageInfo2) GetTimeStart() string {
 	if p.TimeStart < 0 {
 		p.TimeStart = 0
 	}
-	return time.UnixMilli(p.TimeStart)
+	return time.UnixMilli(p.TimeStart).Format("2006-01-02T15:04:05.999")
 }
-func (p PageInfo2) GetTimeEnd() time.Time {
+func (p PageInfo2) GetTimeEnd() string {
 	if p.TimeEnd < 0 {
 		p.TimeEnd = 0
 	}
-	return time.UnixMilli(p.TimeEnd)
+	return time.UnixMilli(p.TimeEnd).Format("2006-01-02T15:04:05.999")
 }
 
 func (p PageInfo2) FmtSql(sql sq.SelectBuilder) sq.SelectBuilder {

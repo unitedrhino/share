@@ -30,6 +30,28 @@ func (t TimeUnit) String() string {
 	return string(t)
 }
 
+func (t TimeUnit) Truncate(ts time.Time, tim int64) time.Time {
+	if tim <= 1 {
+		switch t {
+		case TimeUnitY:
+			ts = time.Date(ts.Year(), 1, 1, 0, 0, 0, 0, time.Local)
+		case TimeUnitN:
+			ts = time.Date(ts.Year(), ts.Month(), 1, 0, 0, 0, 0, time.Local)
+		case TimeUnitD, TimeUnitW:
+			ts = time.Date(ts.Year(), ts.Month(), ts.Day(), 0, 0, 0, 0, time.Local)
+		case TimeUnitH:
+			ts = time.Date(ts.Year(), ts.Month(), ts.Day(), ts.Hour(), 0, 0, 0, time.Local)
+		case TimeUnitM:
+			ts = time.Date(ts.Year(), ts.Month(), ts.Day(), ts.Hour(), ts.Minute(), 0, 0, time.Local)
+		default:
+			goto DefaultRun
+		}
+		return ts
+	}
+DefaultRun:
+	return ts.Truncate(t.ToDuration(tim))
+}
+
 func (t TimeUnit) ToDuration(in int64) time.Duration {
 	switch t {
 	case TimeUnitD:
