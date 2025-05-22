@@ -131,7 +131,7 @@ func ToTimeStr(t time.Time) string {
 
 // TimeToUnix 时间转成时间戳
 func TimeToUnix(e time.Time) int64 {
-	timeUnix, _ := time.Parse("2006-01-02 15:04:05", e.Format("2006-01-02 15:04:05"))
+	timeUnix, _ := time.ParseInLocation("2006-01-02 15:04:05", e.Format("2006-01-02 15:04:05"), time.Local)
 	return timeUnix.UnixNano() / 1e6
 }
 

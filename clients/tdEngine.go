@@ -111,7 +111,7 @@ func (t *Td) asyncInsertRuntime(id int64) {
 			}
 		}
 		if err != nil {
-			logx.Error(err)
+			logx.Error(sql, args, err)
 		}
 		sendCount.Add(int64(len(execCache)))
 		execCache = execCache[0:0] //清空切片
@@ -148,7 +148,7 @@ func (t *Td) asyncInsertNoDebugRuntime(id int64) {
 			}
 		}
 		if err != nil {
-			logx.Error(err)
+			logx.Error(sql, args, err)
 		}
 		sendCount.Add(int64(len(execCache)))
 		execCache = execCache[0:0] //清空切片
