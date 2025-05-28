@@ -148,7 +148,7 @@ func ArrayPathToSql[arrType any](column string, arr []arrType) (sql string) {
 		strs = append(strs, fmt.Sprintf(" `%s` like '%%,%v%%' ", column, v))
 	}
 	sql = strings.Join(strs, "or")
-	return
+	return "(" + sql + ")"
 }
 func ArrayEqToSql[arrType any](column string, arr []arrType) (sql string) {
 	var strs []string
@@ -156,5 +156,5 @@ func ArrayEqToSql[arrType any](column string, arr []arrType) (sql string) {
 		strs = append(strs, fmt.Sprintf(" `%s` like '%%,%v,%%' ", column, v))
 	}
 	sql = strings.Join(strs, "or")
-	return
+	return "(" + sql + ")"
 }
