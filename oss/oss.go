@@ -22,6 +22,8 @@ type Handle interface {
 	GetObjectLocal(ctx context.Context, filePath string, localPath string) error
 	//列出符合前缀的文件列表
 	ListObjects(ctx context.Context, prefix string) (ret []*common.StorageObjectInfo, err error)
+	//根据桶的名称获取桶
+	Bucket(name string) Handle
 	//获取私有桶
 	PrivateBucket() Handle
 	//获取公开桶
@@ -32,4 +34,8 @@ type Handle interface {
 	CopyFromTempBucket(tempPath, dstPath string) (string, error)
 	//不带过期时间的获取文件url
 	GetUrl(path string, withHost bool) (string, error)
+
+	IsFilePath(filePath string) bool
+	IsFileUrl(url string) bool
+	FileUrlToFilePath(url string) (bucket string, filePath string)
 }

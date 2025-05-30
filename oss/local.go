@@ -59,6 +59,11 @@ func (m *Local) TemporaryBucket() Handle {
 	return m
 }
 
+func (m *Local) Bucket(name string) Handle {
+	m.currentBucketName = name
+	return m
+}
+
 // 获取put上传url
 func (m *Local) SignedPutUrl(ctx context.Context, fileDir string, expiredSec int64, opKv common.OptionKv) (string, error) {
 	//不使用
@@ -279,4 +284,15 @@ func (m *Local) GetUrl(path string, withHost bool) (string, error) {
 	}
 	url := fmt.Sprintf("%s?%s", m.setting.CustomPath, params.Encode())
 	return url, nil
+}
+
+func (m *Local) IsFilePath(filePath string) bool {
+	return isFilePath(m.setting, filePath)
+}
+
+func (m *Local) IsFileUrl(url string) bool {
+	return isFileUrl(m.setting, url)
+}
+func (m *Local) FileUrlToFilePath(url string) (bucket string, filePath string) {
+	return fileUrlToFilePath(m.setting, url)
 }

@@ -21,6 +21,14 @@ type Minio struct {
 	currentBucketName string
 }
 
+func (m *Minio) IsFilePath(filePath string) bool {
+	return isFilePath(m.setting, filePath)
+}
+
+func (m *Minio) IsFileUrl(url string) bool {
+	return isFileUrl(m.setting, url)
+}
+
 func newMinio(conf conf.MinioConf) (*Minio, error) {
 	// 初使化 minio client对象。
 	minioClient, err := minio.New(conf.GetEndPoint(), &minio.Options{
@@ -57,6 +65,11 @@ func (m *Minio) PublicBucket() Handle {
 }
 func (m *Minio) TemporaryBucket() Handle {
 	m.currentBucketName = m.setting.TemporaryBucketName
+	return m
+}
+
+func (m *Minio) Bucket(name string) Handle {
+	m.currentBucketName = name
 	return m
 }
 
@@ -295,4 +308,8 @@ func (m *Minio) GetUrl(path string, withHost bool) (string, error) {
 		return m.setting.CustomHost + "/" + m.currentBucketName + "/" + path, nil
 	}
 	return m.setting.CustomPath + "/" + m.currentBucketName + "/" + path, nil
+}
+
+func (m *Minio) FileUrlToFilePath(url string) (bucket string, filePath string) {
+	return fileUrlToFilePath(m.setting, url)
 }

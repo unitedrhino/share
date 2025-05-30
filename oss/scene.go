@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/zeromicro/go-zero/core/logx"
 	"mime/multipart"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -78,11 +79,39 @@ func GetSceneInfo(filePath string) (*SceneInfo, error) {
 	return scene, nil
 }
 
-func IsFilePath(c conf.OssConf, filePath string) bool {
+func isFilePath(c conf.OssConf, filePath string) bool {
 	if strings.HasPrefix(filePath, "http") || strings.HasPrefix(filePath, c.CustomPath) || strings.HasPrefix(filePath, c.CustomHost) {
 		return false
 	}
 	return true
+}
+
+func isFileUrl(c conf.OssConf, url string) bool {
+	if strings.HasPrefix(url, c.CustomPath) || strings.HasPrefix(url, c.CustomHost) {
+		return true
+	}
+	return false
+}
+
+func fileUrlToFilePath(c conf.OssConf, fileUrl string) (bucket string, filePath string) {
+	// 解析URL
+	if strings.HasPrefix(fileUrl, c.CustomPath) || strings.HasPrefix(fileUrl, c.CustomHost) {
+		fileUrl = strings.TrimPrefix(fileUrl, c.CustomPath)
+	} else if strings.HasPrefix(fileUrl, c.CustomHost) {
+		fileUrl = strings.TrimPrefix(fileUrl, c.CustomHost)
+	} else { //不是内部的url
+		return "", ""
+	}
+	u, err := url.Parse(fileUrl)
+	if err != nil {
+		fmt.Println("解析URL出错:", err)
+		return
+	}
+	paths := strings.Split(u.Path, "/")
+	if len(paths) <= 2 {
+		return "", ""
+	}
+	return paths[1], strings.Join(paths[2:], "/")
 }
 
 func GenFilePath(ctx context.Context, svrName, business, scene, filePath string) string {

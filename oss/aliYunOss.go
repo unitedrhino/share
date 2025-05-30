@@ -34,6 +34,11 @@ func newAliYunOss(conf conf.AliYunConf) (*AliYunOss, error) {
 	b4IsObjectExist := bucket
 	return &AliYunOss{client: client, bucket: bucket, setting: conf, b4IsObjectExist: b4IsObjectExist}, nil
 }
+
+func (a *AliYunOss) Bucket(name string) Handle {
+	a.bucket, _ = a.client.Bucket(name)
+	return a
+}
 func (a *AliYunOss) PrivateBucket() Handle {
 	a.bucket, _ = a.client.Bucket(a.setting.PrivateBucketName)
 	return a
@@ -86,4 +91,16 @@ func (a *AliYunOss) CopyFromTempBucket(tempPath, dstPath string) (string, error)
 }
 func (a *AliYunOss) GetUrl(filePath string, withHost bool) (string, error) {
 	return "", nil //TODO
+}
+
+func (m *AliYunOss) IsFilePath(filePath string) bool {
+	return isFilePath(m.setting.OssConf, filePath)
+}
+
+func (m *AliYunOss) IsFileUrl(url string) bool {
+	return isFileUrl(m.setting.OssConf, url)
+}
+
+func (m *AliYunOss) FileUrlToFilePath(url string) (bucket string, filePath string) {
+	return fileUrlToFilePath(m.setting.OssConf, url)
 }
