@@ -88,7 +88,7 @@ func (p PageInfo2) FmtSql2(sql *gorm.DB) *gorm.DB {
 	} else {
 		sql = sql.Limit(int(100000))
 	}
-	if len(p.Orders) == 0 {
+	if p.Orders == nil {
 		sql = sql.Order("ts desc")
 	}
 	return sql

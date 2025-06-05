@@ -9,7 +9,7 @@ import (
 
 // 特殊字符需要用该函数来包裹
 func Col(column string) string {
-	switch dbType {
+	switch rlDBType {
 	case conf.Pgsql:
 		return fmt.Sprintf(`"%s"`, column)
 	default:
@@ -21,7 +21,7 @@ func ColWithT(column string, tableAlias string) string {
 	if tableAlias != "" {
 		tableAlias = tableAlias + "."
 	}
-	switch dbType {
+	switch rlDBType {
 	case conf.Pgsql:
 		return fmt.Sprintf(`%s"%s"`, tableAlias, column)
 	default:

@@ -24,8 +24,16 @@ var (
 	once       sync.Once
 	tsOnce     sync.Once
 	tenantConn sync.Map
-	dbType     string //数据库类型
+	rlDBType   string                 //关系型数据库类型
+	tsDBType   string = conf.Tdengine //时序数据库类型
 )
+
+func GetTsDBType() string {
+	return tsDBType
+}
+func GetDBType() string {
+	return rlDBType
+}
 
 func InitConn(database conf.Database) {
 	var err error
@@ -44,12 +52,13 @@ func InitTsConn(database conf.TSDB) {
 			DSN:         database.DSN,
 		})
 		logx.Must(err)
+		tsDBType = database.DBType
 	})
 	return
 }
 
 func GetConn(database conf.Database) (conn *gorm.DB, err error) {
-	dbType = database.DBType
+	rlDBType = database.DBType
 	cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, PrepareStmt: true, Logger: NewLog(logger.Warn)}
 	switch database.DBType {
 	case conf.Pgsql:

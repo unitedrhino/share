@@ -29,7 +29,24 @@ const (
 func (t TimeUnit) String() string {
 	return string(t)
 }
-
+func (t TimeUnit) ToPgStr() string {
+	switch t {
+	case TimeUnitD:
+		return "day"
+	case TimeUnitH:
+		return "hour"
+	case TimeUnitM:
+		return "minute"
+	case TimeUnitN:
+		return "month"
+	case TimeUnitW:
+		return "week"
+	case TimeUnitY:
+		return "year"
+	default:
+		return "second"
+	}
+}
 func (t TimeUnit) Truncate(ts time.Time, tim int64) time.Time {
 	if tim <= 1 {
 		switch t {

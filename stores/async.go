@@ -53,7 +53,7 @@ func (a *AsyncInsert[t]) asyncInsertRuntime() {
 		if a.tableName != "" {
 			db = db.Table(a.tableName)
 		}
-		err := db.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(execCache, 100).Error
+		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(execCache, 100).Error
 		if err != nil {
 			logx.Error(err)
 		}

@@ -21,7 +21,7 @@ type Point struct {
 
 // pgsql参考: https://www.jianshu.com/p/88ff6f693ffe?ivk_sa=1024320u
 func (Point) GormDataType() string {
-	switch dbType {
+	switch rlDBType {
 	case conf.Pgsql:
 		return "GEOMETRY(point, 4326)"
 	}
@@ -41,7 +41,7 @@ func ToPoint(p def.Point) Point {
 	}
 }
 func (p *Point) Range(columnName string, Range int64) string {
-	switch dbType {
+	switch rlDBType {
 	case conf.Pgsql:
 		return fmt.Sprintf("ST_DWithin(%s,ST_GeomFromText('POINT(%v %v)', 4326),%v)",
 			columnName, p.Longitude, p.Latitude, Range)
@@ -71,7 +71,7 @@ func hexToWKT(hexStr []byte) (string, error) {
 }
 
 func (p *Point) parsePoint(binaryData []byte) error {
-	if dbType == conf.Pgsql {
+	if rlDBType == conf.Pgsql {
 		g, err := ewkbhex.Decode(string(binaryData))
 		if err != nil {
 			return err
@@ -117,7 +117,7 @@ func (p *Point) Scan(value interface{}) error {
 //}
 
 func (p Point) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
-	switch dbType {
+	switch rlDBType {
 	case conf.Pgsql:
 		return clause.Expr{
 			//SQL:  "ST_PointFromText(?)",
