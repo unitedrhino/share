@@ -2,6 +2,7 @@ package stores
 
 import (
 	"fmt"
+	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/utils"
 	"gorm.io/gorm"
 	"strings"
@@ -114,26 +115,61 @@ func CmpNotIn[t any](values ...t) *Cmp {
 // json对象中 obj.key = v
 func CmpJsonObjEq(k string, v any) *Cmp {
 	return &Cmp{toSqlFunc: func(db *DB, column string) string {
-		return fmt.Sprintf("JSON_CONTAINS(%s, JSON_OBJECT(?,?))", column)
+		switch GetDBType() {
+		case conf.Pgsql:
+
+			return fmt.Sprintf(` %s::jsonb @> '{?: ?}'::jsonb  `, column)
+		default:
+			return fmt.Sprintf("JSON_CONTAINS(%s, JSON_OBJECT(?,?))", column)
+		}
 	}, Value: []any{k, v}}
+
 }
 
 // json对象中 obj.key like '%v%'
 func CmpJsonObjLike(k string, v any) *Cmp {
 	return &Cmp{toSqlFunc: func(db *DB, column string) string {
-		return fmt.Sprintf("JSON_SEARCH(%s, 'all', ?, NULL, '$.\"%s\"') IS NOT NULL", column, k)
+		switch GetDBType() {
+		case conf.Pgsql:
+			return fmt.Sprintf("jsonb_path_exists(%s, '$.\"%s\" ? (@ like_regex $pattern flags \"i\")', jsonb_build_object('pattern', ?))",
+				column, k)
+		default:
+			return fmt.Sprintf("JSON_SEARCH(%s, 'all', ?, NULL, '$.\"%s\"') IS NOT NULL", column, k)
+		}
 	}, Value: []any{"%" + utils.ToString(v) + "%"}}
+
 }
 
 // json 数组中包含 v的值 或方式
 func CmpJsonArrayOrHas[t any](v ...t) *Cmp {
-	return &Cmp{toSqlFunc: func(db *DB, column string) string {
-		var s []string
-		for range v {
-			s = append(s, fmt.Sprintf("JSON_SEARCH(%s, 'all',?) is not null", column))
-		}
-		return strings.Join(s, " or ")
-	}, Value: utils.ToAnySlice(v)}
+	switch GetDBType() {
+	case conf.Pgsql:
+		return &Cmp{toSqlFunc: func(db *DB, column string) string {
+
+			// PostgreSQL 实现：使用 jsonb_path_exists 函数和路径表达式
+			var conditions []string
+			for _, val := range v {
+				// 将值转换为 JSON 字符串并处理特殊字符
+				// 使用路径表达式检查数组中是否包含该值
+				conditions = append(conditions,
+					fmt.Sprintf("jsonb_path_exists(%s, '$[*] ? (@ == \"%s\")')",
+						column, val))
+			}
+			return strings.Join(conditions, " OR ")
+		}}
+
+	default:
+		return &Cmp{toSqlFunc: func(db *DB, column string) string {
+
+			// MySQL 实现：使用 JSON_SEARCH 函数
+			var conditions []string
+			for range v {
+				conditions = append(conditions,
+					fmt.Sprintf("JSON_SEARCH(%s, 'all', ?) IS NOT NULL", column))
+			}
+			return strings.Join(conditions, " OR ")
+		}, Value: utils.ToAnySlice(v)}
+	}
 }
 
 // 过滤二进制比特位
