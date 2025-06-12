@@ -114,15 +114,16 @@ func CmpNotIn[t any](values ...t) *Cmp {
 
 // json对象中 obj.key = v
 func CmpJsonObjEq(k string, v any) *Cmp {
-	return &Cmp{toSqlFunc: func(db *DB, column string) string {
-		switch GetDBType() {
-		case conf.Pgsql:
-
-			return fmt.Sprintf(` %s::jsonb @> '{?: ?}'::jsonb  `, column)
-		default:
+	switch GetDBType() {
+	case conf.Pgsql:
+		return &Cmp{toSqlFunc: func(db *DB, column string) string {
+			return fmt.Sprintf(` %s::jsonb @> '{"%v": "%v"}'::jsonb  `, column, k, v)
+		}}
+	default:
+		return &Cmp{toSqlFunc: func(db *DB, column string) string {
 			return fmt.Sprintf("JSON_CONTAINS(%s, JSON_OBJECT(?,?))", column)
-		}
-	}, Value: []any{k, v}}
+		}, Value: []any{k, v}}
+	}
 
 }
 
