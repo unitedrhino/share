@@ -1,9 +1,17 @@
 package stores
 
 import (
+	"gitee.com/unitedrhino/share/conf"
 	"gorm.io/gorm"
 	"reflect"
 )
+
+func SetWithPg[v any](value v, def v) v {
+	if rlDBType != conf.Pgsql {
+		return def
+	}
+	return value
+}
 
 func GetField(val reflect.Value, bindNames ...string) (ret reflect.Value) {
 	var field interface{}

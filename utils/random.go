@@ -26,7 +26,7 @@ var (
 @in level 密码的强度级别  0:包含数字和字母  1:包含数字字母和特殊字符
 */
 func Random(length int, level int) string {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	buf := make([]byte, length)
 	str, ok := strength[level]
 	if ok != true {
