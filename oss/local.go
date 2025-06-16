@@ -11,9 +11,11 @@ import (
 	"gitee.com/unitedrhino/share/oss/common"
 	"github.com/google/uuid"
 	"io"
+	"mime"
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -172,8 +174,25 @@ func (m *Local) DownloadFile(ctx context.Context, filePath string, sign string, 
 	// 设置响应头
 	// Content-Disposition 用于指定文件名
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileInfo.Name()))
-	// Content-Type 可以根据文件类型设置，这里使用通用的二进制类型
-	w.Header().Set("Content-Type", "application/octet-stream")
+	c := mime.TypeByExtension(path.Ext(file.Name()))
+	if c != "" {
+		w.Header().Set("Content-Type", c)
+	} else {
+		// 只需要读取前 512 个字节来判断内容类型
+		buffer := make([]byte, 512)
+		_, err = file.Read(buffer)
+		if err != nil && err != io.EOF {
+			return errors.System.AddMsgf("读取文件内容失败").AddDetail(err)
+		}
+		// 重置文件读取位置，以便后续操作
+		_, err = file.Seek(0, 0)
+		if err != nil {
+			return errors.System.AddMsgf("重置文件指针失败").AddDetail(err)
+		}
+		// Content-Type 可以根据文件类型设置，这里使用通用的二进制类型
+		w.Header().Set("Content-Type", http.DetectContentType(buffer))
+	}
+
 	// Content-Length 用于指定文件大小
 	w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
 	_, err = io.Copy(w, file)
