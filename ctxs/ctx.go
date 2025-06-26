@@ -222,28 +222,28 @@ type mySpanContextConfig struct {
 	SpanID  string
 }
 
-func StringParse(ctx context.Context, str string) context.Context {
+func StringParse(ctx context.Context, str string) (context.Context, bool) {
 	var cs ctxStr
 	err := json.Unmarshal([]byte(str), &cs)
 	if err != nil {
-		return ctx
+		return ctx, false
 	}
 	var msg mySpanContextConfig
 	err = json.Unmarshal([]byte(cs.Trace), &msg)
 	if err != nil {
 		logx.Errorf("[GetCtx]|json Unmarshal trace.SpanContextConfig err:%v", err)
-		return ctx
+		return ctx, false
 	}
 	//将MsgHead 中的msg链路信息 重新注入ctx中并返回
 	t, err := trace.TraceIDFromHex(msg.TraceID)
 	if err != nil {
 		logx.Errorf("[GetCtx]|TraceIDFromHex err:%v", err)
-		return ctx
+		return ctx, false
 	}
 	s, err := trace.SpanIDFromHex(msg.SpanID)
 	if err != nil {
 		logx.Errorf("[GetCtx]|SpanIDFromHex err:%v", err)
-		return ctx
+		return ctx, false
 	}
 	parent := trace.NewSpanContext(trace.SpanContextConfig{
 		TraceID:    t,
@@ -251,7 +251,7 @@ func StringParse(ctx context.Context, str string) context.Context {
 		TraceFlags: 0x1,
 	})
 	ctx2 := trace.ContextWithRemoteSpanContext(ctx, parent)
-	return SetUserCtx(ctx2, cs.UserCtx)
+	return SetUserCtx(ctx2, cs.UserCtx), true
 
 }
 
