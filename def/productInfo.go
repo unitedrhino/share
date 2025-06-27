@@ -42,4 +42,6 @@ const (
 	AutoRegClose AutoReg = 1 //关闭
 	AutoRegOpen  AutoReg = 2 //打开
 	AutoRegAuto  AutoReg = 3 //打开并自动创建设备
+	AutoRegBind  AutoReg = 4 //在前面的基础上绑定没有也自动创建
+
 )
