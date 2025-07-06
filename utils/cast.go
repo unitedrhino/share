@@ -231,6 +231,19 @@ func SetToSlice[t comparable, vT any](in map[t]vT) (ret []t) {
 	return
 }
 
+func MapVToSlice[t comparable, vT any](in map[t]vT) (ret []vT) {
+	for _, v := range in {
+		ret = append(ret, v)
+	}
+	return
+}
+func MapVToSlice2[t comparable, vT any](in map[t]vT) (ret []*vT) {
+	for _, v := range in {
+		ret = append(ret, &v)
+	}
+	return
+}
+
 func AnyToNullString(in any) sql.NullString {
 	if in == nil || IsNil(in) {
 		return sql.NullString{}
