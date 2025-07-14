@@ -15,7 +15,7 @@ type OssConf struct {
 	PrivateBucketName   string `json:",default=ithings-private,optional"`         //私有桶的名称
 	Location            string `json:",default=localhost:9000,optional"`          // oss的地址
 	UseSSL              bool   `json:",optional"`                                 //是否使用ssl
-	CustomHost          string `json:",default=/oss,env=OssCustomHost"`           //带上host的返回前缀,支持环境变量
+	CustomHost          string `json:",default=/oss,env=OssCustomHost"`           //带上host的返回前缀,支持环境变量,如:http://127.0.0.1:7777/oss
 	CustomPath          string `json:",default=/oss,optional"`                    //相对路径返回的前缀
 	ConnectTimeout      int64  //连接超时
 	ReadWriteTimeout    int64  //读写超时
