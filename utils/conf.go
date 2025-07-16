@@ -120,6 +120,7 @@ func Load(path string, v any) error {
 		if err != nil {
 			return err
 		}
+		logx.Infof("load_config_succ cfg:%v comon:%s", path, newCommonFile)
 		cfg = append(cfg, '\n')
 		content = append(cfg, content...)
 	} else {
@@ -127,6 +128,9 @@ func Load(path string, v any) error {
 		if cfg != nil {
 			cfg = append(cfg, '\n')
 			content = append(cfg, content...)
+			logx.Infof("load_config_succ cfg:%v  comon:%s", path, commonFile)
+		} else {
+			logx.Infof("load_config_succ  cfg:%v", path)
 		}
 	}
 
