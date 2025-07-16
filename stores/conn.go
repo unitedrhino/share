@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/utils"
 	"github.com/glebarez/sqlite"
 	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -12,6 +13,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"os"
 	"sync"
 	"time"
 )
@@ -39,7 +41,10 @@ func InitConn(database conf.Database) {
 	var err error
 	once.Do(func() {
 		commonConn, err = GetConn(database)
-		logx.Must(err)
+		if err != nil {
+			logx.Errorf("InitConn 失败 cfg:%v  err:%v", utils.Fmt(database), err)
+			os.Exit(-1)
+		}
 	})
 	return
 }

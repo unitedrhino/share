@@ -17,8 +17,8 @@ type OssConf struct {
 	UseSSL              bool   `json:",optional"`                                 //是否使用ssl
 	CustomHost          string `json:",default=/oss,env=OssCustomHost"`           //带上host的返回前缀,支持环境变量,如:http://127.0.0.1:7777/oss
 	CustomPath          string `json:",default=/oss,optional"`                    //相对路径返回的前缀
-	ConnectTimeout      int64  //连接超时
-	ReadWriteTimeout    int64  //读写超时
+	ConnectTimeout      int64  `json:",default=10,optional"`                      //连接超时 单位秒
+	ReadWriteTimeout    int64  `json:",default=10,optional"`                      //读写超时 单位秒
 	StorePath           string `json:",optional,default=../oss"`
 }
 
