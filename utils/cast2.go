@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/spf13/cast"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+	"strings"
 	"time"
 )
 
@@ -98,6 +99,10 @@ func ToInt8(i any) int8 {
 
 // ToInt casts an interface to an int type.
 func ToInt(i any) int {
+	switch i.(type) {
+	case string:
+		i = strings.TrimLeft(i.(string), "0")
+	}
 	return cast.ToInt(i)
 }
 

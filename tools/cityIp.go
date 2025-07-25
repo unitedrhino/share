@@ -1,12 +1,11 @@
 package tools
 
 import (
-	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/encoding/gcharset"
-	"github.com/gogf/gf/v2/encoding/gjson"
-	"github.com/gogf/gf/v2/frame/g"
+	"gitee.com/unitedrhino/share/utils"
 	"github.com/maypok86/otter"
+	"github.com/parnurzeal/gorequest"
+	"github.com/tidwall/gjson"
 	"github.com/zeromicro/go-zero/core/logx"
 	"time"
 )
@@ -38,14 +37,13 @@ func GetCityByIp(ip string) string {
 		return v
 	}
 	url := "http://whois.pconline.com.cn/ipJson.jsp?json=true&ip=" + ip
-	bytes := g.Client().GetBytes(context.TODO(), url)
-	src := string(bytes)
-	srcCharset := "GBK"
-	tmp, _ := gcharset.ToUTF8(srcCharset, src)
-	json, err := gjson.DecodeToJson(tmp)
-	if err != nil {
+	r := gorequest.New().Retry(1, time.Second*2)
+	_, bytes, _ := r.Get(url).EndBytes()
+	if len(bytes) == 0 {
 		return ""
 	}
+	tmp, _ := utils.GBKToUTF8(bytes)
+	json := gjson.Parse(string(tmp))
 	if json.Get("code").Int() == 0 {
 		city := fmt.Sprintf("%s %s", json.Get("pro").String(), json.Get("city").String())
 		cityIpCache.Set(ip, city)
