@@ -3,8 +3,37 @@ package stores
 import (
 	"gitee.com/unitedrhino/share/conf"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 	"reflect"
+	"sync"
 )
+
+var columnCache sync.Map
+
+func SetColumns(db *DB, value any, index string) (ret []clause.Column) {
+	s, err := schema.Parse(value, &columnCache, db.NamingStrategy)
+	if err != nil {
+		panic(err) //生产阶段不应该报错
+	}
+	for _, field := range s.Fields {
+		t := field.TagSettings["UNIQUEINDEX"]
+		if t == "" || t != index {
+			continue
+		}
+		ret = append(ret, clause.Column{
+			Name: field.DBName,
+		})
+	}
+	return
+}
+
+func SetColumnsWithPg(db *DB, value any, index string) (ret []clause.Column) {
+	if rlDBType != conf.Pgsql {
+		return []clause.Column{}
+	}
+	return SetColumns(db, value, index)
+}
 
 func SetWithPg[v any](value v, def v) v {
 	if rlDBType != conf.Pgsql {
