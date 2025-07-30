@@ -42,7 +42,7 @@ func Random(length int, level int) string {
 }
 
 func GetRandomBase64(length int) string {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	buf := make([]byte, length)
 	for i := 0; i < length; i++ {
 		buf[i] = byte(rand.Intn(255))

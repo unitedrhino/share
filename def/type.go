@@ -43,9 +43,12 @@ const (
 	FilterNoAdmin = 3 // admin不过滤
 )
 
-func ToBool[boolType constraints.Integer](in boolType) bool {
+func ToBool[boolType constraints.Integer](in boolType, defaultVal ...bool) bool {
 	if in == True {
 		return true
+	}
+	if len(defaultVal) > 0 {
+		return defaultVal[0]
 	}
 	return false
 }
