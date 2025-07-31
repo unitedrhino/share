@@ -14,6 +14,8 @@ func newOssManager(setting conf.OssConf) (sm Handle, err error) {
 		sm, err = newMinio(conf.MinioConf{OssConf: setting})
 	case def.OssLocal:
 		sm, err = newLocal(setting)
+	case def.OssAws:
+		sm, err = newAws(conf.AwsConf{OssConf: setting})
 	}
 	return sm, err
 }

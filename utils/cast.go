@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/spf13/cast"
 	"google.golang.org/protobuf/types/known/wrapperspb"
+	"io"
 	"reflect"
 	"strconv"
 	"strings"
@@ -407,4 +409,20 @@ func parseHexByte(halfWord string) (byte, error) {
 		return 0, err
 	}
 	return byte(val), nil
+}
+
+// 将io.Reader转换为io.ReadSeeker
+func ReaderToReadSeeker(reader io.Reader) (io.ReadSeeker, error) {
+	// 对于已经实现了ReadSeeker的类型直接返回
+	if rs, ok := reader.(io.ReadSeeker); ok {
+		return rs, nil
+	}
+
+	// 否则读取到字节缓冲区
+	buf := &bytes.Buffer{}
+	_, err := io.Copy(buf, reader)
+	if err != nil {
+		return nil, fmt.Errorf("复制数据到缓冲区失败: %w", err)
+	}
+	return bytes.NewReader(buf.Bytes()), nil
 }
