@@ -84,13 +84,14 @@ func StepFloat(num, step float64) float64 {
 	if step == 0 || math.IsNaN(step) || math.IsInf(step, 0) {
 		return num
 	}
-
-	// 执行Floor计算
-	num = math.Floor(num/step) * step
-
+	//result := new(big.Float).Quo(big.NewFloat(num), big.NewFloat(step))
+	//// 执行Floor计算
+	//num2, _ := result.Float64()
+	//num2 = math.Floor(num2)
+	//num2 *= step
 	// 获取step的小数位数
 	decimals := getDecimalPlaces(step)
-
 	// 舍入到相应的精度
-	return RoundToDecimal(num, decimals)
+	num = RoundToDecimal(num, decimals)
+	return num
 }

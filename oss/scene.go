@@ -164,7 +164,10 @@ func SceneToNewPath(ctx context.Context, ossClient *Client, business, scene, fil
 }
 
 func GetFilePath2(ctx context.Context, fh *multipart.FileHeader) (string, error) {
-	fileName := fh.Filename
+	return GetFilePath3(ctx, fh.Filename)
+}
+
+func GetFilePath3(ctx context.Context, fileName string) (string, error) {
 	spcChar := []string{`,`, `?`, `*`, `|`, `{`, `}`, `\`, `$`, `、`, `·`, "`", `'`, `"`}
 	if strings.ContainsAny(fileName, strings.Join(spcChar, "")) {
 		return "", errors.Parameter.WithMsg("包含特殊字符")
@@ -175,7 +178,6 @@ func GetFilePath2(ctx context.Context, fh *multipart.FileHeader) (string, error)
 	}
 	return fmt.Sprintf("%s/%s/%s/%d/%s/%s", utils.ToYYMMdd2(time.Now().UnixMilli()), uc.TenantCode, uc.AppCode, uc.UserID,
 		utils.ToddHHSS2(time.Now().UnixMilli()), fileName), nil
-
 }
 
 func GetFilePath(scene *SceneInfo, rename bool) (string, error) {
