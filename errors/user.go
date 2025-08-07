@@ -22,4 +22,5 @@ var (
 	AccountDisable       = NewCodeError(UserError+30, "账号已禁用")
 	BindAccount          = NewCodeError(UserError+31, "账号已绑定")
 	AccountKickedOut     = NewCodeError(UserError+32, "账号被顶出")
+	UnBindAccount        = NewCodeError(UserError+33, "账号未绑定")
 )
