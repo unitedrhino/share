@@ -2,6 +2,8 @@ package utils
 
 import (
 	"crypto/md5"
+	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"gitee.com/unitedrhino/share/errors"
@@ -23,6 +25,19 @@ func init() {
 
 func MD5V(str []byte) string {
 	h := md5.New()
+	h.Write(str)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// Sha1V 计算SHA1哈希值，返回十六进制字符串
+func Sha1(str []byte) string {
+	h := sha1.New()
+	h.Write(str)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func Sha256(str []byte) string {
+	h := sha256.New()
 	h.Write(str)
 	return hex.EncodeToString(h.Sum(nil))
 }
