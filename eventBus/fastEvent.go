@@ -179,7 +179,7 @@ func (bus *FastEvent) UnSubscribeWithID(topic string, id int64) error {
 	return nil
 }
 
-func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) error {
+func (bus *FastEvent) QueueSubscribeWithID(topic string, f FastFunc) (int64, error) {
 	bus.queueMutex.Lock()
 	defer bus.queueMutex.Unlock()
 	handler, ok := bus.queueHandlers[topic]
