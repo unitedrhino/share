@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/fatih/structs"
@@ -425,4 +426,10 @@ func ReaderToReadSeeker(reader io.Reader) (io.ReadSeeker, error) {
 		return nil, fmt.Errorf("复制数据到缓冲区失败: %w", err)
 	}
 	return bytes.NewReader(buf.Bytes()), nil
+}
+
+// base64Decode 将base64编码的字符串解码为[]byte
+func Base64Decode(encodedStr string) ([]byte, error) {
+	// 使用标准库的DecodeString函数进行解码
+	return base64.StdEncoding.DecodeString(encodedStr)
 }

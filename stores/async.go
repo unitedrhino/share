@@ -2,13 +2,14 @@ package stores
 
 import (
 	"context"
+	"math/rand"
+	"sync"
+	"time"
+
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm/clause"
-	"math/rand"
-	"sync"
-	"time"
 )
 
 type AsyncInsert[t any] struct {
@@ -38,6 +39,9 @@ func NewAsyncInsert[t any](db *DB, tableName string) (a *AsyncInsert[t]) {
 }
 
 func (a *AsyncInsert[t]) AsyncInsert(stu *t) {
+	if a == nil {
+		return
+	}
 	a.insertChan <- stu
 }
 

@@ -7,6 +7,7 @@ const (
 )
 
 type EventConf struct {
-	Mode string `json:",default=nats,options=nats|natsJs|direct"`
-	Nats NatsConf
+	Mode string   `json:",default=nats,options=nats|mqtt|natsJs|direct"`
+	Nats NatsConf `json:",optional"`
+	Mqtt MqttConf `json:",optional"`
 }

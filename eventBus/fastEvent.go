@@ -2,7 +2,9 @@ package eventBus
 
 import (
 	"context"
-	"gitee.com/unitedrhino/share/clients"
+	"sync"
+	"time"
+
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/errors"
@@ -11,8 +13,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.uber.org/atomic"
-	"sync"
-	"time"
 )
 
 /*
@@ -20,7 +20,7 @@ import (
 */
 
 type FastEvent struct {
-	natsCli       *clients.NatsClient
+	natsCli       eventCli
 	handlers      map[string]*handleInfo
 	queueHandlers map[string]*handleInfo
 	serverName    string
@@ -31,7 +31,7 @@ type FastEvent struct {
 
 type handleInfo struct {
 	Handle map[int64]FastFunc
-	Sub    *nats.Subscription
+	Sub    subscription
 }
 
 type FastFunc func(ctx context.Context, t time.Time, body []byte) error
@@ -42,12 +42,23 @@ var (
 	idGen     atomic.Int64
 )
 
+type (
+	subscription interface {
+		Unsubscribe() error
+	}
+	eventCli interface {
+		Subscribe(subj string, cb events.HandleFunc) (*natsSubscription, error)
+		Publish(ctx context.Context, topic string, arg []byte) error
+		QueueSubscribe(subj, queue string, cb events.HandleFunc) (*natsSubscription, error)
+	}
+)
+
 func NewFastEvent(c conf.EventConf, serverName string, nodeID int64) (s *FastEvent, err error) {
 	fastOnce.Do(func() {
 		fastEvent = &FastEvent{handlers: map[string]*handleInfo{}, queueHandlers: map[string]*handleInfo{}, serverName: serverName}
 		switch c.Mode {
 		case conf.EventModeNats, conf.EventModeNatsJs:
-			fastEvent.natsCli, err = clients.NewNatsClient2(c.Mode, serverName, c.Nats, nodeID)
+			fastEvent.natsCli, err = NewNatsEvent(c, serverName, nodeID)
 		default:
 			err = errors.Parameter.AddMsgf("mode:%v not support", c.Mode)
 		}
@@ -55,7 +66,7 @@ func NewFastEvent(c conf.EventConf, serverName string, nodeID int64) (s *FastEve
 	return fastEvent, err
 }
 
-func (bus *FastEvent) subscribe(topic string) (*nats.Subscription, error) {
+func (bus *FastEvent) subscribe(topic string) (subscription, error) {
 	sub, err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
 		natsMsg.Ack()
 		ctx = ctxs.CopyCtx(ctx)
@@ -78,7 +89,7 @@ func (bus *FastEvent) subscribe(topic string) (*nats.Subscription, error) {
 	return sub, err
 }
 
-func (bus *FastEvent) queueSubscribe(topic string) (*nats.Subscription, error) {
+func (bus *FastEvent) queueSubscribe(topic string) (subscription, error) {
 	sub, err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
 		ctx = ctxs.CopyCtx(ctx)
 		bus.queueMutex.RLock()
@@ -124,27 +135,8 @@ func (bus *FastEvent) Start() error {
 
 // Subscribe 订阅
 func (bus *FastEvent) Subscribe(topic string, f FastFunc) error {
-	bus.handlerMutex.Lock()
-	defer bus.handlerMutex.Unlock()
-	handler, ok := bus.handlers[topic]
-	if !ok {
-		handler = &handleInfo{
-			Handle: map[int64]FastFunc{},
-			Sub:    nil,
-		}
-	}
-	id := idGen.Add(1)
-	handler.Handle[id] = f
-	bus.handlers[topic] = handler
-	if !ok && bus.isStart { //如果已经启动,且没有监听这个topic,则需要加入
-		sub, err := bus.subscribe(topic)
-		if err != nil {
-			return err
-		}
-		handler.Sub = sub
-		return err
-	}
-	return nil
+	_, err := bus.SubscribeWithID(topic, f)
+	return err
 }
 func (bus *FastEvent) SubscribeWithID(topic string, f FastFunc) (int64, error) {
 	bus.handlerMutex.Lock()
@@ -203,12 +195,17 @@ func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) error {
 	if !ok && bus.isStart { //如果已经启动,且没有监听这个topic,则需要加入
 		sub, err := bus.queueSubscribe(topic)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		handler.Sub = sub
-		return err
+		return id, err
 	}
-	return nil
+	return id, nil
+}
+
+func (bus *FastEvent) QueueSubscribe(topic string, f FastFunc) error {
+	_, err := bus.QueueSubscribeWithID(topic, f)
+	return err
 }
 
 func (bus *FastEvent) UnQueueSubscribeWithID(topic string, id int64) error {
