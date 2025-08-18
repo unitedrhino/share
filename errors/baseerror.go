@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"runtime"
+	"strings"
+
 	"github.com/dop251/goja"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"os"
-	"runtime"
-	"strings"
 )
 
 type CodeError struct {
@@ -137,6 +138,12 @@ func (c CodeError) Error() string {
 
 func (c CodeError) Eq(err error) bool {
 	return Cmp(c, err)
+}
+
+func FmtStr(errs string) (*CodeError, error) {
+	var ret CodeError
+	err := json.Unmarshal([]byte(errs), &ret)
+	return &ret, err
 }
 
 // 将普通的error及转换成json的error或error类型的转回自己的error
