@@ -2,6 +2,7 @@ package stores
 
 import (
 	"fmt"
+
 	"gitee.com/unitedrhino/share/utils"
 	"gorm.io/gorm"
 )
@@ -51,6 +52,10 @@ func (p *PageInfo) getOrders() (arr []string) {
 		}
 	}
 	return
+}
+
+func (p *PageInfo) WithDefaultSort() *PageInfo {
+	return p.WithDefaultOrder(OrderBy{Field: "sort", Sort: OrderAsc})
 }
 func (p *PageInfo) WithDefaultOrder(in ...OrderBy) *PageInfo {
 	if p == nil {
