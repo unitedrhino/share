@@ -1,8 +1,13 @@
 package utils
 
 import (
+	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
+
+	"gitee.com/unitedrhino/share/errors"
 )
 
 // 从目标串src中查找第n个目标字符c所在位置下标
@@ -107,4 +112,69 @@ func JoinWithFunc[t any](elems []*t, sep string, f func(in *t) string) string {
 		strs = append(strs, f(v))
 	}
 	return strings.Join(strs, sep)
+}
+
+// ParseNumberString 解析包含数字和数字范围的字符串，返回int64数组
+// 支持的格式：[1,3,6] 或 [1-2,3-7] 或混合格式 [1,3-5,7]
+func ParseNumberString(s string) ([]int64, error) {
+	// 移除字符串前后的空白字符
+	s = strings.TrimSpace(s)
+
+	// 验证输入格式是否正确
+	re := regexp.MustCompile(`^\[([\d,-]+)\]$`)
+	if !re.MatchString(s) {
+		return nil, errors.Parameter.AddMsg("invalid format, expected [num1,num2-num3,...]")
+	}
+
+	// 提取括号内的内容
+	content := re.FindStringSubmatch(s)[1]
+	if content == "" {
+		return []int64{}, nil
+	}
+
+	// 按逗号分割内容
+	parts := strings.Split(content, ",")
+	var result []int64
+
+	// 处理每个部分
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		// 检查是否是范围格式
+		if strings.Contains(part, "-") {
+			rangeParts := strings.Split(part, "-")
+			if len(rangeParts) != 2 {
+				return nil, fmt.Errorf("invalid range format: %s", part)
+			}
+
+			// 解析范围的起始和结束数字
+			start, err1 := strconv.ParseInt(strings.TrimSpace(rangeParts[0]), 10, 64)
+			end, err2 := strconv.ParseInt(strings.TrimSpace(rangeParts[1]), 10, 64)
+
+			if err1 != nil || err2 != nil {
+				return nil, fmt.Errorf("invalid number in range: %s", part)
+			}
+
+			if start > end {
+				return nil, fmt.Errorf("start number greater than end in range: %s", part)
+			}
+
+			// 添加范围内的所有数字
+			for i := start; i <= end; i++ {
+				result = append(result, i)
+			}
+		} else {
+			// 解析单个数字
+			num, err := strconv.ParseInt(part, 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid number: %s", part)
+			}
+			result = append(result, num)
+		}
+	}
+
+	return result, nil
 }
