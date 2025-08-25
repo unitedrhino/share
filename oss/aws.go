@@ -3,15 +3,16 @@ package oss
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
+	"time"
+
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"io"
-	"os"
-	"time"
 
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/oss/common"

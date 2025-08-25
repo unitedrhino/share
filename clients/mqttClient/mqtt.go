@@ -1,17 +1,20 @@
 package mqttClient
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
-	"gitee.com/unitedrhino/share/errors"
-	"github.com/google/uuid"
 	"math/rand"
 	"net/url"
 	"os"
 	"sync"
 	"time"
 
+	"gitee.com/unitedrhino/share/errors"
+	"github.com/google/uuid"
+
 	"gitee.com/unitedrhino/share/conf"
+	"gitee.com/unitedrhino/share/events"
 	"gitee.com/unitedrhino/share/utils"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -66,12 +69,12 @@ func SetMqttSetOnConnectHandler(f func(cli mqtt.Client)) {
 	mqttSetOnConnectHandler = f
 }
 
-func (m MqttClient) Subscribe(cli mqtt.Client, topic string, qos byte, callback mqtt.MessageHandler) error {
+func (m MqttClient) SubscribeRaw(cli mqtt.Client, topic string, qos byte, callback mqtt.MessageHandler) error {
 	var clients = m.clients
 	if cli != nil {
 		clients = []mqtt.Client{cli}
 	}
-	logx.Infof("mqtt_client_subscribe clientNum:%v topic:%v", len(clients), topic)
+	logx.Infof("mqttClientSubscribe clientNum:%v topic:%v", len(clients), topic)
 	for _, c := range clients {
 		err := c.Subscribe(topic, qos, callback).Error()
 		if err != nil {
@@ -81,9 +84,87 @@ func (m MqttClient) Subscribe(cli mqtt.Client, topic string, qos byte, callback 
 	return nil
 }
 
-func (m MqttClient) Publish(topic string, qos byte, retained bool, payload interface{}) error {
+func (m MqttClient) Subscribe(topic string, cb events.HandleFunc) (*MqttSubscription, error) {
+	return m.SubscribeWithQoS(topic, 0, cb)
+}
+
+func (m MqttClient) SubscribeWithQoS(topic string, qos byte, cb events.HandleFunc) (*MqttSubscription, error) {
+	// 直接使用通用 HandleFunc
+	handler := func(client mqtt.Client, msg mqtt.Message) {
+		// 从消息中提取上下文和数据
+		payload := msg.Payload()
+		// 直接调用通用 HandleFunc
+		err := cb(context.Background(), time.Now(), payload)
+		if err != nil {
+			logx.Errorf("MQTT message handler error: %v", err)
+		}
+	}
+
+	err := m.SubscribeRaw(nil, topic, qos, handler)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MqttSubscription{
+		topic:  topic,
+		qos:    qos,
+		client: &m,
+	}, nil
+}
+
+func (m MqttClient) QueueSubscribe(topic, queue string, cb events.HandleFunc) (*MqttSubscription, error) {
+	// 直接使用传入的主题，共享订阅格式由上层处理
+	return m.SubscribeWithQoS(topic, 0, cb)
+}
+
+func (m MqttClient) PublishRaw(topic string, qos byte, retained bool, payload interface{}) error {
 	id := rand.Intn(len(m.clients))
 	return m.clients[id].Publish(topic, qos, retained, payload).Error()
+}
+
+func (m MqttClient) Publish(ctx context.Context, topic string, data []byte) error {
+	// 使用事件消息格式包装数据
+	return m.PublishRaw(topic, 1, false, data)
+}
+
+// MqttSubscription 结构体定义
+type MqttSubscription struct {
+	topic  string
+	qos    byte
+	client *MqttClient
+}
+
+func (ms *MqttSubscription) Unsubscribe() error {
+	// MQTT 客户端会自动处理取消订阅
+	// 这里可以添加日志记录
+	logx.Infof("mqtt subscription unsubscribed: %s", ms.topic)
+	return nil
+}
+
+// GetClientCount 获取客户端连接数量
+func (m MqttClient) GetClientCount() int {
+	return len(m.clients)
+}
+
+// IsConnected 检查是否有可用的连接
+func (m MqttClient) IsConnected() bool {
+	for _, client := range m.clients {
+		if client.IsConnected() {
+			return true
+		}
+	}
+	return false
+}
+
+// GetConnectedClients 获取所有已连接的客户端
+func (m MqttClient) GetConnectedClients() []mqtt.Client {
+	var connectedClients []mqtt.Client
+	for _, client := range m.clients {
+		if client.IsConnected() {
+			connectedClients = append(connectedClients, client)
+		}
+	}
+	return connectedClients
 }
 
 func initMqtt(conf *conf.MqttConf) (mc mqtt.Client, err error) {

@@ -2,6 +2,7 @@ package eventBus
 
 import (
 	"context"
+
 	"gitee.com/unitedrhino/share/clients"
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/events"
@@ -23,8 +24,10 @@ func NewNatsEvent(c conf.EventConf, serverName string, nodeID int64) (*natsEvent
 	return &natsEvent{cli}, nil
 }
 
-func (n *natsEvent) Subscribe(subj string, cb events.HandleFunc) (*natsSubscription, error) {
-	sub, err := n.natsCli.Subscribe(subj, cb)
+func (n *natsEvent) Subscribe(subj string, cb events.HandleFunc) (subscription, error) {
+	// 将通用 HandleFunc 转换为 NATS 特定的处理函数
+	natsHandler := events.GenericToNatsHandleFunc(cb)
+	sub, err := n.natsCli.Subscribe(subj, natsHandler)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +38,10 @@ func (n *natsEvent) Publish(ctx context.Context, topic string, arg []byte) error
 	return n.natsCli.Publish(ctx, topic, arg)
 }
 
-func (n *natsEvent) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*natsSubscription, error) {
-	sub, err := n.natsCli.QueueSubscribe(subj, queue, cb)
+func (n *natsEvent) QueueSubscribe(subj, queue string, cb events.HandleFunc) (subscription, error) {
+	// 将通用 HandleFunc 转换为 NATS 特定的处理函数
+	natsHandler := events.GenericToNatsHandleFunc(cb)
+	sub, err := n.natsCli.QueueSubscribe(subj, queue, natsHandler)
 	if err != nil {
 		return nil, err
 	}

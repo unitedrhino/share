@@ -3,17 +3,22 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.opentelemetry.io/otel/trace"
-	"time"
 )
 
 type MySpanContextConfig struct {
 	TraceID string
 	SpanID  string
 }
+
+// HandleFunc 通用的消息处理函数，与具体消息队列无关
+type HandleFunc func(ctx context.Context, ts time.Time, msg []byte) error
+
 type (
 	// MsgHead 消息队列的头
 	MsgHead struct {
@@ -89,5 +94,8 @@ func (m *MsgHead) GetTs() time.Time {
 }
 
 func (m *MsgHead) GetData() []byte {
+	if m == nil {
+		return []byte{}
+	}
 	return []byte(m.Data)
 }

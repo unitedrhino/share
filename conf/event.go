@@ -3,6 +3,7 @@ package conf
 const (
 	EventModeNats   = "nats"   //使用nats来通讯
 	EventModeNatsJs = "natsJs" //使用nats的jetstream来通讯
+	EventModeMqtt   = "mqtt"   //使用mqtt来通讯
 	EventModeDirect = "direct" //直接调用
 )
 

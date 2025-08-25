@@ -10,7 +10,6 @@ import (
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/events"
 	"gitee.com/unitedrhino/share/utils"
-	"github.com/nats-io/nats.go"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.uber.org/atomic"
 )
@@ -20,7 +19,7 @@ import (
 */
 
 type FastEvent struct {
-	natsCli       eventCli
+	cli           eventCli
 	handlers      map[string]*handleInfo
 	queueHandlers map[string]*handleInfo
 	serverName    string
@@ -47,9 +46,9 @@ type (
 		Unsubscribe() error
 	}
 	eventCli interface {
-		Subscribe(subj string, cb events.HandleFunc) (*natsSubscription, error)
+		Subscribe(subj string, cb events.HandleFunc) (subscription, error)
 		Publish(ctx context.Context, topic string, arg []byte) error
-		QueueSubscribe(subj, queue string, cb events.HandleFunc) (*natsSubscription, error)
+		QueueSubscribe(subj, queue string, cb events.HandleFunc) (subscription, error)
 	}
 )
 
@@ -58,7 +57,9 @@ func NewFastEvent(c conf.EventConf, serverName string, nodeID int64) (s *FastEve
 		fastEvent = &FastEvent{handlers: map[string]*handleInfo{}, queueHandlers: map[string]*handleInfo{}, serverName: serverName}
 		switch c.Mode {
 		case conf.EventModeNats, conf.EventModeNatsJs:
-			fastEvent.natsCli, err = NewNatsEvent(c, serverName, nodeID)
+			fastEvent.cli, err = NewNatsEvent(c, serverName, nodeID)
+		case conf.EventModeMqtt:
+			fastEvent.cli, err = NewMqttEvent(c, serverName, nodeID)
 		default:
 			err = errors.Parameter.AddMsgf("mode:%v not support", c.Mode)
 		}
@@ -67,18 +68,18 @@ func NewFastEvent(c conf.EventConf, serverName string, nodeID int64) (s *FastEve
 }
 
 func (bus *FastEvent) subscribe(topic string) (subscription, error) {
-	sub, err := bus.natsCli.Subscribe(topic, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
-		natsMsg.Ack()
+	sub, err := bus.cli.Subscribe(topic, func(ctx context.Context, ts time.Time, msg []byte) error {
 		ctx = ctxs.CopyCtx(ctx)
 		bus.handlerMutex.RLock()
 		defer bus.handlerMutex.RUnlock()
 		if _, ok := bus.handlers[topic]; !ok {
 			return nil
 		}
+
 		for _, f := range bus.handlers[topic].Handle {
 			ff := f
 			ctxs.GoNewCtx(ctx, func(ctx context.Context) {
-				err := ff(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
+				err := ff(ctx, ts, msg)
 				if err != nil {
 					logx.WithContext(ctx).Error(err)
 				}
@@ -90,17 +91,18 @@ func (bus *FastEvent) subscribe(topic string) (subscription, error) {
 }
 
 func (bus *FastEvent) queueSubscribe(topic string) (subscription, error) {
-	sub, err := bus.natsCli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, msg []byte, natsMsg *nats.Msg) error {
+	sub, err := bus.cli.QueueSubscribe(topic, bus.serverName, func(ctx context.Context, ts time.Time, msg []byte) error {
 		ctx = ctxs.CopyCtx(ctx)
 		bus.queueMutex.RLock()
 		defer bus.queueMutex.RUnlock()
 		if _, ok := bus.queueHandlers[topic]; !ok {
 			return nil
 		}
+		// 获取事件消息
 		for _, f := range bus.queueHandlers[topic].Handle {
 			run := f
 			ctxs.GoNewCtx(ctx, func(ctx context.Context) {
-				err := run(ctx, events.GetEventMsg(natsMsg.Data).GetTs(), msg)
+				err := run(ctx, ts, msg)
 				if err != nil {
 					logx.WithContext(ctx).Error(err)
 				}
@@ -229,6 +231,6 @@ func (bus *FastEvent) UnQueueSubscribeWithID(topic string, id int64) error {
 // Publish 发布
 // 这里异步执行，并且不会等待返回结果
 func (bus *FastEvent) Publish(ctx context.Context, topic string, arg any) error {
-	err := bus.natsCli.Publish(ctx, topic, []byte(utils.ToString(arg)))
+	err := bus.cli.Publish(ctx, topic, []byte(utils.ToString(arg)))
 	return err
 }

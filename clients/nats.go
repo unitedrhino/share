@@ -3,15 +3,16 @@ package clients
 import (
 	"context"
 	"fmt"
+	"strings"
+	"sync"
+	"time"
+
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/events"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/zeromicro/go-zero/core/logx"
-	"strings"
-	"sync"
-	"time"
 )
 
 type NatsClient struct {
@@ -52,7 +53,7 @@ func NewNatsClient2(mode string, ConsumerName string, natsConf conf.NatsConf, no
 	return &client, nil
 }
 
-func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*nats.Subscription, error) {
+func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.NatsHandleFunc) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
 		stream, _, _ := strings.Cut(subj, ".")
 		consumer := "queue_" + events.GenNatsJsDurable(n.consumerName, subj)
@@ -62,11 +63,11 @@ func (n *NatsClient) QueueSubscribe(subj, queue string, cb events.HandleFunc) (*
 	return n.nc.QueueSubscribe(subj, queue, events.NatsSubscription(cb))
 }
 
-func (n *NatsClient) Subscribe(subj string, cb events.HandleFunc) (*nats.Subscription, error) {
+func (n *NatsClient) Subscribe(subj string, cb events.NatsHandleFunc) (*nats.Subscription, error) {
 	return n.SubscribeWithConsumer(subj, n.consumerName, cb)
 }
 
-func (n *NatsClient) SubscribeWithConsumer(subj string, consumer string, cb events.HandleFunc) (*nats.Subscription, error) {
+func (n *NatsClient) SubscribeWithConsumer(subj string, consumer string, cb events.NatsHandleFunc) (*nats.Subscription, error) {
 	if n.mode == conf.EventModeNatsJs {
 		return n.js.Subscribe(subj, events.NatsSubscription(cb), nats.DeliverLast(), nats.MaxDeliver(100), nats.AckExplicit(), nats.Durable("normal_"+events.GenNatsJsDurable(consumer, subj)))
 	}
