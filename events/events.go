@@ -72,7 +72,7 @@ func (m *MsgHead) GetCtx() context.Context {
 	//将MsgHead 中的msg链路信息 重新注入ctx中并返回
 	t, err := trace.TraceIDFromHex(msg.TraceID)
 	if err != nil {
-		logx.Errorf("[GetCtx]|TraceIDFromHex MsgHead:%v  err:%v", utils.Fmt(m), err)
+		logx.Infof("[GetCtx]|TraceIDFromHex msg:%v  err:%v", m.Data, err)
 		return context.Background()
 	}
 	s, err := trace.SpanIDFromHex(msg.SpanID)

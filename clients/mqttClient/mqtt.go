@@ -22,7 +22,9 @@ import (
 
 var (
 	mqttInitOnce sync.Once
-	mqttClient   *MqttClient
+	mqttClient   = map[string]*MqttClient{}
+	initOnce     = map[string]*sync.Once{}
+	initMutex    sync.Mutex
 	// mqttSetOnConnectHandler 如果会话断开可以通过该回调函数来重新订阅消息
 	//不使用mqtt的clean session是因为会话保持期间共享订阅也会给离线的客户端,这会导致在线的客户端丢失消息
 	mqttSetOnConnectHandler func(cli mqtt.Client)
@@ -34,7 +36,18 @@ type MqttClient struct {
 }
 
 func NewMqttClient(conf *conf.MqttConf) (mcs *MqttClient, err error) {
-	mqttInitOnce.Do(func() {
+	var once *sync.Once
+	func() {
+		var ok bool
+		initMutex.Lock()
+		defer initMutex.Unlock()
+		once, ok = initOnce[conf.ClientID]
+		if !ok {
+			initOnce[conf.ClientID] = &sync.Once{}
+			once = initOnce[conf.ClientID]
+		}
+	}()
+	once.Do(func() {
 		var clients []mqtt.Client
 		var start = time.Now()
 		for len(clients) < conf.ConnNum {
@@ -58,11 +71,11 @@ func NewMqttClient(conf *conf.MqttConf) (mcs *MqttClient, err error) {
 			}
 			clients = append(clients, mc)
 			var cli = MqttClient{clients: clients, cfg: conf}
-			mqttClient = &cli
+			mqttClient[conf.ClientID] = &cli
 			logx.Infof("mqtt_client 连接完成 clientNum:%v use:%s", len(clients), time.Now().Sub(start))
 		}
 	})
-	return mqttClient, err
+	return mqttClient[conf.ClientID], err
 }
 
 func SetMqttSetOnConnectHandler(f func(cli mqtt.Client)) {
