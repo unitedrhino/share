@@ -34,8 +34,8 @@ func (n *natsEvent) Subscribe(subj string, cb events.HandleFunc) (subscription, 
 	return &natsSubscription{sub}, nil
 }
 
-func (n *natsEvent) Publish(ctx context.Context, topic string, arg []byte) error {
-	return n.natsCli.Publish(ctx, topic, arg)
+func (n *natsEvent) Publish(ctx context.Context, topic string, payload []byte) error {
+	return n.natsCli.Publish(ctx, topic, payload)
 }
 
 func (n *natsEvent) QueueSubscribe(subj, queue string, cb events.HandleFunc) (subscription, error) {
