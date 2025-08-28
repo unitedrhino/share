@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"time"
 
@@ -155,7 +156,7 @@ func (m *Aws) ListObjects(ctx context.Context, prefix string) (ret []*common.Sto
 func (m *Aws) CopyFromTempBucket(tempPath, dstPath string) (string, error) {
 	_, err := m.cli.CopyObject(&s3.CopyObjectInput{
 		Bucket:     &m.currentBucketName,
-		CopySource: aws.String(fmt.Sprintf("%s/%s", m.setting.TemporaryBucketName, tempPath)),
+		CopySource: aws.String(fmt.Sprintf("%s/%s", m.setting.TemporaryBucketName, url.PathEscape(tempPath))),
 		Key:        &dstPath,
 	})
 	return dstPath, err
