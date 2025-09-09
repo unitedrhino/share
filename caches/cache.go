@@ -4,6 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
+	"sync"
+	"time"
+
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/eventBus"
@@ -11,9 +15,6 @@ import (
 	"github.com/maypok86/otter"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/syncx"
-	"math/rand"
-	"sync"
-	"time"
 )
 
 type Cache[dataT any, keyType comparable] struct {

@@ -6,15 +6,16 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/structs"
-	"github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/spf13/cast"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"io"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/fatih/structs"
+	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/spf13/cast"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 /*
@@ -243,6 +244,26 @@ func MapVToSlice[t comparable, vT any](in map[t]vT) (ret []vT) {
 func MapVToSlice2[t comparable, vT any](in map[t]vT) (ret []*vT) {
 	for _, v := range in {
 		ret = append(ret, &v)
+	}
+	return
+}
+
+func GetMapValOne[t comparable, vT any](in map[t]vT) (ret vT, ok bool) {
+	if len(in) == 0 {
+		return
+	}
+	for _, v := range in {
+		return v, true
+	}
+	return
+}
+
+func GetMapKeyOne[t comparable, vT any](in map[t]vT) (ret t, ok bool) {
+	if len(in) == 0 {
+		return
+	}
+	for k := range in {
+		return k, true
 	}
 	return
 }

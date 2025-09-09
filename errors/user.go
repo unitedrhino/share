@@ -23,4 +23,5 @@ var (
 	BindAccount          = NewCodeError(UserError+31, "账号已绑定")
 	AccountKickedOut     = NewCodeError(UserError+32, "账号被顶出")
 	UnBindAccount        = NewCodeError(UserError+33, "账号未绑定")
+	NeedImgCaptcha       = NewCodeError(UserError+34, "请输入图形验证码")
 )

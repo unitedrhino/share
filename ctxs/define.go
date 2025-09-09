@@ -11,7 +11,8 @@ const (
 
 	UserDeviceIDKey string = "device-id" //用户正在使用的设备ID(小程序,ios,安卓的设备ID)
 
-	UserTenantCodeKey string = "ithings-tenant-code" //用户租户号
+	UserTenantCodeKey  string = "ithings-tenant-code" //用户租户号
+	UserTenantCodeKey2 string = "tenant-code"         //用户租户号
 
 	UserRoleKey     string = "ithings-user-role"
 	UserProjectID   string = "ithings-project-id"

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"net/http"
+
 	"gitee.com/unitedrhino/share/def"
 	"gitee.com/unitedrhino/share/errors"
 	"gitee.com/unitedrhino/share/utils"
@@ -11,7 +13,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/metadata"
-	"net/http"
 )
 
 type UserCtx struct {
@@ -101,6 +102,13 @@ func (u *UserCtx) HasRole(roleCodes ...string) bool {
 	return true
 }
 
+func (u *UserCtx) IsRoot() bool {
+	if u == nil || u.TenantCode != def.TenantCodeDefault || !u.IsAdmin {
+		return false
+	}
+	return true
+}
+
 type InnerCtx struct {
 	AllProject       bool `json:",omitempty"`
 	AllArea          bool `json:",omitempty"` //内部使用,不限制区域
@@ -128,7 +136,7 @@ func InitCtxWithReq(r *http.Request) *http.Request {
 	if uc == nil {
 		strIP, _ := utils.GetIP(r)
 		appCode := GetHandle(r, UserAppCodeKey, UserAppCodeKey2)
-		tenantCode := GetHandle(r, UserTenantCodeKey)
+		tenantCode := GetHandle(r, UserTenantCodeKey, UserTenantCodeKey2)
 		uc = &UserCtx{
 			AppCode:    appCode,
 			TenantCode: tenantCode,
@@ -148,7 +156,7 @@ func InitCtxWithReq(r *http.Request) *http.Request {
 		uc.AppCode = def.AppCore
 	}
 	if uc.TenantCode == "" {
-		uc.TenantCode = def.TenantCodeDefault
+		uc.TenantCode = def.TenantCodeCommon
 	}
 	uc.ProjectID = projectID
 	uc.Os = GetHandle(r, "User-Agent")
@@ -180,15 +188,16 @@ func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) con
 			TenantCode: tenantCode,
 			ProjectID:  projectID,
 		}
-		ctx = context.WithValue(ctx, UserInfoKey, uc)
-
+		return SetUserCtx(ctx, uc)
 	} else {
-		uc.TenantCode = tenantCode
-		uc.AllTenant = false
+		ucc := *uc
+		ucc.TenantCode = tenantCode
+		ucc.AllTenant = false
 		if projectID != 0 {
-			uc.ProjectID = projectID
-			uc.AllProject = true
+			ucc.ProjectID = projectID
+			ucc.AllProject = true
 		}
+		return SetUserCtx(ctx, &ucc)
 	}
 	return ctx
 }
@@ -295,6 +304,14 @@ func GetUserCtx(ctx context.Context) *UserCtx {
 	return val
 }
 
+func GetAppCode(ctx context.Context) string {
+	uc := GetUserCtx(ctx)
+	if uc == nil {
+		return ""
+	}
+	return uc.AppCode
+}
+
 func GenGrpcurlHandle(ctx context.Context) string {
 	uc := GetUserCtx(ctx)
 	if uc == nil {
@@ -350,9 +367,33 @@ func WithDefaultRoot(ctx context.Context) context.Context {
 	return WithRoot(ctx)
 }
 
+func CommonWithDefault(ctx context.Context) context.Context {
+	uc := GetUserCtxNoNil(ctx)
+	if uc.TenantCode != def.TenantCodeCommon { //传了项目ID则不是root权限
+		return ctx
+	}
+	return BindTenantCode(ctx, def.TenantCodeDefault, 0)
+}
+
+func CommonWithRoot(ctx context.Context) context.Context {
+	uc := GetUserCtxNoNil(ctx)
+	if uc.TenantCode != def.TenantCodeCommon { //传了项目ID则不是root权限
+		return ctx
+	}
+	return WithRoot(ctx)
+}
+
 func IsTenantDefault(ctx context.Context) bool {
 	uc := GetUserCtxNoNil(ctx)
 	return uc.TenantCode == def.TenantCodeDefault
+}
+
+func CanHandleTenantCommon[t ~string](ctx context.Context, tenantCode t) bool {
+	uc := GetUserCtxNoNil(ctx)
+	if !(uc.TenantCode == def.TenantCodeDefault || string(tenantCode) == uc.TenantCode) {
+		return false
+	}
+	return true
 }
 
 // 如果是管理员,且没有传项目id,则直接给所有项目权限
@@ -408,7 +449,7 @@ func NewUserCtx(ctx context.Context) context.Context {
 
 func IsRoot(ctx context.Context) error {
 	uc := GetUserCtx(ctx)
-	if uc == nil || uc.TenantCode != def.TenantCodeDefault || !uc.IsAdmin {
+	if !uc.IsRoot() {
 		return errors.Permissions.AddDetailf("需要超管才能操作")
 	}
 	return nil

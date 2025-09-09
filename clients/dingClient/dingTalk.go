@@ -2,12 +2,12 @@ package dingClient
 
 import (
 	"encoding/json"
+	"net/url"
+
 	"gitee.com/unitedrhino/share/conf"
-	"gitee.com/unitedrhino/share/errors"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/zhaoyunxing92/dingtalk/v2"
-	"net/url"
 )
 
 type DingTalk = dingtalk.DingTalk
@@ -18,9 +18,10 @@ func NewDingTalkClient(c *conf.ThirdConf) (*DingTalk, error) {
 	}
 	cli, err := dingtalk.NewClient(c.AppKey, c.AppSecret)
 	if err != nil {
-		return nil, errors.System.AddDetail(err)
+		return nil, err
 	}
-	return cli, nil
+	_, err = cli.GetAccessToken()
+	return cli, err
 }
 
 type DingRobot = dingtalk.Robot

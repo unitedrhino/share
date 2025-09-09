@@ -35,3 +35,11 @@ const (
 	AppSubTypeAndroid = "android"
 	AppSubTypeIos     = "ios"
 )
+
+type ThirdType = string
+
+const (
+	ThirdTypeWxMiniP = "wxMiniP" //微信小程序
+	ThirdTypeWxOpen  = "wxOpen"  //微信开放平台登录
+	ThirdTypeDingApp = "dingApp" //钉钉应用(包含小程序,h5等方式)
+)

@@ -2,6 +2,7 @@ package wxClient
 
 import (
 	"context"
+
 	"gitee.com/unitedrhino/share/conf"
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
@@ -31,7 +32,8 @@ func NewWxMiniProgram(ctx context.Context, conf *conf.ThirdConf, redisConf zeroC
 	}
 	program := wc.GetMiniProgram(cfg)
 	program.SetAccessTokenHandle(credential.NewStableAccessToken(cfg.AppID, cfg.AppSecret, credential.CacheKeyMiniProgramPrefix, cfg.Cache))
-	return program, nil
+	_, err := program.GetContext().GetAccessTokenContext(ctx)
+	return program, err
 }
 
 type WxOfficialAccount = officialaccount.OfficialAccount
@@ -52,5 +54,6 @@ func NewWxOfficialAccount(ctx context.Context, conf *conf.ThirdConf, redisConf z
 	}
 	program := wc.GetOfficialAccount(cfg)
 	program.SetAccessTokenHandle(credential.NewStableAccessToken(cfg.AppID, cfg.AppSecret, credential.CacheKeyMiniProgramPrefix, cfg.Cache))
-	return program, nil
+	_, err := program.GetAccessToken()
+	return program, err
 }
