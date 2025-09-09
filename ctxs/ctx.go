@@ -156,7 +156,7 @@ func InitCtxWithReq(r *http.Request) *http.Request {
 		uc.AppCode = def.AppCore
 	}
 	if uc.TenantCode == "" {
-		uc.TenantCode = def.TenantCodeCommon
+		uc.TenantCode = def.TenantCodeDefault
 	}
 	uc.ProjectID = projectID
 	uc.Os = GetHandle(r, "User-Agent")
