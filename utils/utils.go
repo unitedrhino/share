@@ -6,9 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"gitee.com/unitedrhino/share/errors"
-	"github.com/carlmjohnson/versioninfo"
-	"github.com/zeromicro/go-zero/core/logx"
 	"math/big"
 	"net"
 	"net/http"
@@ -17,6 +14,10 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"gitee.com/unitedrhino/share/errors"
+	"github.com/carlmjohnson/versioninfo"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 func init() {
@@ -91,6 +92,9 @@ func IsEmail(email string) bool {
 将密码的md5和uid进行md5
 */
 func MakePwd(pwd string, uid int64, isMd5 bool) string {
+	if pwd == "" {
+		return ""
+	}
 	if isMd5 == false {
 		pwd = MD5V([]byte(pwd))
 	}

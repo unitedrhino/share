@@ -11,9 +11,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"gitee.com/unitedrhino/share/errors"
 	"sort"
 	"strings"
+
+	"gitee.com/unitedrhino/share/errors"
 )
 
 type HmacType = string
@@ -46,6 +47,17 @@ func HmacSha1(data string, secret []byte) string {
 	h := hmac.New(sha1.New, secret)
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+// HexToBase64 将16进制字符串转换为Base64编码
+func HexToBase64(hexStr string) (string, error) {
+	// 首先将16进制字符串解码为字节数组
+	bytes, err := hex.DecodeString(hexStr)
+	if err != nil {
+		return "", err
+	}
+	// 然后将字节数组编码为Base64字符串
+	return base64.StdEncoding.EncodeToString(bytes), nil
 }
 
 func HmacMd5(data string, secret []byte) string {
