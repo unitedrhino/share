@@ -3,6 +3,7 @@ package tools
 import (
 	"context"
 	"fmt"
+
 	"gitee.com/unitedrhino/share/caches"
 	"gitee.com/unitedrhino/share/conf"
 	"github.com/spf13/cast"
@@ -88,6 +89,8 @@ func (l Limit) LimitIt(ctx context.Context, key string) error {
 			if err != nil {
 				logx.WithContext(ctx).Error(err)
 			}
+			logx.WithContext(ctx).Infof("forbidden limit  key:%v scene:%v type:%v ForbiddenTime:%v ",
+				key, l.Scene, l.Type, v.ForbiddenTime)
 		}
 		return nil
 	}
