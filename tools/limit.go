@@ -45,6 +45,7 @@ func (l Limit) CheckLimit(ctx context.Context, key string) bool {
 		return false
 	}
 	if ret != "" {
+		logx.WithContext(ctx).Infof("CheckLimit limit it key:%v cacheKey:%v ret:%v", key, cacheKey, ret)
 		return true
 	}
 	return false
