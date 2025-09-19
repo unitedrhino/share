@@ -13,11 +13,12 @@ require (
 	github.com/alibabacloud-go/tea v1.3.9
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.7
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible
-	github.com/aws/aws-sdk-go v1.55.7
+	github.com/aws/aws-sdk-go v1.55.8
 	github.com/carlmjohnson/versioninfo v0.22.4
 	github.com/casbin/casbin/v2 v2.68.0
 	github.com/dop251/goja v0.0.0-20250630131328-58d95d85e994
 	github.com/dtm-labs/client v1.17.3
+	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/fatih/structs v1.1.0
 	github.com/glebarez/sqlite v1.8.0
 	github.com/go-playground/universal-translator v0.18.1
@@ -55,6 +56,7 @@ require (
 	go.uber.org/atomic v1.11.0
 	golang.org/x/exp v0.0.0-20250506013437-ce4c2cf36ca6
 	golang.org/x/net v0.40.0
+	golang.org/x/oauth2 v0.28.0
 	golang.org/x/sys v0.33.0
 	golang.org/x/text v0.25.0
 	google.golang.org/grpc v1.73.0
@@ -194,7 +196,6 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/image v0.24.0 // indirect
-	golang.org/x/oauth2 v0.28.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
 	golang.org/x/term v0.32.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
