@@ -2,10 +2,11 @@ package stores
 
 import (
 	"fmt"
+	"strings"
+
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/utils"
 	"gorm.io/gorm"
-	"strings"
 )
 
 var Expr = gorm.Expr
@@ -51,6 +52,8 @@ func GetCmp(cmpType CmpType, value any) *Cmp {
 		return CmpLt(value)
 	case CmpTypeLte:
 		return CmpLte(value)
+	case CmpTypeLike:
+		return CmpLike(utils.ToString(value))
 	}
 	return nil
 }
@@ -124,7 +127,6 @@ func CmpJsonObjEq(k string, v any) *Cmp {
 			return fmt.Sprintf("JSON_CONTAINS(%s, JSON_OBJECT(?,?))", column)
 		}, Value: []any{k, v}}
 	}
-
 }
 
 // json对象中 obj.key like '%v%'
