@@ -80,7 +80,18 @@ func GetAreaIDPaths(projectID int64, in map[int64]*ProjectAuth) (authType def.Au
 	}
 	return
 }
-
+func (u *UserCtx) AuthProject(in int64, a def.AuthType) bool {
+	if u.IsAdmin || u.IsSuperAdmin {
+		return true
+	}
+	if u.ProjectAuth == nil {
+		return false
+	}
+	if u.ProjectAuth[in] == nil {
+		return false
+	}
+	return u.ProjectAuth[in].AuthType <= a
+}
 func (u *UserCtx) ClearInner() *UserCtx {
 	if u == nil {
 		return nil
