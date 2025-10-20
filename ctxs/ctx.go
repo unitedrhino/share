@@ -399,9 +399,12 @@ func IsTenantDefault(ctx context.Context) bool {
 	return uc.TenantCode == def.TenantCodeDefault
 }
 
-func CanHandleTenantCommon[t ~string](ctx context.Context, tenantCode t) bool {
+func CanHandTenant[t ~string](ctx context.Context, tenantCode t) bool {
 	uc := GetUserCtxNoNil(ctx)
-	if !(uc.TenantCode == def.TenantCodeDefault || string(tenantCode) == uc.TenantCode) {
+	if string(tenantCode) == uc.TenantCode {
+		return true
+	}
+	if !(uc.TenantCode == def.TenantCodeDefault || uc.IsAdmin) {
 		return false
 	}
 	return true
