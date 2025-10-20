@@ -3,62 +3,44 @@ package errors
 import (
 	"embed"
 	"fmt"
-	"gitee.com/unitedrhino/share/i18ns"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"strings"
+
+	"gitee.com/unitedrhino/share/i18ns"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 //go:embed locale/*.json
 var LocaleFS embed.FS
-var bundle *i18n.Bundle
 
-type I18nImpl interface {
-	I81n(localizer *i18n.Localizer) string
-	String() string
-}
-
-type Msgf struct {
+// Msg 格式化消息结构
+type Msg struct {
 	Format string
-	A      []any
+	Args   []any
 }
-type String string
 
 func init() {
-	bundle = i18ns.InitWithLocaleFS(LocaleFS, "locale")
+	var err error
+	err = i18ns.InitWithEmbedFS(LocaleFS, "locale")
+	logx.Must(err)
 }
 
+// GetI18nMsg 获取多语言消息
 func (c CodeError) GetI18nMsg(accept string) string {
-	localizer := i18n.NewLocalizer(bundle, accept)
 	var msgs []string
 	for _, v := range c.Msg {
-		msg := v.I81n(localizer)
+		msg := i18ns.LocalizeMsgWithLang(accept, v.Format, v.Args...)
 		msgs = append(msgs, msg)
 	}
 	return strings.Join(msgs, ":")
 }
 
-func (m Msgf) I81n(localizer *i18n.Localizer) string {
-	msg, e := localizer.LocalizeMessage(&i18n.Message{ID: m.Format})
-	if e != nil {
-		msg = m.Format
-	}
-	return fmt.Sprintf(msg, m.A...)
-}
-func (m Msgf) String() string {
-	return fmt.Sprintf(m.Format, m.A...)
+// String 格式化消息的字符串实现
+func (m Msg) String() string {
+	return fmt.Sprintf(m.Format, m.Args...)
 }
 
-func (s String) I81n(localizer *i18n.Localizer) string {
-	msg, e := localizer.LocalizeMessage(&i18n.Message{ID: string(s)})
-	if e != nil {
-		msg = string(s)
-	}
-	return msg
-}
-func (m String) String() string {
-	return string(m)
-}
-func stringMsgs(in []I18nImpl) string {
+// stringMsgs 将消息数组转换为字符串
+func stringMsgs(in []Msg) string {
 	var msgs []string
 	for _, v := range in {
 		msgs = append(msgs, v.String())

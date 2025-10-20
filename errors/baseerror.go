@@ -15,11 +15,11 @@ import (
 )
 
 type CodeError struct {
-	Code    int64      `json:"code"`
-	Msg     []I18nImpl `json:"-"`
-	MsgStr  string     `json:"msg"`
-	Details []string   `json:"details,omitempty"`
-	Stack   []string   `json:"stack,omitempty"`
+	Code    int64    `json:"code"`
+	Msg     []Msg    `json:"-"`
+	MsgStr  string   `json:"msg"`
+	Details []string `json:"details,omitempty"`
+	Stack   []string `json:"stack,omitempty"`
 }
 
 type RpcError interface {
@@ -60,22 +60,22 @@ func ToRpc(err error, accept string) error {
 
 func (c CodeError) WithMsg(msg string) *CodeError {
 
-	c.Msg = []I18nImpl{String(msg)}
+	c.Msg = []Msg{{Format: msg}}
 	return &c
 }
 
 func (c CodeError) WithMsgf(format string, a ...any) *CodeError {
-	c.Msg = []I18nImpl{Msgf{Format: format, A: a}}
+	c.Msg = []Msg{{Format: format, Args: a}}
 	return &c
 }
 
 func (c CodeError) AddMsg(msg string) *CodeError {
-	c.Msg = append(c.Msg, String(msg))
+	c.Msg = append(c.Msg, Msg{Format: msg})
 	return &c
 }
 
 func (c CodeError) AddMsgf(format string, a ...any) *CodeError {
-	c.Msg = append(c.Msg, Msgf{Format: format, A: a})
+	c.Msg = append(c.Msg, Msg{Format: format, Args: a})
 	return &c
 }
 
@@ -122,7 +122,7 @@ var ErrorMap = map[int64]string{}
 
 func NewCodeError(code int64, msg string) *CodeError {
 	ErrorMap[code] = msg
-	return &CodeError{Code: code, Msg: []I18nImpl{String(msg)}}
+	return &CodeError{Code: code, Msg: []Msg{{Format: msg}}}
 }
 
 func NewDefaultError(msg string) error {
@@ -165,7 +165,7 @@ func Fmt(errs error) *CodeError {
 		}
 		var ret CodeError
 		err := json.Unmarshal([]byte(s.Message()), &ret)
-		ret.Msg = []I18nImpl{String(ret.MsgStr)}
+		ret.Msg = []Msg{{Format: ret.MsgStr}}
 		if err != nil {
 			return System.AddDetail(err)
 		}
