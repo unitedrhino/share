@@ -57,6 +57,12 @@ func (l Limit) CleanLimit(ctx context.Context, key string) error {
 	if err != nil {
 		logx.WithContext(ctx).Error(err)
 	}
+	for i := range l.Conf {
+		cacheKey = l.genCountKey(i, key)
+		_, err := l.store.DelCtx(ctx, cacheKey)
+		logx.WithContext(ctx).Error(err)
+	}
+
 	return err
 }
 
