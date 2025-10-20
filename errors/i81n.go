@@ -9,7 +9,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-//go:embed locale/*.json
+//go:embed i18n/*.json
 var LocaleFS embed.FS
 
 // Msg 格式化消息结构
@@ -20,7 +20,7 @@ type Msg struct {
 
 func init() {
 	var err error
-	err = i18ns.InitWithEmbedFS(LocaleFS, "locale")
+	err = i18ns.InitWithEmbedFS(LocaleFS, "i18n")
 	logx.Must(err)
 }
 

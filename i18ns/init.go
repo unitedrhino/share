@@ -23,7 +23,7 @@ func init() {
 		bundle = i18n.NewBundle(tags[0])
 		return
 	}
-	bundle = i18n.NewBundle(language.English)
+	bundle = i18n.NewBundle(language.AmericanEnglish)
 }
 
 var bundle *i18n.Bundle = i18n.NewBundle(language.Chinese)
@@ -79,6 +79,9 @@ func InitWithFS(dir string) error {
 
 // 示例:  	msg := i18ns.LocalizeMsgWithLang("en_US", "nodered.protocol.unsupported", "vewwrfw3")
 func LocalizeMsgWithLang(lang string, format string, args ...interface{}) string {
+	if lang == "" {
+		lang = bundle.LanguageTags()[0].String()
+	}
 	localizer := i18n.NewLocalizer(bundle, lang)
 	msg, e := localizer.LocalizeMessage(&i18n.Message{ID: format})
 	if e != nil {
@@ -90,5 +93,5 @@ func LocalizeMsgWithLang(lang string, format string, args ...interface{}) string
 	return fmt.Sprintf(msg, args...)
 }
 func LocalizeMsg(format string, args ...interface{}) string {
-	return LocalizeMsgWithLang("", format, args...)
+	return LocalizeMsgWithLang(bundle.LanguageTags()[0].String(), format, args...)
 }
