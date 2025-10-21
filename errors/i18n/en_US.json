@@ -26,6 +26,7 @@
   "error.sys.inProgress": "In progress",
   "error.sys.executionFailedRollback": "Execution failed, rollback required",
   "error.sys.skipExecution": "Skip execution",
+  "error.sys.limit": "Limit reached",
   "error.user.usernameAlreadyRegistered": "Username already registered",
   "error.user.mobileAlreadyTaken": "Mobile number already taken",
   "error.user.notRegistered": "Not registered",

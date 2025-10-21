@@ -23,10 +23,10 @@ func init() {
 		bundle = i18n.NewBundle(tags[0])
 		return
 	}
-	bundle = i18n.NewBundle(language.AmericanEnglish)
+	bundle = i18n.NewBundle(language.SimplifiedChinese)
 }
 
-var bundle *i18n.Bundle = i18n.NewBundle(language.Chinese)
+var bundle *i18n.Bundle
 
 func init() {
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
