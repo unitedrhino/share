@@ -409,7 +409,7 @@ func GetTenantCode(ctx context.Context) string {
 
 func CanHandTenant[t ~string](ctx context.Context, tenantCode t) bool {
 	uc := GetUserCtxNoNil(ctx)
-	if string(tenantCode) == uc.TenantCode {
+	if string(tenantCode) == uc.TenantCode || tenantCode == "" {
 		return true
 	}
 	if !(uc.TenantCode == def.TenantCodeDefault || uc.IsAdmin) {
