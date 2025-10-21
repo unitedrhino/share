@@ -203,6 +203,9 @@ func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) con
 		return SetUserCtx(ctx, uc)
 	} else {
 		ucc := *uc
+		if tenantCode == "" || tenantCode == def.TenantCodeCommon {
+			tenantCode = def.TenantCodeDefault
+		}
 		ucc.TenantCode = tenantCode
 		ucc.AllTenant = false
 		if projectID != 0 {
@@ -211,7 +214,6 @@ func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) con
 		}
 		return SetUserCtx(ctx, &ucc)
 	}
-	return ctx
 }
 
 func UpdateUserCtx(ctx context.Context) context.Context {
