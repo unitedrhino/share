@@ -3,11 +3,12 @@ package utils
 import (
 	"context"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/metric"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/metric"
 )
 
 func Recover(ctx context.Context, infos ...string) {
@@ -41,7 +42,7 @@ var (
 )
 
 func HandleThrow(ctx context.Context, p any, msgs ...string) {
-	msg := fmt.Sprintf("HandleThrow|traceID=%s|msg=%v|error=%#v|stack=%s", TraceIdFromContext(ctx), msgs, p, Stack(3, 5))
+	msg := fmt.Sprintf("HandleThrow|traceID=%s|msg=%v|error=%#v|stack=%s", TraceIdFromContext(ctx), msgs, p, Stack(3, 20))
 	logx.WithContext(ctx).Error(msg)
 	if setPanicNotify != nil {
 		setPanicNotify(msg)

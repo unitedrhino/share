@@ -3,10 +3,11 @@ package utils
 import (
 	"database/sql"
 	"encoding/json"
-	"github.com/spf13/cast"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"strings"
 	"time"
+
+	"github.com/spf13/cast"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func Int8ToBool(i int8) bool {
@@ -16,30 +17,38 @@ func Int8ToBool(i int8) bool {
 	return true
 }
 
-func ToInt64(i any) int64 {
+func ToInt64E(i any) (int64, error) {
 	switch i.(type) {
+	case string:
+		i = strings.TrimLeft(i.(string), "0")
+		return cast.ToInt64E(i)
 	case []uint8:
 		t := i.([]uint8)
-		return cast.ToInt64(string(t))
+		return cast.ToInt64E(string(t))
 	case sql.NullTime:
 		t := i.(sql.NullTime)
 		if t.Valid == false {
-			return 0
+			return 0, nil
 		}
-		return i.(sql.NullTime).Time.Unix()
+		return i.(sql.NullTime).Time.Unix(), nil
 	case *time.Time:
 		t := i.(*time.Time)
 		if t == nil {
-			return 0
+			return 0, nil
 		}
-		return t.Unix()
+		return t.Unix(), nil
 	case time.Time:
-		return i.(time.Time).Unix()
+		return i.(time.Time).Unix(), nil
 	case *wrapperspb.Int64Value:
-		return i.(*wrapperspb.Int64Value).GetValue()
+		return i.(*wrapperspb.Int64Value).GetValue(), nil
 	default:
-		return cast.ToInt64(i)
+		return cast.ToInt64E(i)
 	}
+}
+
+func ToInt64(i any) int64 {
+	v, _ := ToInt64E(i)
+	return v
 }
 
 func ToBool(i any) bool {
@@ -104,6 +113,14 @@ func ToInt(i any) int {
 		i = strings.TrimLeft(i.(string), "0")
 	}
 	return cast.ToInt(i)
+}
+
+func ToIntE(i any) (int, error) {
+	switch i.(type) {
+	case string:
+		i = strings.TrimLeft(i.(string), "0")
+	}
+	return cast.ToIntE(i)
 }
 
 // ToUint casts an interface to a uint type.

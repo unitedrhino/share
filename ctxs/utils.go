@@ -2,14 +2,14 @@ package ctxs
 
 import (
 	"context"
-	"gitee.com/unitedrhino/share/utils"
-	"go.opentelemetry.io/otel/trace"
 	"net/http"
 	"time"
+
+	"gitee.com/unitedrhino/share/utils"
+	"go.opentelemetry.io/otel/trace"
 )
 
-var ContextKeys = []string{UserToken2Key, UserTokenKey, UserSetTokenKey, UserRoleKey,
-	MetadataKey, UserAppCodeKey, UserAppCodeKey2, UserTenantCodeKey, UserProjectID, UserProjectID2}
+var ContextKeys = []string{UserToken2Key, UserTokenKey, UserSetTokenKey, UserRoleKey, UserAppCodeKey, UserAppCodeKey2, UserTenantCodeKey, UserTenantCodeKey2, UserProjectID, UserProjectID2}
 
 func CopyCtx(ctx context.Context) context.Context {
 	newCtx := NewUserCtx(ctx)
