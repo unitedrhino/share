@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math/big"
+	"math/rand"
 	"net"
 	"net/http"
 	"reflect"
@@ -255,4 +256,25 @@ func Stack(skip int, len int) string {
 		stacks = append(stacks, s)
 	}
 	return strings.Join(stacks, "--")
+}
+
+// 从map中随机获取一个键
+func GetRandomKey[K comparable, V any](m map[K]V) K {
+	// 处理空map情况
+	if len(m) == 0 {
+		var zero K
+		return zero
+	}
+
+	// 将map的键收集到切片中
+	keys := make([]K, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	// 生成随机索引
+	randomIndex := rand.Intn(len(keys))
+
+	// 返回随机键
+	return keys[randomIndex]
 }

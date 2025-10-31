@@ -62,7 +62,6 @@ const (
 
 // RandString https://github.com/kpbird/golang_random_string
 func RandString(n int) string {
-	rand.Seed(time.Now().UnixNano())
 	output := make([]byte, n)
 	// We will take n bytes, one byte for each character of output.
 	randomness := make([]byte, n)
