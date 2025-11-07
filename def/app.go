@@ -9,6 +9,14 @@ const (
 	TenantCodeDefault = "default" //默认租户
 	TenantCodeCommon  = "common"  //特殊租户:所有租户都能获取该租户的信息
 )
+
+func GetTenantCode[inT ~string](in inT) string {
+	if in == TenantCodeCommon {
+		return TenantCodeDefault
+	}
+	return string(in)
+}
+
 const (
 	ModuleSystemManage = "systemManage" //租户内的系统管理
 	ModuleTenantManage = "tenantManage" //租户系统管理

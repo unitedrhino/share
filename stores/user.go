@@ -3,6 +3,8 @@ package stores
 import (
 	"context"
 	"database/sql/driver"
+	"reflect"
+
 	"gitee.com/unitedrhino/share/ctxs"
 	"gitee.com/unitedrhino/share/utils"
 	"gorm.io/gorm"
@@ -32,7 +34,7 @@ func (t CreatedBy) Value() (driver.Value, error) {
 }
 
 func (t CreatedBy) CreateClauses(f *schema.Field) []clause.Interface {
-	return []clause.Interface{UserByClause[CreatedBy]{Field: f}}
+	return []clause.Interface{UserByClause[CreatedBy]{Field: f, Opt: Create}}
 }
 
 func (t UpdatedBy) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr) { //更新的时候会调用此接口
@@ -53,7 +55,7 @@ func (t UpdatedBy) Value() (driver.Value, error) {
 }
 
 func (t UpdatedBy) UpdateClauses(f *schema.Field) []clause.Interface {
-	return []clause.Interface{UserByClause[UpdatedBy]{Field: f}}
+	return []clause.Interface{UserByClause[UpdatedBy]{Field: f, Opt: Update}}
 }
 
 func (t DeletedBy) GormValue(ctx context.Context, db *gorm.DB) (expr clause.Expr) { //更新的时候会调用此接口
@@ -75,6 +77,7 @@ func (t DeletedBy) Value() (driver.Value, error) {
 
 type UserByClause[keyT ~int64] struct {
 	Field *schema.Field
+	Opt   Opt
 }
 
 func (sd UserByClause[keyT]) Name() string {
@@ -94,5 +97,32 @@ func (sd UserByClause[keyT]) ModifyStatement(stmt *gorm.Statement) { //查询的
 		return
 	}
 	var userID = keyT(uc.UserID)
-	stmt.SetColumn(sd.Field.DBName, userID, true)
+	destV := reflect.ValueOf(stmt.Dest)
+	if destV.Kind() == reflect.Array || destV.Kind() == reflect.Slice {
+		if destV.Kind() == reflect.Map {
+			stmt.SetColumn(sd.Field.DBName, userID, true)
+			return
+		}
+		for i := 0; i < destV.Len(); i++ {
+			dest := destV.Index(i)
+			if dest.Kind() == reflect.Pointer || dest.Kind() == reflect.Interface {
+				dest = dest.Elem()
+			}
+			field := dest.FieldByName(sd.Field.Name)
+			if sd.Opt == Create && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+				continue
+			}
+			field.Set(reflect.ValueOf(userID))
+		}
+		return
+	}
+	if destV.Kind() == reflect.Map {
+		stmt.SetColumn(sd.Field.DBName, userID, true)
+		return
+	}
+	field := destV.Elem().FieldByName(sd.Field.Name)
+	if sd.Opt == Create && !field.IsZero() { //只有root权限的租户可以设置为其他租户
+		return
+	}
+	field.Set(reflect.ValueOf(userID))
 }

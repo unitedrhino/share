@@ -23,20 +23,15 @@ func init() {
 		bundle = i18n.NewBundle(tags[0])
 		return
 	}
-	language.AmericanEnglish.String()
-	bundle = i18n.NewBundle(language.AmericanEnglish)
+	bundle = i18n.NewBundle(language.SimplifiedChinese)
 }
 
-var bundle *i18n.Bundle = i18n.NewBundle(language.Chinese)
+var bundle *i18n.Bundle
 
 func init() {
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
-}
-
-func GetBundle() *i18n.Bundle {
-	return bundle
 }
 
 // InitWithEmbedFS 从嵌入文件系统初始化i18n bundle

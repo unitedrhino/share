@@ -8,6 +8,7 @@ import (
 
 	"gitee.com/unitedrhino/share/def"
 	"gitee.com/unitedrhino/share/errors"
+	"gitee.com/unitedrhino/share/i18ns"
 	"gitee.com/unitedrhino/share/utils"
 	"github.com/spf13/cast"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -202,6 +203,9 @@ func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) con
 		return SetUserCtx(ctx, uc)
 	} else {
 		ucc := *uc
+		if tenantCode == "" || tenantCode == def.TenantCodeCommon {
+			tenantCode = def.TenantCodeDefault
+		}
 		ucc.TenantCode = tenantCode
 		ucc.AllTenant = false
 		if projectID != 0 {
@@ -210,7 +214,6 @@ func BindTenantCode(ctx context.Context, tenantCode string, projectID int64) con
 		}
 		return SetUserCtx(ctx, &ucc)
 	}
-	return ctx
 }
 
 func UpdateUserCtx(ctx context.Context) context.Context {
@@ -399,12 +402,24 @@ func IsTenantDefault(ctx context.Context) bool {
 	return uc.TenantCode == def.TenantCodeDefault
 }
 
-func CanHandleTenantCommon[t ~string](ctx context.Context, tenantCode t) bool {
+func GetTenantCode(ctx context.Context) string {
 	uc := GetUserCtxNoNil(ctx)
-	if !(uc.TenantCode == def.TenantCodeDefault || string(tenantCode) == uc.TenantCode) {
+	return uc.TenantCode
+}
+
+func CanHandTenant[t ~string](ctx context.Context, tenantCode t) bool {
+	uc := GetUserCtxNoNil(ctx)
+	if string(tenantCode) == uc.TenantCode || tenantCode == "" {
+		return true
+	}
+	if !(uc.TenantCode == def.TenantCodeDefault || uc.IsAdmin) {
 		return false
 	}
 	return true
+}
+
+func LocalizeMsg(ctx context.Context, format string, args ...interface{}) string {
+	return i18ns.LocalizeMsg(GetUserCtxNoNil(ctx).AcceptLanguage, format, args)
 }
 
 // 如果是管理员,且没有传项目id,则直接给所有项目权限

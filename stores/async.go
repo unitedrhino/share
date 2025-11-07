@@ -16,7 +16,11 @@ type AsyncInsert[t any] struct {
 	db         *DB
 	once       sync.Once
 	insertChan chan *t
-	tableName  string
+	config
+}
+type config struct {
+	tableName string
+	dbOpts    []func(db *DB) *DB
 }
 
 const (
@@ -24,18 +28,32 @@ const (
 	asyncRunMax  = 40
 )
 
-func NewAsyncInsert[t any](db *DB, tableName string) (a *AsyncInsert[t]) {
+type Option func(in *config)
+
+func NewAsyncInsert[t any](db *DB, tableName string, options ...Option) (a *AsyncInsert[t]) {
 	a = &AsyncInsert[t]{
 		insertChan: make(chan *t, asyncExecMax*10),
 		db:         db,
-		tableName:  tableName,
+		config: config{
+			tableName: tableName,
+		},
 	}
+	for _, option := range options {
+		option(&a.config)
+	}
+
 	for i := 0; i < asyncRunMax; i++ {
 		utils.Go(context.Background(), func() {
 			a.asyncInsertRuntime()
 		})
 	}
 	return a
+}
+
+func WithDBHandle(hs func(db *DB) *DB) Option {
+	return func(in *config) {
+		in.dbOpts = append(in.dbOpts, hs)
+	}
 }
 
 func (a *AsyncInsert[t]) AsyncInsert(stu *t) {
@@ -57,7 +75,14 @@ func (a *AsyncInsert[t]) asyncInsertRuntime() {
 		if a.tableName != "" {
 			db = db.Table(a.tableName)
 		}
-		err := db.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(execCache, 100).Error
+		if len(a.dbOpts) == 0 {
+			db = db.Clauses(clause.OnConflict{DoNothing: true})
+		} else {
+			for _, opt := range a.dbOpts {
+				db = opt(db)
+			}
+		}
+		err := db.CreateInBatches(execCache, 100).Error
 		if err != nil {
 			logx.Error(err)
 		}
