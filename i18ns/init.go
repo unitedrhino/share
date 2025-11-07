@@ -23,6 +23,7 @@ func init() {
 		bundle = i18n.NewBundle(tags[0])
 		return
 	}
+	language.AmericanEnglish.String()
 	bundle = i18n.NewBundle(language.AmericanEnglish)
 }
 
@@ -32,6 +33,10 @@ func init() {
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
+}
+
+func GetBundle() *i18n.Bundle {
+	return bundle
 }
 
 // InitWithEmbedFS 从嵌入文件系统初始化i18n bundle
@@ -55,26 +60,27 @@ func InitWithEmbedFS(LocaleFS embed.FS, dir string) error {
 }
 
 // InitWithFS 从文件系统初始化i18n bundle
-func InitWithFS(dir string) error {
+func InitWithFS(dir string) (map[language.Tag]*i18n.MessageFile, error) {
 	dirs, err := os.ReadDir(dir)
 	if err != nil {
 		logx.Errorf("读取语言文件目录失败: %v", err)
-		return err
+		return nil, err
 	}
-
+	var ret = make(map[language.Tag]*i18n.MessageFile)
 	for _, v := range dirs {
 		if !(strings.HasSuffix(v.Name(), "json") || strings.HasSuffix(v.Name(), "toml") || strings.HasSuffix(v.Name(), "yaml")) {
 			continue
 		}
 		path := filepath.Join(dir, v.Name())
-		_, err = bundle.LoadMessageFile(path)
+		mf, err := bundle.LoadMessageFile(path)
 		if err != nil {
 			logx.Errorf("加载语言文件失败 %s: %v", path, err)
 			continue
 		}
+		ret[mf.Tag] = mf
 		logx.Infof("成功加载语言文件: %s", path)
 	}
-	return nil
+	return ret, nil
 }
 
 // 示例:  	msg := i18ns.LocalizeMsgWithLang("en_US", "nodered.protocol.unsupported", "vewwrfw3")
