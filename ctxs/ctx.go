@@ -289,6 +289,7 @@ func SetUserCtx(ctx context.Context, userCtx *UserCtx) context.Context {
 	ctx = metadata.NewOutgoingContext(ctx, metadata.Pairs(
 		UserInfoKey, base64.StdEncoding.EncodeToString(info),
 	))
+	ctx = i18ns.SetLangWithCtx(ctx, userCtx.AcceptLanguage)
 	return context.WithValue(ctx, UserInfoKey, userCtx)
 }
 

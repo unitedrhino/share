@@ -1,6 +1,7 @@
 package i18ns
 
 import (
+	"context"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -95,4 +96,23 @@ func LocalizeMsgWithLang(lang string, format string, args ...interface{}) string
 }
 func LocalizeMsg(format string, args ...interface{}) string {
 	return LocalizeMsgWithLang(bundle.LanguageTags()[0].String(), format, args...)
+}
+
+const contextKey string = "i18n-language"
+
+func SetLangWithCtx(ctx context.Context, lang string) context.Context {
+	ctx = context.WithValue(ctx, contextKey, lang)
+	return ctx
+}
+
+func GetLangWithCtx(ctx context.Context) string {
+	v := ctx.Value(contextKey)
+	if v == nil {
+		return ""
+	}
+	return v.(string)
+}
+
+func LocalizeMsgWithCtx(ctx context.Context, format string, args ...interface{}) string {
+	return LocalizeMsgWithLang(GetLangWithCtx(ctx), format, args...)
 }
