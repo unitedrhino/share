@@ -1,12 +1,14 @@
 package stores
 
 import (
+	"fmt"
+	"reflect"
+	"sync"
+
 	"gitee.com/unitedrhino/share/conf"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
-	"reflect"
-	"sync"
 )
 
 var columnCache sync.Map
@@ -85,4 +87,24 @@ func SetValue[valT any](stmt *gorm.Statement, fieldName string, v valT) {
 		return
 	}
 	field.Set(reflect.ValueOf(v))
+}
+
+// 待完善,pg批量导入之后序列未更新
+func CreateInBatches(db *DB, value interface{}, batchSize int) error {
+	db = db.CreateInBatches(value, batchSize)
+	if db.Error != nil {
+		//return db.Error
+	}
+	if rlDBType == conf.Pgsql {
+		s, err := schema.Parse(value, &columnCache, db.NamingStrategy)
+		if err != nil {
+			return err
+		}
+		if s.PrioritizedPrimaryField != nil {
+			db.Model(value).Exec(fmt.Sprintf(`SELECT setval( '%s_%s_seq',(SELECT COALESCE(MAX(%s), 0) + 1 FROM %s));`,
+				s.Table, s.PrioritizedPrimaryField.DBName, s.PrioritizedPrimaryField.DBName, s.Table))
+		}
+
+	}
+	return nil
 }

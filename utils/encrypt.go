@@ -99,6 +99,37 @@ func AesCbcBase64(src, productSecret string) (string, error) {
 	return base64.StdEncoding.EncodeToString(cryptData), nil
 }
 
+// AesEcbBase64 使用 AES-ECB 模式加密并返回 Base64 编码的结果
+// ECB 模式不需要 IV，对每个块独立加密
+func AesEcbBase64(src, productSecret string) (string, error) {
+	if src == "" || productSecret == "" {
+		return "", errors.Default.AddMsg("加密参数错误")
+	}
+	// 截取 productSecret 前 16 位作为密钥
+	key := []byte(productSecret)[:16]
+
+	data := []byte(src)
+
+	// 使用 AES-ECB 加密
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	// 对数据进行 PKCS5 填充
+	blockSize := block.BlockSize()
+	data = PKCS5Padding(data, blockSize)
+
+	// ECB 模式：对每个块独立加密
+	cryptData := make([]byte, len(data))
+	for i := 0; i < len(data); i += blockSize {
+		block.Encrypt(cryptData[i:i+blockSize], data[i:i+blockSize])
+	}
+
+	// 进行 base64 编码
+	return base64.StdEncoding.EncodeToString(cryptData), nil
+}
+
 func Md5Map(params map[string]any) string {
 	// 排序
 	keys := make([]string, len(params))
