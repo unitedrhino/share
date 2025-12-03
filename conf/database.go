@@ -10,7 +10,7 @@ const (
 type Database struct {
 	DBType string `json:",default=mysql,env=dbType,options=mysql|pgsql|sqlite"` //
 	//IsInitTable bool   `json:",default=false"`
-	IsInitTable  bool   `json:",env=dbIsInitTable,default=false"`
+	IsInitTable  bool   `json:",env=dbIsInitTable,default=true"`
 	DSN          string `json:",env=dbDSN"` //dsn
 	MaxIdleConns int    `json:",default=10"`
 	MaxOpenConns int    `json:",default=20"`
