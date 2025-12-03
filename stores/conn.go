@@ -98,10 +98,16 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 		return nil, err
 	}
 	db, _ := conn.DB()
-	db.SetMaxIdleConns(20)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxIdleTime(time.Hour)
-	db.SetConnMaxLifetime(time.Hour)
+	if database.MaxOpenConns == 0 {
+		database.MaxOpenConns = 20
+	}
+	if database.MaxIdleConns == 0 {
+		database.MaxIdleConns = 10
+	}
+	db.SetMaxIdleConns(database.MaxIdleConns)
+	db.SetMaxOpenConns(database.MaxOpenConns)
+	db.SetConnMaxIdleTime(time.Minute * 10)
+	db.SetConnMaxLifetime(time.Minute * 30)
 	return
 }
 
@@ -155,8 +161,73 @@ func GetTenantConn(in any) *gorm.DB {
 
 // 获取租户连接 pg: schema级别隔离 mysql: database
 
-var schemaMap sync.Map
+type schemata struct {
+	SchemaName string `gorm:"column:schema_name"`
+}
 
+/*
+SELECT schema_name
+FROM information_schema.schemata
+-- 排除常见系统 Schema
+WHERE schema_name NOT IN (
+
+	                      'pg_catalog',    -- PG 核心系统表Schema
+	                      'information_schema', -- SQL 标准系统视图Schema
+	                      'pg_toast',      -- 大对象存储Schema
+	                      'pg_temp_1',     -- 临时表Schema（会话级）
+	                      'pg_toast_temp_1', -- 临时大对象Schema
+	                     'public'
+	)
+
+ORDER BY schema_name;
+*/
+func GetAllSchema(db *gorm.DB) ([]string, error) {
+	var s []schemata
+	err := db.Table("information_schema.schemata").Select("schema_name").Where(` schema_name NOT IN (
+                          'pg_catalog',    -- PG 核心系统表Schema
+                          'information_schema', -- SQL 标准系统视图Schema
+                          'pg_toast',      -- 大对象存储Schema
+                          'pg_temp_1',     -- 临时表Schema（会话级）
+                          'pg_toast_temp_1' -- 临时大对象Schema
+    )`).Find(&s).Error
+	if err != nil {
+		return nil, err
+	}
+	var schemas []string
+	for _, v := range s {
+		schemas = append(schemas, v.SchemaName)
+	}
+	return schemas, nil
+}
+func SchemaTableAutoMigrate(ctx context.Context, schemas []string, dst ...interface{}) error {
+	if len(schemas) == 0 {
+		return errors.System.AddDetail("没有传入schema")
+	}
+
+	taskPool := make(chan struct{}, 20)
+	var wg sync.WaitGroup
+	var startTime = time.Now()
+	for _, v := range schemas {
+		wg.Add(1)
+		taskPool <- struct{}{}
+		go func(schema string) {
+			defer func() {
+				<-taskPool
+				wg.Done()
+			}()
+			db := GetSchemaTenantConn(SetTenantCode(ctx, schema))
+			err := db.AutoMigrate(dst...)
+			if err != nil {
+				logx.WithContext(ctx).Error("SchemaTableAutoMigrate err:%v", err)
+			} else {
+				logx.WithContext(ctx).Infof("SchemaTableAutoMigrate finish schema:%v", schema)
+			}
+		}(v)
+	}
+	wg.Wait()
+	logx.WithContext(ctx).Infof("SchemaTableAutoMigrate all finish use time:%v", time.Since(startTime))
+	return nil
+}
 func GetSchemaTenantConn(in any) *gorm.DB {
 	ctx, conn := validateAndGetContext(in, commonConn)
 	if conn != nil {
@@ -164,26 +235,8 @@ func GetSchemaTenantConn(in any) *gorm.DB {
 	}
 	conn = commonConn.WithContext(ctx)
 	if val := ctx.Value(dbCtxTenantCodeKey); val != nil {
-		tk := cast.ToString(val)
-		c, ok := schemaMap.Load(tk)
-		var cc *gorm.DB
-		if !ok {
-			var err error
-			cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, PrepareStmt: true, Logger: NewLog(logger.Warn),
-				NamingStrategy: schema.NamingStrategy{SingularTable: true, TablePrefix: cast.ToString(val) + "."}}
-			cc, err = gorm.Open(conn.Dialector, &cfg)
-			if err != nil {
-				conn.Error = errors.System.AddDetail("创建数据库连接失败").AddDetail(err)
-				return conn
-			}
-			schemaMap.Store(tk, cc)
-		} else {
-			cc = c.(*gorm.DB)
-		}
-		if val := ctx.Value(dbCtxDebugKey); val != nil && cast.ToBool(val) == false {
-			return cc
-		}
-		return cc.Debug()
+		conn.Config.NamingStrategy = schema.NamingStrategy{SingularTable: true, TablePrefix: cast.ToString(ctx.Value(dbCtxTenantCodeKey)) + "."}
+		return conn.Debug()
 	} else {
 		conn.Error = errors.Permissions.AddDetail("没有传入租户号")
 		return conn

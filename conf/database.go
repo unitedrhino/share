@@ -10,8 +10,10 @@ const (
 type Database struct {
 	DBType string `json:",default=mysql,env=dbType,options=mysql|pgsql|sqlite"` //
 	//IsInitTable bool   `json:",default=false"`
-	IsInitTable bool   `json:",env=dbIsInitTable,default=true"`
-	DSN         string `json:",env=dbDSN"` //dsn
+	IsInitTable  bool   `json:",env=dbIsInitTable,default=false"`
+	DSN          string `json:",env=dbDSN"` //dsn
+	MaxIdleConns int    `json:",default=10"`
+	MaxOpenConns int    `json:",default=20"`
 }
 
 // 时序数据库（Time Series Database）
