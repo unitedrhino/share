@@ -88,7 +88,7 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 		NamingStrategy: schema.NamingStrategy{SingularTable: true}}
 	switch database.DBType {
 	case conf.Pgsql:
-		conn, err = gorm.Open(postgres.Open(database.DSN), &cfg)
+		conn, err = gorm.Open(postgres.New(postgres.Config{DSN: database.DSN, PreferSimpleProtocol: true}), &cfg)
 	case conf.Sqlite:
 		conn, err = gorm.Open(sqlite.Open(database.DSN), &cfg)
 	default:
@@ -207,7 +207,8 @@ func SchemaTableAutoMigrate(ctx context.Context, schemas []string, dst ...interf
 	taskPool := make(chan struct{}, 20)
 	var wg sync.WaitGroup
 	var startTime = time.Now()
-	for _, v := range schemas {
+	for _, schema := range schemas {
+		v := schema
 		wg.Add(1)
 		taskPool <- struct{}{}
 		go func(schema string) {
@@ -218,7 +219,7 @@ func SchemaTableAutoMigrate(ctx context.Context, schemas []string, dst ...interf
 			db := GetSchemaTenantConn(SetTenantCode(ctx, schema))
 			err := db.AutoMigrate(dst...)
 			if err != nil {
-				logx.WithContext(ctx).Error("SchemaTableAutoMigrate err:%v", err)
+				logx.WithContext(ctx).Errorf("SchemaTableAutoMigrate err:%v", err)
 			} else {
 				logx.WithContext(ctx).Infof("SchemaTableAutoMigrate finish schema:%v", schema)
 			}
@@ -228,6 +229,9 @@ func SchemaTableAutoMigrate(ctx context.Context, schemas []string, dst ...interf
 	logx.WithContext(ctx).Infof("SchemaTableAutoMigrate all finish use time:%v", time.Since(startTime))
 	return nil
 }
+
+var schemaMap sync.Map
+
 func GetSchemaTenantConn(in any) *gorm.DB {
 	ctx, conn := validateAndGetContext(in, commonConn)
 	if conn != nil {
@@ -235,8 +239,28 @@ func GetSchemaTenantConn(in any) *gorm.DB {
 	}
 	conn = commonConn.WithContext(ctx)
 	if val := ctx.Value(dbCtxTenantCodeKey); val != nil {
-		conn.Config.NamingStrategy = schema.NamingStrategy{SingularTable: true, TablePrefix: cast.ToString(ctx.Value(dbCtxTenantCodeKey)) + "."}
-		return conn.Debug()
+		tk := cast.ToString(val)
+		c, ok := schemaMap.Load(tk)
+		var cc *gorm.DB
+		if !ok {
+			var err error
+			cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, DisableAutomaticPing: true, PrepareStmt: true, Logger: conn.Logger,
+				NamingStrategy: schema.NamingStrategy{SingularTable: true, TablePrefix: cast.ToString(val) + "."}, ConnPool: conn.ConnPool}
+			cc, err = gorm.Open(conn.Dialector, &cfg)
+			if err != nil {
+				conn.Error = errors.System.AddDetail("创建数据库连接失败").AddDetail(err)
+				return conn
+			}
+			cc.Statement = conn.Statement
+			cc.ConnPool = conn.ConnPool
+			schemaMap.Store(tk, cc)
+		} else {
+			cc = c.(*gorm.DB).WithContext(ctx)
+		}
+		if val := ctx.Value(dbCtxDebugKey); val != nil && cast.ToBool(val) == false {
+			return cc
+		}
+		return cc.Debug()
 	} else {
 		conn.Error = errors.Permissions.AddDetail("没有传入租户号")
 		return conn
