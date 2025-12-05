@@ -3,11 +3,13 @@ package utils
 import (
 	"database/sql"
 	"encoding/base64"
+	"time"
+
 	"gitee.com/unitedrhino/share/errors"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/jinzhu/copier"
 	"github.com/spf13/cast"
-	"time"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 var converters []copier.TypeConverter
@@ -15,6 +17,8 @@ var converters []copier.TypeConverter
 type (
 	TypeConverter = copier.TypeConverter
 )
+
+var TimeStampUseMillisecond bool
 
 func init() {
 	var (
@@ -110,12 +114,18 @@ func init() {
 			if t.IsZero() {
 				return int64(0), nil
 			}
+			if TimeStampUseMillisecond {
+				return t.UnixMilli(), nil
+			}
 			return t.Unix(), nil
 		}},
 		copier.TypeConverter{SrcType: time2, DstType: int2, Fn: func(src interface{}) (dst interface{}, err error) {
 			t := src.(*time.Time)
 			if t == nil {
 				return int64(0), nil
+			}
+			if TimeStampUseMillisecond {
+				return t.UnixMilli(), nil
 			}
 			return t.Unix(), nil
 		}},
@@ -124,6 +134,9 @@ func init() {
 			if t.Valid == false {
 				return int64(0), nil
 			}
+			if TimeStampUseMillisecond {
+				return t.Time.UnixMilli(), nil
+			}
 			return t.Time.Unix(), nil
 		}},
 		copier.TypeConverter{SrcType: int2, DstType: time1, Fn: func(src interface{}) (dst interface{}, err error) {
@@ -131,18 +144,46 @@ func init() {
 			if in == 0 {
 				return time.Time{}, nil
 			}
+			if TimeStampUseMillisecond {
+				return time.UnixMilli(in), nil
+			}
 			return time.Unix(in, 0), nil
 		}},
 		copier.TypeConverter{SrcType: int2, DstType: time2, Fn: func(src interface{}) (dst interface{}, err error) {
+			if TimeStampUseMillisecond {
+				return time.UnixMilli(src.(int64)), nil
+			}
 			return Int64ToTimex(src.(int64)), nil
 		}},
 		copier.TypeConverter{SrcType: int1, DstType: time3, Fn: func(src interface{}) (dst interface{}, err error) {
+			in := src.(*wrappers.Int64Value)
+			if in == nil || in.Value == 0 {
+				return sql.NullTime{}, nil
+			}
+			if TimeStampUseMillisecond {
+				return sql.NullTime{Valid: true, Time: time.UnixMilli(in.GetValue())}, nil
+			}
 			return ToNullTime2(src.(*wrappers.Int64Value)), nil
 		}},
 		copier.TypeConverter{SrcType: time3, DstType: int1, Fn: func(src interface{}) (dst interface{}, err error) {
+			in := src.(*sql.NullTime)
+			if !in.Valid {
+				return nil, nil
+			}
+			if TimeStampUseMillisecond {
+				return &wrapperspb.Int64Value{Value: in.Time.UnixMilli()}, nil
+			}
 			return TimeToNullInt(src.(sql.NullTime)), nil
 		}},
 		copier.TypeConverter{SrcType: int2, DstType: time3, Fn: func(src interface{}) (dst interface{}, err error) {
+			in := src.(int64)
+			if in == 0 {
+				return sql.NullTime{}, nil
+			}
+			if TimeStampUseMillisecond {
+				ret := time.UnixMilli(in)
+				return sql.NullTime{Valid: true, Time: ret}, nil
+			}
 			return Int64ToSqlTime(src.(int64)), nil
 		}})
 
