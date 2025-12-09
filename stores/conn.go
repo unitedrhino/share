@@ -84,7 +84,7 @@ func InitTsConn(database conf.TSDB) {
 
 func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 	rlDBType = database.DBType
-	cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, PrepareStmt: true, Logger: NewLog(logger.Warn),
+	cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, PrepareStmt: false, Logger: NewLog(logger.Warn),
 		NamingStrategy: schema.NamingStrategy{SingularTable: true}}
 	switch database.DBType {
 	case conf.Pgsql:
@@ -244,7 +244,7 @@ func GetSchemaTenantConn(in any) *gorm.DB {
 		var cc *gorm.DB
 		if !ok {
 			var err error
-			cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, DisableAutomaticPing: true, PrepareStmt: true, Logger: conn.Logger,
+			cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, DisableAutomaticPing: true, PrepareStmt: false, Logger: conn.Logger,
 				NamingStrategy: schema.NamingStrategy{SingularTable: true, TablePrefix: cast.ToString(val) + "."}, ConnPool: conn.ConnPool}
 			cc, err = gorm.Open(conn.Dialector, &cfg)
 			if err != nil {
