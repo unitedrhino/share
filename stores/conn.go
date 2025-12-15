@@ -48,6 +48,7 @@ func InitConn(database conf.Database) {
 			logx.Errorf("InitConn 失败 cfg:%v  err:%v", utils.Fmt(database), err)
 			os.Exit(-1)
 		}
+		rlDBType = database.DBType
 		// 验证连接是否可用
 		if sqlDB, err := commonConn.DB(); err == nil {
 			if err := sqlDB.Ping(); err != nil {
@@ -83,7 +84,6 @@ func InitTsConn(database conf.TSDB) {
 }
 
 func GetConn(database conf.Database) (conn *gorm.DB, err error) {
-	rlDBType = database.DBType
 	cfg := gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, PrepareStmt: false, Logger: NewLog(logger.Warn),
 		NamingStrategy: schema.NamingStrategy{SingularTable: true}}
 	switch database.DBType {
