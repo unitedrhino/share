@@ -22,11 +22,6 @@ func (a *AfterFunc) AddTxFunc(f func(tx *stores.DB) error) {
 }
 
 func (a *AfterFunc) Handle(ctx context.Context, handle func(tx *stores.DB) error) error {
-	if a == nil || (len(a.txFuncs) == 0 && len(a.funcs) == 0) {
-		return stores.GetTenantConn(ctx).Transaction(func(tx *stores.DB) error {
-			return handle(tx)
-		})
-	}
 	err := stores.GetTenantConn(ctx).Transaction(func(tx *stores.DB) error {
 		err := handle(tx)
 		if err != nil {
