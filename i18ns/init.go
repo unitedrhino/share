@@ -18,13 +18,13 @@ import (
 
 func init() {
 	l, ok := os.LookupEnv("SYS_OS_LANG")
-	if ok {
-		tags, _, err := language.ParseAcceptLanguage(l)
-		logx.Must(err)
-		bundle = i18n.NewBundle(tags[0])
-		return
+	if !ok {
+		l = "zh_CN"
 	}
-	bundle = i18n.NewBundle(language.SimplifiedChinese)
+	tags, _, err := language.ParseAcceptLanguage(l)
+	logx.Must(err)
+	bundle = i18n.NewBundle(tags[0])
+
 }
 
 var bundle *i18n.Bundle
