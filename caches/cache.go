@@ -17,10 +17,16 @@ import (
 	"github.com/zeromicro/go-zero/core/syncx"
 )
 
+type FastFunc = func(ctx context.Context, t time.Time, body []byte) error
+type Event interface {
+	Subscribe(topic string, f FastFunc) error
+	Publish(ctx context.Context, topic string, arg any) error
+}
+
 type Cache[dataT any, keyType comparable] struct {
 	keyType    string
 	cache      otter.Cache[string, *dataT]
-	fastEvent  *eventBus.FastEvent
+	fastEvent  Event
 	getData    func(ctx context.Context, key keyType) (*dataT, error)
 	notifySlot []func(ctx context.Context, key []byte)
 	fmt        func(ctx context.Context, key keyType, data *dataT) *dataT
@@ -30,7 +36,7 @@ type Cache[dataT any, keyType comparable] struct {
 
 type CacheConfig[dataT any, keyType comparable] struct {
 	KeyType    string
-	FastEvent  *eventBus.FastEvent
+	FastEvent  Event
 	Fmt        func(ctx context.Context, key keyType, data *dataT) *dataT
 	GetData    func(ctx context.Context, key keyType) (*dataT, error)
 	ExpireTime time.Duration
@@ -136,7 +142,6 @@ func (c *Cache[dataT, keyType]) SetData(ctx context.Context, key keyType, data *
 			logx.WithContext(ctx).Error(err)
 		}
 	}
-
 	return nil
 }
 
@@ -145,7 +150,7 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 	cacheKey := c.GenCacheKey(key)
 	keyStr := GenKeyStr(key)
 	temp, ok := c.cache.Get(keyStr)
-	if ok {
+	if ok && false {
 		if temp == nil {
 			return nil, errors.NotFind
 		}
@@ -158,7 +163,7 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 			if err != nil {
 				return nil, err
 			}
-			if len(val) > 0 {
+			if len(val) > 0 && false {
 				var ret dataT
 				err = json.Unmarshal([]byte(val), &ret)
 				if err != nil {
