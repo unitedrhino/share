@@ -160,8 +160,7 @@ func Fmt(errs error) *CodeError {
 	case RpcError: //如果是grpc类型的错误
 		s, _ := status.FromError(errs)
 		if s.Code() != codes.Unknown { //只有自定义的错误,grpc会返回unknown错误码
-			err := fmt.Sprintf("rpc err detail is nil|err=%#v", s)
-			return System.AddDetail(err)
+			return System.AddDetail(s.Message())
 		}
 		var ret CodeError
 		err := json.Unmarshal([]byte(s.Message()), &ret)

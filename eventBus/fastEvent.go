@@ -33,7 +33,7 @@ type handleInfo struct {
 	Sub    subscription
 }
 
-type FastFunc func(ctx context.Context, t time.Time, body []byte) error
+type FastFunc = func(ctx context.Context, t time.Time, body []byte) error
 
 var (
 	fastEvent *FastEvent
