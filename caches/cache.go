@@ -150,7 +150,7 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 	cacheKey := c.GenCacheKey(key)
 	keyStr := GenKeyStr(key)
 	temp, ok := c.cache.Get(keyStr)
-	if ok && false {
+	if ok {
 		if temp == nil {
 			return nil, errors.NotFind
 		}
@@ -163,7 +163,7 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 			if err != nil {
 				return nil, err
 			}
-			if len(val) > 0 && false {
+			if len(val) > 0 {
 				var ret dataT
 				err = json.Unmarshal([]byte(val), &ret)
 				if err != nil {
