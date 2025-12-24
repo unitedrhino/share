@@ -88,7 +88,7 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 		NamingStrategy: schema.NamingStrategy{SingularTable: true}}
 	switch database.DBType {
 	case conf.Pgsql:
-		conn, err = gorm.Open(postgres.New(postgres.Config{DSN: database.DSN, PreferSimpleProtocol: true}), &cfg)
+		conn, err = gorm.Open(postgres.New(postgres.Config{DSN: database.DSN}), &cfg)
 	case conf.Sqlite:
 		conn, err = gorm.Open(sqlite.Open(database.DSN), &cfg)
 	default:
