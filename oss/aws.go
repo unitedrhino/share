@@ -9,11 +9,10 @@ import (
 	"time"
 
 	"gitee.com/unitedrhino/share/utils"
-	"github.com/alibabacloud-go/tea/tea"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/oss/common"
@@ -22,7 +21,7 @@ import (
 type Aws struct {
 	setting           conf.OssConf
 	currentBucketName string
-	cli               *s3.S3
+	cli               *s3.Client
 }
 
 func (m *Aws) IsFilePath(filePath string) bool {
@@ -34,16 +33,24 @@ func (m *Aws) IsFileUrl(url string) bool {
 }
 
 func newAws(conf conf.AwsConf) (*Aws, error) {
-	sess, err := session.NewSession(&aws.Config{
-		Credentials:      credentials.NewStaticCredentials(conf.AccessKeyID, conf.AccessKeySecret, ""),
-		Endpoint:         &conf.Location,
-		Region:           &conf.Region,
-		S3ForcePathStyle: aws.Bool(true),
-	})
+	creds := credentials.NewStaticCredentialsProvider(conf.AccessKeyID, conf.AccessKeySecret, "")
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithCredentialsProvider(creds),
+		config.WithRegion(conf.Region),
+		config.WithEndpointResolver(aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
+			return aws.Endpoint{
+				URL:               conf.Location,
+				HostnameImmutable: true,
+				SigningRegion:     conf.Region,
+			}, nil
+		})),
+	)
 	if err != nil {
 		return nil, err
 	}
-	svc := s3.New(sess)
+	svc := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.UsePathStyle = true
+	})
 	return &Aws{
 		setting: conf.OssConf,
 		cli:     svc,
@@ -69,27 +76,40 @@ func (m *Aws) Bucket(name string) Handle {
 
 // 获取put上传url
 func (m *Aws) SignedPutUrl(ctx context.Context, filePath string, expiredSec int64, opKv common.OptionKv) (string, error) {
-	req, _ := m.cli.PutObjectRequest(&s3.PutObjectInput{
-		Bucket: &m.currentBucketName,
-		Key:    &filePath,
+	presignClient := s3.NewPresignClient(m.cli)
+	resp, err := presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(m.currentBucketName),
+		Key:    aws.String(filePath),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(expiredSec) * time.Second
 	})
-	url, err := req.Presign(time.Duration(expiredSec) * time.Second)
 	if err != nil {
 		return "", err
 	}
-	return url, nil
+	return resp.URL, nil
 }
 
 // 获取get下载url
 func (m *Aws) SignedGetUrl(ctx context.Context, filePath string, expiredSec int64, opKv common.OptionKv) (string, error) {
-	req, _ := m.cli.GetObjectRequest(&s3.GetObjectInput{Key: &filePath, Bucket: &m.currentBucketName})
-	url, err := req.Presign(time.Duration(expiredSec) * time.Second)
-	return url, err
+	presignClient := s3.NewPresignClient(m.cli)
+	resp, err := presignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(m.currentBucketName),
+		Key:    aws.String(filePath),
+	}, func(opts *s3.PresignOptions) {
+		opts.Expires = time.Duration(expiredSec) * time.Second
+	})
+	if err != nil {
+		return "", err
+	}
+	return resp.URL, nil
 }
 
 // 删除
 func (m *Aws) Delete(ctx context.Context, filePath string, opKv common.OptionKv) error {
-	_, err := m.cli.DeleteObject(&s3.DeleteObjectInput{Key: &filePath, Bucket: &m.currentBucketName})
+	_, err := m.cli.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Key:    aws.String(filePath),
+		Bucket: aws.String(m.currentBucketName),
+	})
 	return err
 }
 
@@ -98,19 +118,23 @@ func (m *Aws) Upload(ctx context.Context, filePath string, reader io.Reader, opK
 	if err != nil {
 		return "", err
 	}
-	_, err = m.cli.PutObject(&s3.PutObjectInput{
+	_, err = m.cli.PutObject(ctx, &s3.PutObjectInput{
 		Body:   r,
-		Bucket: &m.currentBucketName,
-		Key:    &filePath,
+		Bucket: aws.String(m.currentBucketName),
+		Key:    aws.String(filePath),
 	})
 	return m.SignedGetUrl(ctx, filePath, 1000, opKv)
 }
 
 func (m *Aws) GetObjectLocal(ctx context.Context, filePath string, localPath string) error {
-	obj, err := m.cli.GetObjectWithContext(ctx, &s3.GetObjectInput{Key: &filePath, Bucket: &m.currentBucketName})
+	obj, err := m.cli.GetObject(ctx, &s3.GetObjectInput{
+		Key:    aws.String(filePath),
+		Bucket: aws.String(m.currentBucketName),
+	})
 	if err != nil {
 		return err
 	}
+	defer obj.Body.Close()
 	f, err := os.Create(localPath)
 	if err != nil {
 		return err
@@ -121,13 +145,14 @@ func (m *Aws) GetObjectLocal(ctx context.Context, filePath string, localPath str
 }
 
 func (m *Aws) GetObjectInfo(ctx context.Context, filePath string) (*common.StorageObjectInfo, error) {
-	obj, err := m.cli.GetObjectWithContext(ctx, &s3.GetObjectInput{
-		Bucket: &m.currentBucketName,
-		Key:    &filePath,
+	obj, err := m.cli.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(m.currentBucketName),
+		Key:    aws.String(filePath),
 	})
 	if err != nil {
 		return nil, err
 	}
+	defer obj.Body.Close()
 	return &common.StorageObjectInfo{
 		FilePath: filePath,
 		Size:     *obj.ContentLength,
@@ -136,9 +161,9 @@ func (m *Aws) GetObjectInfo(ctx context.Context, filePath string) (*common.Stora
 }
 
 func (m *Aws) ListObjects(ctx context.Context, prefix string) (ret []*common.StorageObjectInfo, err error) {
-	objs, err := m.cli.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
-		Bucket: &m.currentBucketName,
-		Prefix: tea.String(prefix),
+	objs, err := m.cli.ListObjectsV2(ctx, &s3.ListObjectsV2Input{
+		Bucket: aws.String(m.currentBucketName),
+		Prefix: aws.String(prefix),
 	})
 	if err != nil {
 		return nil, err
@@ -154,10 +179,10 @@ func (m *Aws) ListObjects(ctx context.Context, prefix string) (ret []*common.Sto
 }
 
 func (m *Aws) CopyFromTempBucket(tempPath, dstPath string) (string, error) {
-	_, err := m.cli.CopyObject(&s3.CopyObjectInput{
-		Bucket:     &m.currentBucketName,
+	_, err := m.cli.CopyObject(context.TODO(), &s3.CopyObjectInput{
+		Bucket:     aws.String(m.currentBucketName),
 		CopySource: aws.String(fmt.Sprintf("%s/%s", m.setting.TemporaryBucketName, url.PathEscape(tempPath))),
-		Key:        &dstPath,
+		Key:        aws.String(dstPath),
 	})
 	return dstPath, err
 }

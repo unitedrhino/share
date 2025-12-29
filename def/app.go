@@ -36,10 +36,10 @@ const (
 type AppSubType = string
 
 const (
-	AppSubTypeWx   = "wx"
-	AppSubTypeWxE  = "wxE" //企业微信
-	AppSubTypeDing = "ding"
-
+	AppSubTypeWx      = "wx"
+	AppSubTypeWxE     = "wxE" //企业微信
+	AppSubTypeDing    = "ding"
+	AppSubTypeHuawei  = "huawei"
 	AppSubTypeAndroid = "android"
 	AppSubTypeIos     = "ios"
 )
