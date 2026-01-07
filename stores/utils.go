@@ -90,10 +90,11 @@ func SetValue[valT any](stmt *gorm.Statement, fieldName string, v valT) {
 }
 
 // 待完善,pg批量导入之后序列未更新
-func CreateInBatches(db *DB, value interface{}, batchSize int) error {
+func CreateInBatches(db *DB, value any, batchSize int) error {
+	db = db.Session(&gorm.Session{})//如果不加,pg会报错,模型不更新
 	db = db.CreateInBatches(value, batchSize)
 	if db.Error != nil {
-		//return db.Error
+		return db.Error
 	}
 	if rlDBType == conf.Pgsql {
 		s, err := schema.Parse(value, &columnCache, db.NamingStrategy)
