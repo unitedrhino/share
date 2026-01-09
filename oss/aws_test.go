@@ -1,15 +1,17 @@
 package oss
 
 import (
+	"os"
 	"testing"
 	"time"
 )
 
 var (
-	bucket    = "tier0-upload-temp"
-	key       = "1.jpg"
-	accessKey = "REDACTED"
-	secretKey = "REDACTED"
+	bucket   = "tier0-upload-temp"
+	key      = "1.jpg"
+	// 从环境变量读取凭据，避免硬编码敏感信息
+	accessKey = os.Getenv("AWS_ACCESS_KEY_ID")
+	secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
 	endpoint  = "s3.ap-southeast-1.amazonaws.com"
 	region    = "ap-southeast-1"
 
