@@ -11,8 +11,8 @@ import (
 )
 
 type Time struct {
-	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
-	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
+	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;autoCreateTime"`
+	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime"`
 	CreatedBy   CreatedBy `gorm:"column:created_by"`
 	UpdatedBy   UpdatedBy `gorm:"column:updated_by"`
 }
@@ -23,17 +23,17 @@ type OnlyTime struct {
 }
 
 type NoDelTime struct {
-	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
-	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
+	CreatedTime time.Time `gorm:"column:created_time;index;sort:desc;autoCreateTime"`
+	UpdatedTime time.Time `gorm:"column:updated_time;autoUpdateTime"`
 	CreatedBy   CreatedBy `gorm:"column:created_by"`
 	DeletedBy   DeletedBy `gorm:"column:deleted_by"`
 	UpdatedBy   UpdatedBy `gorm:"column:updated_by"`
 }
 
 type SoftTime struct {
-	CreatedTime time.Time   `gorm:"column:created_time;index;sort:desc;default:CURRENT_TIMESTAMP;NOT NULL"`
+	CreatedTime time.Time   `gorm:"column:created_time;index;sort:desc;autoCreateTime"`
 	CreatedBy   CreatedBy   `gorm:"column:created_by"`
-	UpdatedTime time.Time   `gorm:"column:updated_time;autoUpdateTime;default:CURRENT_TIMESTAMP;NOT NULL"`
+	UpdatedTime time.Time   `gorm:"column:updated_time;autoUpdateTime"`
 	UpdatedBy   UpdatedBy   `gorm:"column:updated_by"`
 	DeletedTime DeletedTime `gorm:"column:deleted_time;index;default:0"`
 	DeletedBy   DeletedBy   `gorm:"column:deleted_by"`
