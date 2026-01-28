@@ -192,10 +192,7 @@ func (m *Aws) GetUrl(path string, withHost bool) (string, error) {
 	if path[0] == '/' {
 		path = path[1:]
 	}
-	if withHost {
-		return m.setting.CustomHost + "/" + m.currentBucketName + "/" + path, nil
-	}
-	return m.setting.CustomPath + "/" + m.currentBucketName + "/" + path, nil
+	return "https://"+m.setting.Location + "/" + m.currentBucketName + "/" + path, nil
 }
 
 func (m *Aws) FileUrlToFilePath(url string) (bucket string, filePath string) {
