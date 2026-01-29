@@ -191,8 +191,8 @@ func (m *Aws) CopyFromTempBucket(tempPath, dstPath string) (string, error) {
 func (m *Aws) GetUrl(path string, withHost bool) (string, error) {
 	if path[0] == '/' {
 		path = path[1:]
-	}
-	return "https://"+m.setting.Location + "/" + m.currentBucketName + "/" + path, nil
+	} //示例: https://tier0-upload-pub.s3.ap-southeast-1.amazonaws.com/screenshot-20251202-231438.png
+	return "https://" + m.currentBucketName + "." + m.setting.Location + "/" + path, nil
 }
 
 func (m *Aws) FileUrlToFilePath(url string) (bucket string, filePath string) {
