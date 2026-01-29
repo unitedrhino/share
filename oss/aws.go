@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"gitee.com/unitedrhino/share/utils"
@@ -34,22 +35,20 @@ func (m *Aws) IsFileUrl(url string) bool {
 
 func newAws(conf conf.AwsConf) (*Aws, error) {
 	creds := credentials.NewStaticCredentialsProvider(conf.AccessKeyID, conf.AccessKeySecret, "")
+	endpointURL := conf.Location
+	if !strings.HasPrefix(endpointURL, "http://") && !strings.HasPrefix(endpointURL, "https://") {
+		endpointURL = "https://" + endpointURL
+	}
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithCredentialsProvider(creds),
 		config.WithRegion(conf.Region),
-		config.WithEndpointResolver(aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				URL:               conf.Location,
-				HostnameImmutable: true,
-				SigningRegion:     conf.Region,
-			}, nil
-		})),
 	)
 	if err != nil {
 		return nil, err
 	}
 	svc := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = true
+		o.BaseEndpoint = aws.String(endpointURL)
 	})
 	return &Aws{
 		setting: conf.OssConf,
