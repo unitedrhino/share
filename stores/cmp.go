@@ -156,7 +156,7 @@ func CmpJsonArrayOrHas[t any](v ...t) *Cmp {
 				// 使用路径表达式检查数组中是否包含该值
 				conditions = append(conditions,
 					fmt.Sprintf("jsonb_path_exists(%s, '$[*] ? (@ == \"%s\")')",
-						column, val))
+						column, utils.ToString(val)))
 			}
 			return strings.Join(conditions, " OR ")
 		}}

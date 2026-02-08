@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -28,7 +29,7 @@ var (
 	tsConn     *gorm.DB
 	once       sync.Once
 	tsOnce     sync.Once
-	tenantConn sync.Map
+	commonDB   conf.Database
 	rlDBType   string                 //关系型数据库类型
 	tsDBType   string = conf.Tdengine //时序数据库类型
 )
@@ -43,6 +44,8 @@ func GetDBType() string {
 func InitConn(database conf.Database) {
 	var err error
 	once.Do(func() {
+		database = normalizeDatabase(database)
+		commonDB = database
 		commonConn, err = GetConn(database)
 		if err != nil {
 			logx.Errorf("InitConn 失败 cfg:%v  err:%v", utils.Fmt(database), err)
@@ -59,6 +62,9 @@ func InitConn(database conf.Database) {
 	})
 	return
 }
+
+
+
 func InitTsConn(database conf.TSDB) {
 	var err error
 	tsOnce.Do(func() {
@@ -98,17 +104,44 @@ func GetConn(database conf.Database) (conn *gorm.DB, err error) {
 		return nil, err
 	}
 	db, _ := conn.DB()
+	database = normalizeDatabase(database)
+	db.SetMaxIdleConns(database.MaxIdleConns)
+	db.SetMaxOpenConns(database.MaxOpenConns)
+	db.SetConnMaxIdleTime(time.Minute * 10)
+	db.SetConnMaxLifetime(time.Minute * 30)
+	return
+}
+
+func normalizeDatabase(database conf.Database) conf.Database {
 	if database.MaxOpenConns == 0 {
 		database.MaxOpenConns = 20
 	}
 	if database.MaxIdleConns == 0 {
 		database.MaxIdleConns = 10
 	}
-	db.SetMaxIdleConns(database.MaxIdleConns)
-	db.SetMaxOpenConns(database.MaxOpenConns)
-	db.SetConnMaxIdleTime(time.Minute * 10)
-	db.SetConnMaxLifetime(time.Minute * 30)
-	return
+	return database
+}
+
+func applyConnPool(conn *gorm.DB, database conf.Database) error {
+	sqlDB, err := conn.DB()
+	if err != nil {
+		return err
+	}
+	database = normalizeDatabase(database)
+	sqlDB.SetMaxIdleConns(database.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(database.MaxOpenConns)
+	sqlDB.SetConnMaxIdleTime(time.Minute * 10)
+	sqlDB.SetConnMaxLifetime(time.Minute * 30)
+	return nil
+}
+
+func tenantDSN(dsnTemplate, tenantCode string) string {
+	if tenantCode == "" {
+		return dsnTemplate
+	}
+	dsn := strings.ReplaceAll(dsnTemplate, "{{.tenantCode}}", tenantCode)
+	dsn = strings.ReplaceAll(dsn, "{.tenantCode}", tenantCode)
+	return dsn
 }
 
 const (
@@ -265,7 +298,6 @@ func GetSchemaTenantConn(in any) *gorm.DB {
 		conn.Error = errors.Permissions.AddDetail("没有传入租户号")
 		return conn
 	}
-
 }
 
 // 获取公共连接 传入context或db连接 如果传入的是db连接则直接返回db

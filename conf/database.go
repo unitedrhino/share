@@ -12,6 +12,7 @@ type Database struct {
 	//IsInitTable bool   `json:",default=false"`
 	IsInitTable  bool   `json:",env=dbIsInitTable,default=true"`
 	DSN          string `json:",env=dbDSN"` //dsn
+	ReadDSN      []string `json:",env=dbReadDSN,optional"` //dsn(读库) 支持多个
 	MaxIdleConns int    `json:",default=10"`
 	MaxOpenConns int    `json:",default=20"`
 }
