@@ -63,6 +63,9 @@ func (a AliYunConf) GetEndPoint() string {
 
 type AwsConf struct {
 	OssConf
+	RoleArn         string `json:",optional,env=OssRoleArn"` // 填写则启用 STS AssumeRole，如 arn:aws:iam::123456789012:role/OssRole，支持环境变量 OssRoleArn
+	RoleSessionName string `json:",default=oss-session,optional"`
+	SessionDuration int32  `json:",default=3600,optional"` // STS 临时凭证有效期（秒），最小 900，最大 43200
 }
 
 func (a AwsConf) GenClientOption() []oss.ClientOption {

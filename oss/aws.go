@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 
 	"gitee.com/unitedrhino/share/conf"
 	"gitee.com/unitedrhino/share/oss/common"
@@ -45,6 +46,30 @@ func newAws(conf conf.AwsConf) (*Aws, error) {
 	)
 	if err != nil {
 		return nil, err
+	}
+	// 若配置了 RoleArn，则使用 STS AssumeRole 获取临时凭证（ASIA 开头，自动过期）
+	if conf.RoleArn != "" {
+		stsClient := sts.NewFromConfig(cfg)
+		result, err := stsClient.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
+			RoleArn:         aws.String(conf.RoleArn),
+			RoleSessionName: aws.String(conf.RoleSessionName),
+			DurationSeconds: aws.Int32(conf.SessionDuration),
+		})
+		if err != nil {
+			return nil, err
+		}
+		tempCreds := credentials.NewStaticCredentialsProvider(
+			*result.Credentials.AccessKeyId,
+			*result.Credentials.SecretAccessKey,
+			*result.Credentials.SessionToken,
+		)
+		cfg, err = config.LoadDefaultConfig(context.TODO(),
+			config.WithCredentialsProvider(tempCreds),
+			config.WithRegion(conf.Region),
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 	svc := s3.NewFromConfig(cfg, func(o *s3.Options) {
 		o.UsePathStyle = true

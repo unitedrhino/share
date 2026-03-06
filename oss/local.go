@@ -160,7 +160,7 @@ func (m *Local) DownloadFile(ctx context.Context, filePath string, sign string, 
 		}
 	}
 	// 打开文件
-	file, err := os.Open(fmt.Sprintf(m.setting.StorePath + "/" + filePath))
+	file, err := os.Open(m.setting.StorePath + "/" + filePath)
 	if err != nil {
 		return errors.System.AddMsgf("文件不存在").AddDetail(err)
 	}
@@ -203,7 +203,7 @@ func (m *Local) DownloadFile(ctx context.Context, filePath string, sign string, 
 }
 
 func (m *Local) GetObjectLocal(ctx context.Context, filePath string, localPath string) error {
-	sourceFile, err := os.Open(fmt.Sprintf(m.setting.StorePath + "/" + m.currentBucketName + "/" + filePath))
+	sourceFile, err := os.Open(m.setting.StorePath + "/" + m.currentBucketName + "/" + filePath)
 	if err != nil {
 		return errors.System.AddMsgf("文件不存在").AddDetail(err)
 	}
@@ -237,7 +237,7 @@ func (m *Local) GetObjectLocal(ctx context.Context, filePath string, localPath s
 
 func (m *Local) GetObjectInfo(ctx context.Context, filePath string) (*common.StorageObjectInfo, error) {
 	// 打开文件
-	file, err := os.Open(fmt.Sprintf(m.setting.StorePath + "/" + m.currentBucketName + "/" + filePath))
+	file, err := os.Open(m.setting.StorePath + "/" + m.currentBucketName + "/" + filePath)
 	if err != nil {
 		return nil, errors.System.AddMsgf("文件不存在").AddDetail(err)
 	}
@@ -282,7 +282,7 @@ func (m *Local) ListObjects(ctx context.Context, prefix string) (ret []*common.S
 func (m *Local) CopyFromTempBucket(tempPath, dstPath string) (string, error) {
 	bucket := m.currentBucketName
 	err := m.TemporaryBucket().GetObjectLocal(context.Background(), tempPath,
-		fmt.Sprintf(m.setting.StorePath+"/"+bucket+"/"+dstPath))
+		m.setting.StorePath+"/"+bucket+"/"+dstPath)
 	if err != nil {
 		return "", err
 	}
