@@ -107,20 +107,27 @@ func (c *SnowFlake) MillisecondToTimeDb(ts int64) string {
 // 获取雪花ID
 // 返回值：自增id
 func (c *SnowFlake) GetSnowflakeId() (id int64) {
+	c.lock()
+	defer c.unLock()
+
 	curTime := c.getCurMilliSecond()
 	var sn int64
 
-	c.lock()
+	// 时钟回拨时，禁止回写更小的 lastTime，直接钳制到 lastTime
+	if curTime < c.lastTime {
+		curTime = c.lastTime
+	}
+
 	// 同一毫秒
 	if curTime == c.lastTime {
 		c.sn++
 		// 序列号占4位,十进制范围是[0,15]
-		if c.sn > 15 { // 调整序列号最大值
+		if c.sn > 15 {
 			for {
-				// 让出当前线程
+				// 让出当前线程，等待进入下一毫秒
 				runtime.Gosched()
 				curTime = c.getCurMilliSecond()
-				if curTime != c.lastTime {
+				if curTime > c.lastTime {
 					break
 				}
 			}
@@ -131,7 +138,6 @@ func (c *SnowFlake) GetSnowflakeId() (id int64) {
 	}
 	sn = c.sn
 	c.lastTime = curTime
-	c.unLock()
 
 	// 时间戳部分左移11位(7位机器ID+4位序列号)
 	rightBinValue := (curTime - epoch) & 0x1FFFFFFFFFF // 42位时间戳
