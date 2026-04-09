@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/dop251/goja"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -118,10 +119,15 @@ func (c *CodeError) GetMsg() string {
 	return stringMsgs(c.Msg)
 }
 
-var ErrorMap = map[int64]string{}
+var (
+	ErrorMap   = map[int64]string{}
+	errorMapMu sync.RWMutex
+)
 
 func NewCodeError(code int64, msg string) *CodeError {
+	errorMapMu.Lock()
 	ErrorMap[code] = msg
+	errorMapMu.Unlock()
 	return &CodeError{Code: code, Msg: []Msg{{Format: msg}}}
 }
 
