@@ -6,6 +6,18 @@ type DeviceUpdateInfo struct {
 	Data       any
 }
 
+type DeviceTransferInfo struct {
+	ProductID     string `json:"productID"`
+	DeviceName    string `json:"deviceName"`
+	OldTenantCode string `json:"oldTenantCode"`
+	OldProjectID  int64  `json:"oldProjectID"`
+	OldAreaID     int64  `json:"oldAreaID"`
+	NewTenantCode string `json:"newTenantCode"`
+	NewProjectID  int64  `json:"newProjectID"`
+	NewAreaID     int64  `json:"newAreaID"`
+	NewAreaIDPath string `json:"newAreaIDPath"`
+}
+
 type ChangeInfo struct {
 	ID int64
 }
