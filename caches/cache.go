@@ -161,6 +161,25 @@ func (c *Cache[dataT, keyType]) GetData(ctx context.Context, key keyType) (*data
 		{ //内存中没有就从redis上获取
 			val, err := store.GetCtx(ctx, cacheKey)
 			if err != nil {
+				logx.WithContext(ctx).Errorf("redis get fail(%v), key:%s, fallback to db", err, cacheKey)
+				if c.getData == nil {
+					return nil, err
+				}
+				// redis故障时降级读数据库
+				data, dbErr := c.getData(ctxs.WithRoot(ctx), key)
+				if dbErr == nil {
+					var newData = data
+					if c.fmt != nil {
+						newData = c.fmt(ctx, key, data)
+					}
+					c.cache.Set(keyStr, newData)
+					return newData, nil
+				}
+				if errors.Cmp(dbErr, errors.NotFind) {
+					c.cache.Set(keyStr, nil)
+					return nil, dbErr
+				}
+				logx.WithContext(ctx).Errorf("db fallback also fail: %v", dbErr)
 				return nil, err
 			}
 			if len(val) > 0 {
