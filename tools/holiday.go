@@ -29,6 +29,8 @@ type holidayDetail struct {
 	Wage    int    `json:"wage"`
 	Date    string `json:"date"`
 	Rest    int    `json:"rest"`
+	After   bool   `json:"after"`  // 是否为节后补班
+	Before  bool   `json:"before"` // 是否为节前补班
 }
 
 type holidayResp struct {
@@ -38,7 +40,7 @@ type holidayResp struct {
 
 func GetHoliday(ctx context.Context, t time.Time) (ret *HolidayInfo, err error) {
 	var year, month, day = t.Date()
-	var key = fmt.Sprintf("share:tools:holiday:%04d-%02d-%02d", year, month, day)
+	var key = fmt.Sprintf("share:tools:holiday:v2:%04d-%02d-%02d", year, month, day)
 	val, err := store.Get(key)
 	if !(err != nil || val == "") {
 		err := json.Unmarshal([]byte(val), &ret)
@@ -63,15 +65,18 @@ func GetHoliday(ctx context.Context, t time.Time) (ret *HolidayInfo, err error) 
 			holiday := HolidayWeekend
 			if v.Holiday {
 				holiday = HolidayFestival
+			} else {
+				// API 返回了非节日数据（如 name="劳动节后补班"），说明是调休补班，需要上班
+				holiday = HolidayWorkDay
 			}
-			holidayMap[fmt.Sprintf("%4d-%v", year, k)] = &HolidayInfo{
+			holidayMap[fmt.Sprintf("%04d-%v", year, k)] = &HolidayInfo{
 				Holiday: HolidayType(holiday),
 				Wage:    v.Wage,
 			}
 		}
 	}()
 	for k, v := range holidayMap {
-		var dayKey = fmt.Sprintf("share:tools:holiday:%s", k)
+		var dayKey = fmt.Sprintf("share:tools:holiday:v2:%s", k)
 		valByte, _ := json.Marshal(v)
 		store.SetexCtx(ctx, dayKey, string(valByte), 60*60*24*100) //保留100天
 		if dayKey == key {
